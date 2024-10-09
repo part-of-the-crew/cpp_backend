@@ -1,0 +1,2 @@
+{ document_id = 1, relevance = 2 }
+{ document_id = 2, relevance = 1 }

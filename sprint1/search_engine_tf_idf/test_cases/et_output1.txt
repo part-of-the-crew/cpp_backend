@@ -1,0 +1,2 @@
+{ document_id = 2, relevance = 0.462663 }
+{ document_id = 0, relevance = 0.0506831 }

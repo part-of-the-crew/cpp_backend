@@ -1,0 +1,5 @@
+{ document_id = 0, relevance = 3 }
+{ document_id = 1, relevance = 2 }
+{ document_id = 2, relevance = 2 }
+{ document_id = 5, relevance = 1 }
+{ document_id = 4, relevance = 1 }
