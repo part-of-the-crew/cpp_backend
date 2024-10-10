@@ -1,11 +1,12 @@
 #include <algorithm>
+#include <cmath>
 #include <iostream>
-#include <set>
 #include <map>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
-#include <cmath>
+
 
 using namespace std;
 
@@ -40,7 +41,6 @@ vector<string> SplitIntoWords(const string& text) {
     if (!word.empty()) {
         words.push_back(word);
     }
-
     return words;
 }
 
@@ -59,18 +59,10 @@ public:
 
     void AddDocument(int document_id, const string& document) {
         const vector<string> words = SplitIntoWordsNoStop(document);
-/*
-        map<string, double> tf;
+
         //calculating tf
-        for (auto &word : words)
-        {
-            tf[word] += 1.0/words.size();
-        }
-*/
-        //calculating tf
-        for (auto &word : words)
-        {
-            documents_[word].ids[document_id] += 1.0/words.size();;
+        for (auto &word : words){
+            documents_[word].ids[document_id] += 1.0/words.size();
         }
 
         document_count_++;
@@ -80,10 +72,12 @@ public:
         const QueryContent query_words = ParseQuery(raw_query);
         auto matched_documents = FindAllDocuments(query_words);
 
-        sort(matched_documents.begin(), matched_documents.end(),
-             [](const Document& lhs, const Document& rhs) {
-                 return lhs.relevance > rhs.relevance;
-             });
+        partial_sort(matched_documents.begin(), 
+                    matched_documents.begin() + min(matched_documents.size(), MAX_RESULT_DOCUMENT_COUNT), 
+                    matched_documents.end(),
+                    [](const Document& lhs, const Document& rhs) {
+                        return lhs.relevance > rhs.relevance;
+                    });
         if (matched_documents.size() > MAX_RESULT_DOCUMENT_COUNT) {
             matched_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
         }
@@ -91,35 +85,24 @@ public:
     }
 
     void CalculateIdf(void) {
-        for (auto &document : documents_)
-        {
+        for (auto &document : documents_){
             document.second.idf = log(document_count_ / (double)document.second.ids.size());
         }
     }
 private:
 
     struct QueryContent {
-        map<string, int> query;//value - repeatition number
+        map<string, int> query; //value - repeatition number
         set<string> minus;
     };
-    /*
-    struct WordContent {
-        string word;
-        double idf; //inverse document frequency
-    };
-    struct TtContent {
-        int id;
-        double tf; //term frequency
-    };
-    */
+
     struct StringContent {
-        double idf;
+        double idf;             //inverse document frequency
         map <int, double> ids;
-        //   id,  tf
+        //   id,  tf            //term frequency
     };
 
     map<string, StringContent> documents_;
-    //map<string, set<int>> documents_;
 
     set<string> stop_words_;
 
@@ -154,28 +137,28 @@ private:
         map<int, double> id_rev;
         //  id,  relevance
         vector<Document> matched_documents;
-        for (const auto& [word, stringContent] : documents_) {
+        for ( auto& [word, stringContent] : documents_) {
             auto it = query_words.query.find(word);
-            if (it != query_words.query.end())
-            {
-                for (const auto &id: stringContent.ids)
+            if (it != query_words.query.end()) {
+                for (const auto &id: stringContent.ids) {
                     id_rev[id.first] += id.second * stringContent.idf * it->second;
+                }
             }
         }
-        /*
-        for (const auto& [word , id_set] : documents_) {
-            if (query_words.minus.count(word))
-            {
-                for (const auto &id: id_set)
-                    id_wnumber[id] = 0;
+        
+        for ( auto& [word , stringContent] : documents_) {
+            if (query_words.minus.count(word)){
+                for (const auto &id: stringContent.ids) {
+                    id_rev[id.first] = -1.0;
+                }
             }
         }
-        */
+        
         //from id_wnumber to matched_documents
-        for ( auto const& [id, relevance]: id_rev)
-        {
-            if (relevance == 0)
+        for ( auto const& [id, relevance]: id_rev) {
+            if (relevance < 0.0) {
                 continue;
+            }
             Document document;
             document.id = id;
             document.relevance = relevance;
@@ -203,6 +186,6 @@ int main() {
     const string query = ReadLine();
     for (const auto& [document_id, relevance] : search_server.FindTopDocuments(query)) {
         cout << "{ document_id = "s << document_id << ", "
-             << "relevance = "s << relevance << " }"s << endl;
+             << "relevance = "s     << relevance   << " }"s << endl;
     }
 }
