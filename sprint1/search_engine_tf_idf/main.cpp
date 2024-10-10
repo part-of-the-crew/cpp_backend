@@ -59,12 +59,11 @@ public:
 
     void AddDocument(int document_id, const string& document) {
         const vector<string> words = SplitIntoWordsNoStop(document);
-
+        const double word_share = 1.0/words.size();
         //calculating tf
         for (auto &word : words){
-            documents_[word].ids[document_id] += 1.0/words.size();
+            documents_[word][document_id] += word_share;
         }
-
         document_count_++;
     }
 
@@ -84,11 +83,6 @@ public:
         return matched_documents;
     }
 
-    void CalculateIdf(void) {
-        for (auto &document : documents_){
-            document.second.idf = log(document_count_ / (double)document.second.ids.size());
-        }
-    }
 private:
 
     struct QueryContent {
@@ -96,13 +90,8 @@ private:
         set<string> minus;
     };
 
-    struct StringContent {
-        double idf;             //inverse document frequency
-        map <int, double> ids;
-        //   id,  tf            //term frequency
-    };
-
-    map<string, StringContent> documents_;
+    map <string, map <int, double>> documents_;
+    //                 id, tf  
 
     set<string> stop_words_;
 
@@ -140,15 +129,17 @@ private:
         for ( auto& [word, stringContent] : documents_) {
             auto it = query_words.query.find(word);
             if (it != query_words.query.end()) {
-                for (const auto &id: stringContent.ids) {
-                    id_rev[id.first] += id.second * stringContent.idf * it->second;
+                for (const auto &id: stringContent) {
+                    id_rev[id.first] += id.second * 
+                                        log(document_count_ / (double)stringContent.size()) * 
+                                        (double)it->second;
                 }
             }
         }
         
-        for ( auto& [word , stringContent] : documents_) {
+        for ( auto& [word, stringContent] : documents_) {
             if (query_words.minus.count(word)){
-                for (const auto &id: stringContent.ids) {
+                for (const auto &id: stringContent) {
                     id_rev[id.first] = -1.0;
                 }
             }
@@ -176,7 +167,6 @@ SearchServer CreateSearchServer() {
     for (int document_id = 0; document_id < document_count; ++document_id) {
         search_server.AddDocument(document_id, ReadLine());
     }
-    search_server.CalculateIdf();
     return search_server;
 }
 
