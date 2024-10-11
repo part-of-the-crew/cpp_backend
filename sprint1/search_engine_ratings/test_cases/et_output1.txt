@@ -1,0 +1,3 @@
+{ document_id = 1, relevance = 0.650672, rating = 4 }
+{ document_id = 2, relevance = 0.274653, rating = -1 }
+{ document_id = 0, relevance = 0.101366, rating = 2 }

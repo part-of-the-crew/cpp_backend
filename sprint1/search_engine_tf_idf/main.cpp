@@ -89,9 +89,8 @@ private:
         map<string, int> query; //value - repeatition number
         set<string> minus;
     };
-
+    //                id,  tf  
     map <string, map <int, double>> documents_;
-    //                 id, tf  
 
     set<string> stop_words_;
 
@@ -114,29 +113,35 @@ private:
     QueryContent ParseQuery(const string& text) const {
         QueryContent query_words;
         for (const string& word : SplitIntoWordsNoStop(text)) {
-            if (word[0] == '-')
+            if (word[0] == '-') {
                 query_words.minus.insert(word.substr(1));
-            else
+            } else {
                 query_words.query[word]++;
+            }
         }
         return query_words;
     }
 
+    double CalculateIdf (const map<int, double> &stringContent ) const {
+        return log(document_count_ / static_cast<double>(stringContent.size()));
+    }
+
     vector<Document> FindAllDocuments(const QueryContent& query_words) const {
-        map<int, double> id_rev;
         //  id,  relevance
+        map<int, double> id_rev;
         vector<Document> matched_documents;
         for ( auto& [word, stringContent] : documents_) {
             auto it = query_words.query.find(word);
             if (it != query_words.query.end()) {
                 for (const auto &id: stringContent) {
-                    id_rev[id.first] += id.second * 
-                                        log(document_count_ / (double)stringContent.size()) * 
-                                        (double)it->second;
+                    id_rev[id.first] += id.second * CalculateIdf(stringContent) *
+                                        static_cast<double>(it->second);
                 }
             }
         }
         
+
+
         for ( auto& [word, stringContent] : documents_) {
             if (query_words.minus.count(word)){
                 for (const auto &id: stringContent) {
