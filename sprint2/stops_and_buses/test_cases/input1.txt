@@ -1,1 +1,3 @@
-
+2
+NEW_BUS First_bus 2 Hel1 Hel2
+BUSES_FOR_STOP Hel1
