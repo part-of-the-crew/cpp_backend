@@ -9,10 +9,10 @@
 #include <vector>
 #include <functional>
 
-using namespace std;
-
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 const double EPSILON = 1e-6;
+
+using namespace std;
 
 string ReadLine() {
     string s;
@@ -206,8 +206,8 @@ private:
         return log(GetDocumentCount() * 1.0 / word_to_document_freqs_.at(word).size());
     }
 
-    vector<Document> FindAllDocuments(const Query& query, 
-                                     std::function<bool(int, DocumentStatus, int)> func) const {
+    template <typename Filter>
+    vector<Document> FindAllDocuments(const Query& query, Filter filter) const {
         map<int, double> document_to_relevance;
         for (const string& word : query.plus_words) {
             if (word_to_document_freqs_.count(word) == 0) {
@@ -216,7 +216,7 @@ private:
             const double inverse_document_freq = ComputeWordInverseDocumentFreq(word);
             for (const auto &[document_id, term_freq] : word_to_document_freqs_.at(word)) {
                 
-                if (func (document_id, documents_.at(document_id).status, documents_.at(document_id).rating)) {
+                if (filter (document_id, documents_.at(document_id).status, documents_.at(document_id).rating)) {
                     document_to_relevance[document_id] += term_freq * inverse_document_freq;
                 }
             }
@@ -233,8 +233,7 @@ private:
 
         vector<Document> matched_documents;
         for (const auto &[document_id, relevance] : document_to_relevance) {
-            matched_documents.push_back(
-                {document_id, relevance, documents_.at(document_id).rating});
+            matched_documents.push_back({document_id, relevance, documents_.at(document_id).rating});
         }
         return matched_documents;
     }

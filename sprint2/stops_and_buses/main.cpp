@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <utility>
 #include <string>
 #include <set>
 #include <vector>
@@ -32,10 +33,16 @@ istream& operator>>(istream& is, Query& q) {
         is >> q.bus;
         int stop_count;
         is >> stop_count;
+        /*
         q.stops.clear();
         for (int i = 0; i < stop_count; i++) {
             is >> q.stop;
             q.stops.push_back(q.stop);
+        }
+        */
+        q.stops.resize(stop_count);
+        for (auto& stop : q.stops) {
+            is >> stop;
         }
         return is;
     }
@@ -84,7 +91,7 @@ ostream& operator<<(ostream& os, const BusesForStopResponse& r) {
 struct StopsForBusResponse {
     // Наполните полями эту структуру
     //vector<string> buses_to_stops;
-    map<string, vector<string>> stops_to_buses;
+    vector <pair <string, vector<string>>> stops_to_buses;
 };
 
 ostream& operator<<(ostream& os, const StopsForBusResponse& r) {
@@ -100,7 +107,6 @@ ostream& operator<<(ostream& os, const StopsForBusResponse& r) {
         }
         is_first = false;
         os << "Stop "s << stop << ":"s;
-        //os << stop << "x"s << buses.size() << endl;
         if (buses.size() == 0) {
             os << " no interchange"s;
         } else {
@@ -115,14 +121,14 @@ ostream& operator<<(ostream& os, const StopsForBusResponse& r) {
 // Структура выдачи описания всех автобусов.
 struct AllBusesResponse {
     // Наполните полями эту структуру
-    map<string, set<string>> buses_to_stops;
+    map<string, vector<string>> buses_to_stops;
 };
 
 ostream& operator<<(ostream& os, const AllBusesResponse& r) {
     // Реализуйте эту функцию
     bool is_first = true;
     if (r.buses_to_stops.empty()) {
-        os << "No buses"s << endl;
+        os << "No buses"s;
     } else {
         for (const auto& bus_item : r.buses_to_stops) {
             if (!is_first) {
@@ -142,10 +148,9 @@ class BusManager {
 public:
     void AddBus(const string& bus, const vector<string>& stops) {
         // Реализуйте этот метод
-        //vector<string>& stopsR = buses_to_stops[bus];
         for (const string& stop : stops) {
-            buses_to_stops[bus].insert(stop);
-            stops_to_buses[stop].insert(bus);
+            buses_to_stops[bus].push_back(stop);
+            stops_to_buses[stop].push_back(bus);
             //cout << "x" << bus << buses_to_stops.size() << stop << stops_to_buses.size() << endl;
         }   
     }
@@ -181,11 +186,12 @@ public:
         for (const string& stop : it->second) {
             auto it1 = stops_to_buses.find(stop);
             if (it1 != stops_to_buses.end()) {
+                response.stops_to_buses.push_back({stop, {}});
                 for (const string& other_bus : it1->second) {
                     //cout << "_" << stop << other_bus << bus << endl;
-                    auto &other = response.stops_to_buses[stop];
+                    auto &other = response.stops_to_buses;
                     if (bus != other_bus) {
-                        other.push_back(other_bus);
+                        other.back().second.push_back(other_bus);
                     }
                 }
             }
@@ -200,8 +206,8 @@ public:
         return response;
     }
 private:
-    map<string, set<string>> stops_to_buses;
-    map<string, set<string>> buses_to_stops;
+    map<string, vector<string>> stops_to_buses;
+    map<string, vector<string>> buses_to_stops;
 };
 
 // Реализуйте функции и классы, объявленные выше, чтобы эта функция main

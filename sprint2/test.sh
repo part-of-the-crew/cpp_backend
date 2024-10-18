@@ -10,7 +10,7 @@ for (( i=1; i<=${count}; i++ ))
 do
    echo "Test$i..."
    ./executable < ./test_cases/input$i.txt > ./test_cases/output$i.txt
-   diff -Bb --strip-trailing-cr -U 3 ./test_cases/et_output$i.txt ./test_cases/output$i.txt
+   diff -BbU 3 ./test_cases/et_output$i.txt ./test_cases/output$i.txt
    if [ $? -eq 0 ]; then
        printf ${GREEN}___PASS!___${NC}
    else
