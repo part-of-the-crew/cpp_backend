@@ -1,0 +1,9 @@
+8
+NEW_BUS First_bus 2 Hel1 Hel2
+NEW_BUS Second_bus 2 Hel1 Hel4
+STOPS_FOR_BUS First_bus
+STOPS_FOR_BUS Third_bus
+BUSES_FOR_STOP Hel1
+BUSES_FOR_STOP Hel3
+ALL_BUSES
+ALL_BUSES

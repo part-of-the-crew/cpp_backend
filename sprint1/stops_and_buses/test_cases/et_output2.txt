@@ -1,0 +1,9 @@
+Stop Hel1: Second_bus
+Stop Hel2: no interchange
+No bus
+First_bus Second_bus
+No stop
+Bus First_bus: Hel1 Hel2
+Bus Second_bus: Hel1 Hel4
+Bus First_bus: Hel1 Hel2
+Bus Second_bus: Hel1 Hel4
