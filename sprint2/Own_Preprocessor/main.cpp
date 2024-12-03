@@ -51,48 +51,65 @@ void MatchFirst(const std::string& text, ifstream& in, ofstream& out, const vect
     }
 }
 
-path FindInInclude(const path& in_file, const vector<path>& include_dir){
+path FindPath(const path& in_file, const vector<path>& include_dir){
     for (const auto &path: include_dir) {
-        cout << "Processing in include_dir" << path << "..." << in_file << endl;
+        cerr << "Processing in include_dir" << path << "..." << in_file << endl;
         if (std::filesystem::exists(path / in_file)) {
-            std::cout << "The file exists.\n";
+            std::cerr << "The file" << in_file << " exists. " << "in path " << path << "\n";
             return path;
-        } else {
-            std::cout << "The file does not exist.\n";
-            return {};
         }
     }
+    std::cerr << "The file" << in_file << " not exists.\n";
+    return {};
 }
 
-bool FindNext(const path& in_file, string& dst, const vector<path>& include_dir) {
+bool FindNext(const path& in_file, string& dst, const vector<path>& include_dir, const path& cur_path) {
     static const regex pattern1(R"/(\s*#\s*include\s*"([^"]*)"\s*)/");
     static const regex pattern2(R"/(\s*#\s*include\s*<([^>]*)>\s*)/");
     smatch match; // To store regex match results
+    bool result = false;
     string line;
     int line_number = 0;
     ifstream in;
-    in.open(in_file, ios::in);
-    if (in.is_open()) {
-        while (getline(in, line)) {
-            line_number++;
-            if (std::regex_match(line, match, pattern1)) { // Match #include "filename"
-                path include_file = static_cast<path>(match[1]); // Capture the file name
-                cout << " capturing " << include_file << " " << line_number << endl;
-                FindNext(in_file.parent_path() / include_file, dst, include_dir);
-                dst += '\n';
-            } else if (std::regex_match(line, match, pattern2)) { // Match #include "filename"
-                path include_file = static_cast<path>(match[1]); // Capture the file name
-                cout << " capturing " << include_file << " " << line_number << endl;
-                FindNext(in_file.parent_path() / include_file, dst, include_dir);
-                dst += '\n';
-            } else {
-                dst += line + '\n'; // Copy other lines as-is
-                cout << " processing " << line_number << endl;
-            }
+    path incl_path = cur_path;
+
+    in.open(cur_path / in_file, ios::in);
+    if (!in.is_open()) {
+        cerr << "File " << in_file << " cannot be located in cur " << cur_path << endl;
+        incl_path = FindPath(in_file, include_dir);
+        if (incl_path.empty()) {
+            cerr << "File " << in_file.filename() << " not found in include_dir" << endl;
+            //cout << "unknown include file " << in_file
+            //     << " at file <имя файла, где директива> at line <номер строки, где директива>
+            //return false;
         }
-    } else {
-        cout << "failed open " << in_file << endl;
-        return false;
+        in.open(incl_path / in_file, ios::in);
+        if (!in.is_open()) {
+            cerr << "failed open " << incl_path << endl;
+            return false;
+        }
+        
+    }
+    while (getline(in, line)) {
+        line_number++;
+        if (std::regex_match(line, match, pattern1)) { // Match #include "filename"
+            path include_file = static_cast<path>(match[1]); // Capture the file name
+            cerr << " capturing " << include_file << "in  " << line_number << endl;
+            result = FindNext(include_file, dst, include_dir, incl_path / in_file.parent_path());
+            if (!result)
+                return false;
+            //dst += '\n';
+        } else if (std::regex_match(line, match, pattern2)) { // Match #include "filename"
+            path include_file = static_cast<path>(match[1]); // Capture the file name
+            cerr << " capturing " << include_file << " " << line_number << endl;
+            result = FindNext(include_file, dst, include_dir, incl_path / in_file.parent_path());
+            if (!result)
+                return false;
+            //dst += '\n';
+        } else {
+            dst += line + '\n'; // Copy other lines as-is
+            cerr << " processing " << line_number << endl;
+        }
     }
     return true;
 }
@@ -107,7 +124,7 @@ bool Preprocess(const path& in_file, const path& out_file, const vector<path>& i
         }
     }
     string temp;
-    bool result = FindNext(in_file, temp, include_dir);
+    bool result = FindNext(in_file.filename(), temp, include_dir, in_file.parent_path());
 
     ofstream out(out_file, ios::out);
     out << temp;
