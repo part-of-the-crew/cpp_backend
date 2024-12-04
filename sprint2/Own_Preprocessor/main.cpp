@@ -28,8 +28,8 @@ path FindPath(const path& in_file, const vector<path>& include_dir){
 }
 
 bool FindNext(const path& in_file, ofstream &out, const vector<path>& include_dir, path cur_path) {
-    static const regex pattern1(R"/(\s*#\s*include\s*"([^"]*)"\s*)/");
-    static const regex pattern2(R"/(\s*#\s*include\s*<([^>]*)>\s*)/");
+    static const regex relative(R"/(\s*#\s*include\s*"([^"]*)"\s*)/");
+    static const regex library(R"/(\s*#\s*include\s*<([^>]*)>\s*)/");
     smatch match; // To store regex match results
 
     const static size_t min_sz {"#include\"\""s.length()};
@@ -54,7 +54,7 @@ bool FindNext(const path& in_file, ofstream &out, const vector<path>& include_di
     while (getline(in, line)) {
         line_number++;
             
-        if (line.length() > min_sz && std::regex_match(line, match, pattern1)) {
+        if (line.length() > min_sz && std::regex_match(line, match, relative)) {
             path include_file = match[1].str(); // Capture the file name
             //cerr << " capturing " << include_file << "in  " << line_number << endl;
             if (!FindNext(include_file, out, include_dir, cur_path / in_file.parent_path())){
@@ -62,7 +62,7 @@ bool FindNext(const path& in_file, ofstream &out, const vector<path>& include_di
                      << cur_path.string() << "/"s << in_file.string() << " at line "s << line_number << endl;
                 return false;
             }
-        } else if (line.length() > min_sz && std::regex_match(line, match, pattern2)) {
+        } else if (line.length() > min_sz && std::regex_match(line, match, library)) {
             path include_file = match[1].str(); // Capture the file name
             //cerr << " capturing " << include_file << " " << line_number << endl;
             if (!FindNext(include_file, out, include_dir, cur_path / in_file.parent_path())) {
