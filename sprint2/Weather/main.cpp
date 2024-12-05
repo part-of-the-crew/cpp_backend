@@ -47,3 +47,27 @@ int main() {
 
     return 0;
 }
+
+* Engineered and Deployed over 10 embedded systems solutions for diesel engines,
+    generators, and reduction drives, supporting both local and international clients.
+    Utilized RTOS QNX (POSIX-compliant) and bare-metal architectures.
+
+* Architected and Co-Designed    software and hardware systems, including comprehensive
+    networking, functional distribution, data storage, and software standardization.
+
+* Developed Safety-Critical Software for bare-metal modules (STM32M4F) and
+    OS-based platforms (Intel x86, MIPS, ARM32v7), adhering to industry standards.
+
+* Implemented Functional Components, Networking Solutions, and Control Systems, 
+    including measurement algorithms, PID controllers, and digital filters, conducted
+    research how its adhering to safety and performance standards.
+
+* Designed APIs for Integration, connecting application layers with network drivers
+    and hardware to cross-functional collaboration.
+
+* Conducted Testing    through unit testing, virtual environments, and physical test
+    stands, ensuring the robustness and reliability of developed systems.
+    
+* Owned Full System Lifecycle for recent projects, from initial design through deployment,
+    and mentored team members in software best practices and project
+    ownership.
