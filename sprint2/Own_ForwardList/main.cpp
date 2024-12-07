@@ -126,8 +126,8 @@ public:
     private:
         // Разрешаем SingleLinkedList обращаться к приватной области
         friend class SingleLinkedList;
-        explicit BasicIterator(Node* node): node_(node) {};
-        
+        //explicit BasicIterator(Node* node): node_(node) {};
+        explicit BasicIterator(const Node* node): node_(const_cast<Node*>(node)) {}
     public:
         using value_type = ValueType;
         using difference_type = std::ptrdiff_t;
@@ -136,20 +136,32 @@ public:
         using iterator_category = std::forward_iterator_tag;
 
         Node* node_ = nullptr;
+        /*
         BasicIterator& operator= (const BasicIterator<const Type>& rhs){
             if (this != &rhs) {
                 auto rhs_copy(rhs);
                 node_ = rhs_copy.node_;
+                rhs_copy.node_ = nullptr;
             }
             return *this;
         };
+        */
         BasicIterator& operator= (BasicIterator<Type>& rhs){
             if (this != &rhs) {
                 auto rhs_copy(rhs);
                 node_ = rhs_copy.node_;
+                rhs_copy.node_ = nullptr;
             }
             return *this;
         };
+        
+        template <typename OtherValueType>
+        BasicIterator& operator=(const BasicIterator<OtherValueType>& rhs) {
+            if (this != reinterpret_cast<const BasicIterator*>(&rhs)) {
+                node_ = rhs.node_;
+            }
+            return *this;
+        }
         BasicIterator( const BasicIterator<Type>& rhs ): node_(rhs.node_){};
         BasicIterator( const BasicIterator<const Type>& rhs ): node_(rhs.node_){};
 
@@ -249,16 +261,21 @@ public:
      * Если при создании элемента будет выброшено исключение, список останется в прежнем состоянии
      */
     Iterator InsertAfter(ConstIterator pos, const Type& value) {
-        // Заглушка. Реализуйте метод самостоятельно
-        auto new_node{new(Node)};
-        new_node->value = value;
-        new_node->next_node = pos.node_->next_node;
+        auto new_node{new Node(value, pos.node_->next_node) };
+        //new_node->value{value};
+        //new_node->next_node = pos.node_->next_node;
         pos.node_->next_node = new_node;
+        size_++;
         return Iterator{new_node};
     }
 
     void PopFront() noexcept {
-        // Реализуйте метод самостоятельно
+        if (head_.next_node) {
+            auto next_node = head_.next_node->next_node;
+            delete head_.next_node;
+            head_.next_node = next_node;
+            --size_;
+        }
     }
 
     /*
@@ -267,7 +284,13 @@ public:
      */
     Iterator EraseAfter(ConstIterator pos) noexcept {
         // Заглушка. Реализуйте метод самостоятельно
-        return Iterator{};
+        if (pos.node_->next_node) {
+            auto next_node = pos.node_->next_node->next_node;
+            delete pos.node_->next_node;
+            pos.node_->next_node = next_node;
+            --size_;
+        }
+        return Iterator{pos.node_->next_node};
     }
 
 
