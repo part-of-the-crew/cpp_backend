@@ -7,7 +7,7 @@
 
 template <typename Type>
 class SingleLinkedList {
-    // Узел списка
+
     struct Node {
         Node() = default;
         Node(const Type& val, Node* next)
@@ -95,7 +95,6 @@ public:
     class BasicIterator {
 
     private:
-        // Разрешаем SingleLinkedList обращаться к приватной области
         friend class SingleLinkedList;
         //explicit BasicIterator(Node* node): node_(node) {};
         explicit BasicIterator(const Node* node): node_(const_cast<Node*>(node)) {}
@@ -246,7 +245,6 @@ public:
     }
 
 private:
-    // Фиктивный узел, используется для вставки "перед первым элементом"
     Node head_;
     size_t size_ = 0;
 };
