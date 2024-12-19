@@ -15,10 +15,10 @@ void PrintRange(It range_begin, It range_end) {
     cout << endl;
 }
 
-template <typename Type>
+template <typename T>
 class Stack {
 public:
-    void Push(const Type& element) {
+    void Push(const T& element) {
         // напишите реализацию
         elements_.push_back(element);
     }
@@ -26,11 +26,11 @@ public:
         elements_.pop_back();
         // напишите реализацию
     }
-    const Type& Peek() const {
+    const T& Peek() const {
         // напишите реализацию
         return elements_.back();
     }
-    Type& Peek() {
+    T& Peek() {
         // напишите реализацию
         return elements_.back();
     }
@@ -49,13 +49,13 @@ public:
     }
 
 private:
-    vector<Type> elements_;
+    vector<T> elements_;
 };
 
-template <typename Type>
+template <typename T>
 class StackMin {
 public:
-    void Push(const Type& element) {
+    void Push(const T& element) {
     // напишите реализацию метода
         elements_.Push(element);
         if (min.IsEmpty() || element <= min.Peek())
@@ -67,10 +67,10 @@ public:
             min.Pop();
         elements_.Pop();
     }
-    const Type& Peek() const {
+    const T& Peek() const {
         return elements_.Peek();
     }
-    Type& Peek() {
+    T& Peek() {
         return elements_.Peek();
     }
     void Print() const {
@@ -82,24 +82,24 @@ public:
     bool IsEmpty() const {
         return elements_.IsEmpty();
     }
-    const Type& PeekMin() const {
+    const T& PeekMin() const {
     // напишите реализацию метода
         return min.Peek();
     }
-    Type& PeekMin() {
+    T& PeekMin() {
     // напишите реализацию метода
         return min.Peek();
     }
 private:
-    Stack<Type> elements_;
-    Stack<Type> min;
+    Stack<T> elements_;
+    Stack<T> min;
     // возможно, здесь вам понадобится что-то изменить
 };
 
-template <typename Type>
+template <typename T>
 class SortedSack {
 public:
-    void Push(const Type& element) {
+    void Push(const T& element) {
     // напишите реализацию метода
         if (elements_.IsEmpty()){
             elements_.Push(element);
@@ -123,10 +123,10 @@ public:
     // напишите реализацию метода
         elements_.Pop();
     }
-    const Type& Peek() const {
+    const T& Peek() const {
         return elements_.Peek();
     }
-    Type& Peek() {
+    T& Peek() {
         return elements_.Peek();
     }
     void Print() const {
@@ -139,8 +139,8 @@ public:
         return elements_.IsEmpty();
     }
 private:
-    Stack<Type> elements_;
-    Stack<Type> temp;
+    Stack<T> elements_;
+    Stack<T> temp;
 };
 
 int main() {

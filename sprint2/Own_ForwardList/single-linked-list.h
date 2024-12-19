@@ -5,23 +5,23 @@
 #include <iterator>
 #include <cassert>
 
-template <typename Type>
+template <typename T>
 class SingleLinkedList {
 
     struct Node {
         Node() = default;
-        Node(const Type& val, Node* next)
+        Node(const T& val, Node* next)
             : value(val)
             , next_node(next) {
         }
-        Type value{};
+        T value{};
         Node* next_node = nullptr;
     };
 
 public:
     SingleLinkedList() = default;
 
-    SingleLinkedList(std::initializer_list<Type> values) {
+    SingleLinkedList(std::initializer_list<T> values) {
         for (auto it = values.end(); it != values.begin(); ) {
             --it; // Move backward
             PushFront(*it);
@@ -57,7 +57,7 @@ public:
         }
     }
 
-    void PushFront(const Type& value) {
+    void PushFront(const T& value) {
         head_.next_node = new Node(value, head_.next_node);
         ++size_;
     }
@@ -116,7 +116,7 @@ public:
             return *this;
         };
         */
-        BasicIterator& operator= (BasicIterator<Type>& rhs){
+        BasicIterator& operator= (BasicIterator<T>& rhs){
             if (this != &rhs) {
                 auto rhs_copy(rhs);
                 node_ = rhs_copy.node_;
@@ -132,38 +132,38 @@ public:
             }
             return *this;
         }
-        BasicIterator( const BasicIterator<Type>& rhs ): node_(rhs.node_){};
-        BasicIterator( const BasicIterator<const Type>& rhs ): node_(rhs.node_){};
+        BasicIterator( const BasicIterator<T>& rhs ): node_(rhs.node_){};
+        BasicIterator( const BasicIterator<const T>& rhs ): node_(rhs.node_){};
 
         explicit BasicIterator() = default;
-        using Iterator = BasicIterator<Type>;
-        using ConstIterator = BasicIterator<const Type>;
-        [[nodiscard]] bool operator==(const BasicIterator<const Type>& rhs) const noexcept {
+        using Iterator = BasicIterator<T>;
+        using ConstIterator = BasicIterator<const T>;
+        [[nodiscard]] bool operator==(const BasicIterator<const T>& rhs) const noexcept {
             return node_ == rhs.node_;
         }
-        [[nodiscard]] bool operator!=(const BasicIterator<const Type>& rhs) const noexcept {
+        [[nodiscard]] bool operator!=(const BasicIterator<const T>& rhs) const noexcept {
             return node_!= rhs.node_;
         }
-        [[nodiscard]] bool operator==(const BasicIterator<Type>& rhs) const noexcept {
+        [[nodiscard]] bool operator==(const BasicIterator<T>& rhs) const noexcept {
             return node_ == rhs.node_;
         }
-        [[nodiscard]] bool operator!=(const BasicIterator<Type>& rhs) const noexcept {
+        [[nodiscard]] bool operator!=(const BasicIterator<T>& rhs) const noexcept {
             return node_!= rhs.node_;
         }
 
-        [[nodiscard]] Type& operator*() noexcept {
+        [[nodiscard]] T& operator*() noexcept {
             assert(node_!= nullptr);
             return node_->value;
         }
-        [[nodiscard]] Type* operator->() noexcept {
+        [[nodiscard]] T* operator->() noexcept {
             assert(node_!= nullptr);
             return &node_->value;
         }
-        [[nodiscard]] Type& operator*() const noexcept {
+        [[nodiscard]] T& operator*() const noexcept {
             assert(node_!= nullptr);
             return node_->value;
         }
-        [[nodiscard]] Type* operator->() const noexcept {
+        [[nodiscard]] T* operator->() const noexcept {
             assert(node_!= nullptr);
             return &node_->value;
         }
@@ -182,8 +182,8 @@ public:
         }
     };
 
-    using Iterator = BasicIterator<Type>;
-    using ConstIterator = BasicIterator<const Type>;
+    using Iterator = BasicIterator<T>;
+    using ConstIterator = BasicIterator<const T>;
     [[nodiscard]] Iterator begin() noexcept {
         return Iterator{head_.next_node};
     }
@@ -217,7 +217,7 @@ public:
         return ConstIterator{&head_};
     }
 
-    Iterator InsertAfter(ConstIterator pos, const Type& value) {
+    Iterator InsertAfter(ConstIterator pos, const T& value) {
         assert(pos.node_!= nullptr);
         auto new_node{new Node(value, pos.node_->next_node) };
         pos.node_->next_node = new_node;
@@ -249,42 +249,42 @@ private:
     size_t size_ = 0;
 };
 
-template <typename Type>
-void swap(SingleLinkedList<Type>& lhs, SingleLinkedList<Type>& rhs) noexcept {
+template <typename T>
+void swap(SingleLinkedList<T>& lhs, SingleLinkedList<T>& rhs) noexcept {
     if (lhs != rhs){
         lhs.swap(rhs);
     }
 }
 
-template <typename Type>
-bool operator==(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
+template <typename T>
+bool operator==(const SingleLinkedList<T>& lhs, const SingleLinkedList<T>& rhs) {
     if (lhs.GetSize() != rhs.GetSize()){
         return false;
     }
     return std::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 
-template <typename Type>
-bool operator!=(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
+template <typename T>
+bool operator!=(const SingleLinkedList<T>& lhs, const SingleLinkedList<T>& rhs) {
     return !(lhs == rhs);
 }
 
-template <typename Type>
-bool operator<(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
+template <typename T>
+bool operator<(const SingleLinkedList<T>& lhs, const SingleLinkedList<T>& rhs) {
     return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 }
 
-template <typename Type>
-bool operator<=(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
+template <typename T>
+bool operator<=(const SingleLinkedList<T>& lhs, const SingleLinkedList<T>& rhs) {
     return !(rhs < lhs);
 }
 
-template <typename Type>
-bool operator>(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
+template <typename T>
+bool operator>(const SingleLinkedList<T>& lhs, const SingleLinkedList<T>& rhs) {
     return rhs < lhs;
 }
 
-template <typename Type>
-bool operator>=(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
+template <typename T>
+bool operator>=(const SingleLinkedList<T>& lhs, const SingleLinkedList<T>& rhs) {
     return !(lhs < rhs);
 }

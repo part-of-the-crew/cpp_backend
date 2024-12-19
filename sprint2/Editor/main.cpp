@@ -11,24 +11,24 @@
 
 using namespace std::literals;
 
-// Напишите код упрощенного текстового редактора здесь
+
 class Editor {
 public:
     Editor() = default;
-    // сдвинуть курсор влево
+
     void Left() {
         if (cursor_pos > 0) --cursor_pos;
     }
-    // сдвинуть курсор вправо 
+
     void Right(){
         if (text.size() > cursor_pos) ++cursor_pos;
     }
-    // вставить символ token
+
     void Insert(char token) {
         text.insert(text.begin() + cursor_pos, token);
         ++cursor_pos;
     }
-    // вырезать не более tokens символов, начиная с текущей позиции курсора
+
     void Cut(size_t tokens = 1) {
         clipboard.clear();
 
@@ -44,29 +44,33 @@ public:
         text.erase(text.begin() + cursor_pos, text.begin() + cursor_pos + cut_count);
     }
 
-    // cкопировать не более tokens символов, начиная с текущей позиции курсора
     void Copy(size_t tokens = 1) {
         clipboard.clear();
         for (size_t i = 0; i < tokens && (cursor_pos + i) < text.size(); ++i) {
             clipboard.push_back(text[cursor_pos + i]);
-            //++cursor_pos;
         }
     }
-    // вставить содержимое буфера в текущую позицию курсора
+
     void Paste() {
         text.insert(text.begin() + cursor_pos, clipboard.begin(), clipboard.end());
         cursor_pos += clipboard.size();
     }
 
-    // получить текущее содержимое текстового редактора
+
     std::string GetText() const{
         return std::string(text.begin(), text.end());
     }
-        size_t cursor_pos = 0;
+
+    //get the cursor position
+    size_t GetCursorPosition() const {
+        return cursor_pos;
+    }
+
+
 private:
     std::deque<char> text;
-
-    std::deque<char> clipboard;  // буфер обмена для копирования и вставки символов
+    std::deque<char> clipboard;  // buffer
+    size_t cursor_pos = 0;
 
 };
 
@@ -78,43 +82,43 @@ int main() {
     }
     // Текущее состояние редактора: `hello, world|`
     assert(editor.GetText() == "hello, world");
-    assert(editor.cursor_pos == 12);
+    assert(editor.GetCursorPosition() == 12);
     for (size_t i = 0; i < text.size(); ++i) {
         editor.Left();
     }
     assert(editor.GetText() == "hello, world");
-    assert(editor.cursor_pos == 0);
+    assert(editor.GetCursorPosition() == 0);
     // Текущее состояние редактора: `|hello, world`
     editor.Cut(7);
     // Текущее состояние редактора: `|world`
     //editor.GetText();
     assert(editor.GetText() == "world");
-    assert(editor.cursor_pos == 0);
+    assert(editor.GetCursorPosition() == 0);
     // в буфере обмена находится текст `hello, `
     for (size_t i = 0; i < 5; ++i) {
         editor.Right();
     }
     assert(editor.GetText() == "world");
-    assert(editor.cursor_pos == 5);
+    assert(editor.GetCursorPosition() == 5);
     // Текущее состояние редактора: `world|`
     editor.Insert(',');
     editor.Insert(' ');
     assert(editor.GetText() == "world, ");
-    assert(editor.cursor_pos == 7);
+    assert(editor.GetCursorPosition() == 7);
     // Текущее состояние редактора: `world, |`
     editor.Paste();
     //editor.GetText();
     assert(editor.GetText() == "world, hello, ");
-    assert(editor.cursor_pos == 14);
+    assert(editor.GetCursorPosition() == 14);
     // Текущее состояние редактора: `world, hello, |`
     editor.Left();
     editor.Left();
     assert(editor.GetText() == "world, hello, ");
-    assert(editor.cursor_pos == 12);
+    assert(editor.GetCursorPosition() == 12);
     //Текущее состояние редактора: `world, hello|, `
     editor.Cut(3);  // Будут вырезаны 2 символа
     //assert(editor.GetText() == "world, hello");
-    assert(editor.cursor_pos == 12);
+    assert(editor.GetCursorPosition() == 12);
     // Текущее состояние редактора: `world, hello|`
     std::cout << editor.GetText() << std::flush;
     return 0;
