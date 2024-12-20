@@ -256,9 +256,11 @@ inline void Test2() {
         SimpleVector<int> v(2);
         v.Resize(1);
         const size_t old_capacity = v.GetCapacity();
+        assert(v.GetCapacity() == 2);
+        assert(v.GetSize() == 1);
         v.PushBack(123);
-        assert(v.GetSize() == 2);
         assert(v.GetCapacity() == old_capacity);
+        assert(v.GetSize() == 2);
     }
 
     // PopBack
@@ -337,6 +339,38 @@ inline void Test2() {
         SimpleVector<int> v{1, 2, 3, 4};
         v.Insert(v.begin() + 2, 42);
         assert((v == SimpleVector<int>{1, 2, 42, 3, 4}));
+    }
+    // Вставка элементов
+    {
+        SimpleVector<int> v;
+        v.Insert(v.end(), -10);
+        v.Insert(v.end(), -11);
+        //print v
+        for (const auto& i : v) {
+            std::cout << i;
+        }
+        std::cout << std::endl;
+
+        assert(v.GetSize() == 2);
+    }
+    // Вставка элементов
+    {
+        SimpleVector<int> v;
+
+        assert(v.Insert(v.end(), -10) == v.end() - 1);
+        assert(v.Insert(v.end(), -11) == v.end() - 1);
+
+
+        assert(v.GetSize() == 2);
+    }
+
+
+    // Вставка элементов
+    {
+        SimpleVector<int> v{1};
+        v.PushBack(42);
+        v.Resize(1);
+        assert(v.GetSize() == 1);
     }
 
     // Удаление элементов

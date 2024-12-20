@@ -70,13 +70,24 @@ public:
 
     void Clear() noexcept { size_ = 0; }
 
+    void Allocate(size_t new_capacity) {
+        if (new_capacity == 0)
+            new_capacity == 1;
+        auto new_ar = std::make_unique<T[]>(new_capacity);
+        std::move(ar_.get(), ar_.get() + size_, new_ar.get());
+        ar_ = std::move(new_ar);
+        capacity_ = new_capacity;
+    }
+
     void Resize(size_t new_size) {
         if (new_size > capacity_) {
-            size_t new_capacity = std::max(new_size, capacity_ * 2);
+            size_t new_capacity = (new_size == 1 ? 1 : std::max(new_size, capacity_ * 2));
             auto new_ar = std::make_unique<T[]>(new_capacity);
             std::move(ar_.get(), ar_.get() + size_, new_ar.get());
             ar_ = std::move(new_ar);
             capacity_ = new_capacity;
+            if (new_capacity == 1 && size_ == 0)
+                new_size++;
         }
         if (new_size > size_) {
             std::fill(ar_.get() + size_, ar_.get() + new_size, T{});
@@ -89,6 +100,8 @@ public:
         auto old_size = size_;
         if (capacity_ == size_) {
             Resize(capacity_ + 1);
+        } else {
+            size_++;
         }
         ar_[old_size] = item;
     }
@@ -97,6 +110,7 @@ public:
     // Возвращает итератор на вставленное значение
     // Если перед вставкой значения вектор был заполнен полностью,
     // вместимость вектора должна увеличиться вдвое, а для вектора вместимостью 0 стать равной 1
+    /*
     Iterator Insert(ConstIterator pos, const T& value) {
         //auto old_size = size_;
         auto it = std::distance(cbegin(), pos);
@@ -106,16 +120,36 @@ public:
         std::copy_backward(begin() + it, end(), std::next(pos));
         ar_[it] = value;
         return begin() + it;
-
     }
-
+    */
+    Iterator Insert(ConstIterator pos, const T& value) {
+        auto it = std::distance(cbegin(), pos);
+        if (size_ == capacity_) {
+            Resize(capacity_ > 0 ? capacity_: 1); // Double capacity for better efficiency
+        } else {
+            size_++; // Increase size for correct calculation of new position
+        }
+        std::copy_backward(begin() + it, end(), end() + 1); // Correctly shift elements
+        ar_[it] = value;
+        return begin() + it;
+    }
+/*
     // Удаляет элемент вектора в указанной позиции
     Iterator Erase(ConstIterator pos) {
         auto iter = std::next(pos);
-        std::copy(iter, end(), std::prev(pos));
+        auto it = std::distance(cbegin(), iter);
+        //std::copy(iter, end(), std::prev(pos));
+        std::copy(begin() + it, end(), std::prev(pos));
         size_--;
-        return iter;
+        return begin() + it;
     }
+*/
+Iterator Erase(ConstIterator pos) {
+    auto it = std::distance(cbegin(), pos); // Get position index
+    std::copy(begin() + it + 1, end(), begin() + it); // Shift elements left
+    --size_; // Decrease size
+    return begin() + it; // Return iterator to the next element
+}
 
     // "Удаляет" последний элемент вектора. Вектор не должен быть пустым
     void PopBack() noexcept {
