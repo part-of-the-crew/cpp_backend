@@ -5,6 +5,15 @@
 #include <memory>
 #include <stdexcept>
 
+    struct ReserveProxyObj {
+        size_t capacity_;
+
+        explicit ReserveProxyObj(size_t capacity) : capacity_(capacity) {}
+    };
+ReserveProxyObj Reserve(size_t capacity_to_reserve) {
+    return ReserveProxyObj(capacity_to_reserve);
+};
+
 template <typename T>
 class SimpleVector {
     size_t size_ = 0;
@@ -15,24 +24,36 @@ public:
     using Iterator = T*;
     using ConstIterator = const T*;
 
+
     SimpleVector() noexcept = default;
 
     explicit SimpleVector(size_t size)
-        : size_(size), capacity_(size), ar_(std::make_unique<T[]>(size)) {}
+        : size_(size)
+        , capacity_(size)
+        , ar_(std::make_unique<T[]>(size)) 
+    {}
 
     SimpleVector(size_t size, const T& value)
-        : SimpleVector(size) {
+        : SimpleVector(size) 
+    {
         std::fill(ar_.get(), ar_.get() + size_, value);
     }
+    SimpleVector(const ReserveProxyObj& reserve)
+        : size_(0)
+        , capacity_(reserve.capacity_)
+        , ar_(std::make_unique<T[]>(capacity_)) 
+    {}
 
     SimpleVector(std::initializer_list<T> init)
-        : SimpleVector(init.size()) {
+        : SimpleVector(init.size()) 
+    {
         std::copy(init.begin(), init.end(), ar_.get());
     }
 
     SimpleVector(const SimpleVector& other)
         : size_(other.size_), capacity_(other.capacity_),
-          ar_(std::make_unique<T[]>(other.capacity_)) {
+          ar_(std::make_unique<T[]>(other.capacity_)) 
+    {
         std::copy(other.begin(), other.end(), ar_.get());
     }
 
@@ -70,24 +91,24 @@ public:
 
     void Clear() noexcept { size_ = 0; }
 
-    void Allocate(size_t new_capacity) {
+    size_t Allocate(size_t new_capacity) {
         if (new_capacity == 0)
-            new_capacity == 1;
+            new_capacity = 1;
         auto new_ar = std::make_unique<T[]>(new_capacity);
         std::move(ar_.get(), ar_.get() + size_, new_ar.get());
         ar_ = std::move(new_ar);
         capacity_ = new_capacity;
+        return new_capacity;
     }
 
     void Resize(size_t new_size) {
+        if (new_size <= size_) {
+            size_ = new_size;
+            return;
+        }
         if (new_size > capacity_) {
-            size_t new_capacity = (new_size == 1 ? 1 : std::max(new_size, capacity_ * 2));
-            auto new_ar = std::make_unique<T[]>(new_capacity);
-            std::move(ar_.get(), ar_.get() + size_, new_ar.get());
-            ar_ = std::move(new_ar);
-            capacity_ = new_capacity;
-            if (new_capacity == 1 && size_ == 0)
-                new_size++;
+            //size_t new_capacity = Allocate(std::max(new_size, capacity_ * 2));
+            Allocate(new_size);
         }
         if (new_size > size_) {
             std::fill(ar_.get() + size_, ar_.get() + new_size, T{});
@@ -99,10 +120,9 @@ public:
     void PushBack(const T& item) {
         auto old_size = size_;
         if (capacity_ == size_) {
-            Resize(capacity_ + 1);
-        } else {
-            size_++;
+            Allocate(capacity_ == 0 ? 1 : capacity_ * 2);
         }
+        size_++;
         ar_[old_size] = item;
     }
 
@@ -110,53 +130,34 @@ public:
     // Возвращает итератор на вставленное значение
     // Если перед вставкой значения вектор был заполнен полностью,
     // вместимость вектора должна увеличиться вдвое, а для вектора вместимостью 0 стать равной 1
-    /*
-    Iterator Insert(ConstIterator pos, const T& value) {
-        //auto old_size = size_;
-        auto it = std::distance(cbegin(), pos);
-        if (capacity_ == size_) {
-            Resize(capacity_ + 1);
-        }
-        std::copy_backward(begin() + it, end(), std::next(pos));
-        ar_[it] = value;
-        return begin() + it;
-    }
-    */
     Iterator Insert(ConstIterator pos, const T& value) {
         auto it = std::distance(cbegin(), pos);
         if (size_ == capacity_) {
-            Resize(capacity_ > 0 ? capacity_: 1); // Double capacity for better efficiency
-        } else {
-            size_++; // Increase size for correct calculation of new position
+            Allocate(capacity_ == 0 ? 1 : capacity_ * 2);
         }
+        size_++; // Increase size for correct calculation of new position
         std::copy_backward(begin() + it, end(), end() + 1); // Correctly shift elements
         ar_[it] = value;
         return begin() + it;
     }
-/*
-    // Удаляет элемент вектора в указанной позиции
+
     Iterator Erase(ConstIterator pos) {
-        auto iter = std::next(pos);
-        auto it = std::distance(cbegin(), iter);
-        //std::copy(iter, end(), std::prev(pos));
-        std::copy(begin() + it, end(), std::prev(pos));
-        size_--;
-        return begin() + it;
+        auto it = std::distance(cbegin(), pos); // Get position index
+        std::copy(begin() + it + 1, end(), begin() + it); // Shift elements left
+        --size_; // Decrease size
+        return begin() + it; // Return iterator to the next element
     }
-*/
-Iterator Erase(ConstIterator pos) {
-    auto it = std::distance(cbegin(), pos); // Get position index
-    std::copy(begin() + it + 1, end(), begin() + it); // Shift elements left
-    --size_; // Decrease size
-    return begin() + it; // Return iterator to the next element
-}
 
     // "Удаляет" последний элемент вектора. Вектор не должен быть пустым
     void PopBack() noexcept {
         if (size_ > 0)
             size_--;
     }
-
+    void Reserve(size_t new_capacity) {
+        if (capacity_ >= new_capacity)
+            return;
+        Allocate(new_capacity);
+    }
     // Обменивает значение с другим вектором
     void swap(SimpleVector& other) noexcept {
         //if (this != &other) {
