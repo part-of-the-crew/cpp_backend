@@ -10,7 +10,7 @@ SOURCES_FILES = main.cpp
 CXX = g++-13
 
 # Compiler flags
-CXXFLAGS = -O2 -lm -fno-stack-limit -std=c++2a -Wall -Wextra #  -fsanitize=address,leak
+CXXFLAGS = -O2 -lm -fno-stack-limit -std=c++2a -Wall -Wextra -fno-elide-constructors#  -fsanitize=address,leak
 #g++ -O2 -lm -fno-stack-limit -std=c++20 -x c++ source.cpp -o executable -Wall -Wextra -Werror
 SOURCES = ${addprefix ${SRCDIR}, ${SOURCES_FILES}}
 

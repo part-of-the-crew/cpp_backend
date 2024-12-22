@@ -1,15 +1,15 @@
 #pragma once
 
 #include <initializer_list>
-#include <algorithm>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
-    struct ReserveProxyObj {
-        size_t capacity_;
+struct ReserveProxyObj {
+    size_t capacity_;
+    explicit ReserveProxyObj(size_t capacity) : capacity_(capacity) {}
+};
 
-        explicit ReserveProxyObj(size_t capacity) : capacity_(capacity) {}
-    };
 ReserveProxyObj Reserve(size_t capacity_to_reserve) {
     return ReserveProxyObj(capacity_to_reserve);
 };
@@ -65,8 +65,17 @@ public:
         return *this;
     }
 
-    SimpleVector(SimpleVector&& other) noexcept = default;
-    SimpleVector& operator=(SimpleVector&& other) noexcept = default;
+    SimpleVector(SimpleVector&& other) noexcept {
+        std::swap(size_, other.size_);
+        std::swap(capacity_, other.capacity_);
+        std::swap(ar_, other.ar_);
+    };
+    SimpleVector& operator=(SimpleVector&& other) noexcept {
+        std::swap(size_, other.size_);
+        std::swap(capacity_, other.capacity_);
+        std::swap(ar_, other.ar_);
+        return *this;
+    };
 
     size_t GetSize() const noexcept { return size_; }
     size_t GetCapacity() const noexcept { return capacity_; }
@@ -107,11 +116,13 @@ public:
             return;
         }
         if (new_size > capacity_) {
-            //size_t new_capacity = Allocate(std::max(new_size, capacity_ * 2));
             Allocate(new_size);
         }
         if (new_size > size_) {
-            std::fill(ar_.get() + size_, ar_.get() + new_size, T{});
+            //std::uninitialized_fill(ar_.get() + size_, ar_.get() + new_size, T{});
+            for (size_t i = size_; i < new_size; ++i) {
+                new (ar_.get() + i) T{};
+            } 
         }
         size_ = new_size;
     }
@@ -126,6 +137,14 @@ public:
         ar_[old_size] = item;
     }
 
+    void PushBack(T&& item) {
+        auto old_size = size_;
+        if (capacity_ == size_) {
+            Allocate(capacity_ == 0 ? 1 : capacity_ * 2);
+        }
+        size_++;
+        ar_[old_size] = std::move(item);
+    }
     // Вставляет значение value в позицию pos.
     // Возвращает итератор на вставленное значение
     // Если перед вставкой значения вектор был заполнен полностью,
@@ -141,9 +160,20 @@ public:
         return begin() + it;
     }
 
+    Iterator Insert(ConstIterator pos, T&& value) {
+        auto it = std::distance(cbegin(), pos);
+        if (size_ == capacity_) {
+            Allocate(capacity_ == 0 ? 1 : capacity_ * 2);
+        }
+        size_++; // Increase size for correct calculation of new position
+        std::move_backward(begin() + it, end(), end() + 1); // Correctly shift elements
+        ar_[it] = std::move(value);
+        return begin() + it;
+    }
+
     Iterator Erase(ConstIterator pos) {
         auto it = std::distance(cbegin(), pos); // Get position index
-        std::copy(begin() + it + 1, end(), begin() + it); // Shift elements left
+        std::move(begin() + it + 1, end(), begin() + it); // Shift elements left
         --size_; // Decrease size
         return begin() + it; // Return iterator to the next element
     }
@@ -160,10 +190,7 @@ public:
     }
     // Обменивает значение с другим вектором
     void swap(SimpleVector& other) noexcept {
-        //if (this != &other) {
-        //    SimpleVector temp(other);
-            std::swap(*this, other);
-        //}
+        std::swap(*this, other);
     }
     Iterator begin() noexcept { return ar_.get(); }
     Iterator end() noexcept { return ar_.get() + size_; }

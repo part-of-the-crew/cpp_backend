@@ -12,38 +12,16 @@ using namespace std;
 template <typename RandomIt>
 void MakeJosephusPermutation(RandomIt first, RandomIt last, uint32_t step_size) {
     //vector<typename RandomIt::value_type> pool(first, last);
-    deque<typename RandomIt::value_type> pool1;
-    for (auto it = first; it!= last; ++it) {
-        pool1.emplace_back(std::move(*it));
-    }
+    //deque<typename RandomIt::value_type> pool1;
+    deque<typename RandomIt::value_type> pool(make_move_iterator(first), make_move_iterator(last));
     size_t cur_pos = 0;
-    while (!pool1.empty()) {
-        //*(first++) = pool[cur_pos];
-        //*(first++) = std::move (pool1.begin() + cur_pos);
-        *(first++) = std::move(*(pool1.begin() + cur_pos));
-        // Вместо копирования, мы удаляем итератор из контейнера.
-        // Это позволит избежать лишних копирований при изменении итератора
-        // и избежать изменения исходного контейнера, если он является
-        // неизменяемым.
-        // Важно отметить, что удалять итераторы из контейнера после того,
-        // как вы изменяете их позицию, может привести к непредвиденным последствиям.
-        // Поэтому важно учитывать эти условия при использовании итераторов.
-        //
-        // Вы можете использовать вместо этого кода любой другой алгоритм,
-        // который позволяет изменять итераторы после того, как вы изменяете их позицию.
-        // Например, вместо std::copy_backward можно использовать std::swap_ranges
-        // или std::iter_swap
-        //
-        // Важно отметить, что удалять итераторы из контейнера после того,
-        // как вы изменяете их позицию может привести к непредвиденным последствиям.
-        // Поэтому важно учитывать эти условия при использовании итераторов.
-        //
-
-        //pool1.erase(pool1.begin() + cur_pos);
-        if (pool1.empty()) {
+    while (!pool.empty()) {
+        *(first++) = std::move(*(pool.begin() + cur_pos));
+        pool.erase(pool.begin() + cur_pos);
+        if (pool.empty()) {
             break;
         }
-        cur_pos = (cur_pos + step_size - 1) % pool1.size();
+        cur_pos = (cur_pos + step_size - 1) % pool.size();
     }
 }
 

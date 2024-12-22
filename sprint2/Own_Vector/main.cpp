@@ -8,5 +8,13 @@ int main() {
     Test2();
     TestReserveConstructor();
     TestReserveMethod();
+    TestTemporaryObjConstructor();
+    TestTemporaryObjOperator();
+    TestNamedMoveConstructor();
+    TestNamedMoveOperator();
+    TestNoncopiableMoveConstructor();
+    TestNoncopiablePushBack();
+    TestNoncopiableInsert();
+    TestNoncopiableErase();
     return 0;
 }
