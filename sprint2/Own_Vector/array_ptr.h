@@ -12,7 +12,7 @@ public:
 
     // Создаёт в куче массив из size элементов типа Type.
     // Если size == 0, поле raw_ptr_ должно быть равно nullptr
-    explicit ArrayPtr(size_t size) : raw_ptr_(size > 0 ? new T[size] : nullptr){
+    explicit ArrayPtr(size_t size) : raw_ptr_(size > 0 ? new T[size]{} : nullptr){
        
     }
 
@@ -24,13 +24,37 @@ public:
     // Запрещаем копирование
     ArrayPtr(const ArrayPtr&) = delete;
 
+
     ~ArrayPtr() {
         delete[] raw_ptr_;  // освобождаем память, если указатель не nullptr
-        // Напишите деструктор самостоятельно
     }
 
     // Запрещаем присваивание
     ArrayPtr& operator=(const ArrayPtr&) = delete;
+
+    // New assignment operator for nullptr
+    ArrayPtr& operator=(std::nullptr_t) noexcept {
+        delete[] raw_ptr_;
+        raw_ptr_ = nullptr;
+        return *this;
+    }
+
+    //move operator
+    ArrayPtr(ArrayPtr&& other) noexcept {
+        //raw_ptr_ = std::exchange(other.raw_ptr_, nullptr);
+        std::swap(raw_ptr_, other.raw_ptr_);
+        delete [] other.raw_ptr_;
+        other.raw_ptr_ = nullptr;
+    }
+
+    //move =
+    ArrayPtr& operator=(ArrayPtr&& other) noexcept {
+        //raw_ptr_ = std::exchange(other.raw_ptr_, nullptr);
+        std::swap(raw_ptr_, other.raw_ptr_);
+        delete [] other.raw_ptr_;
+        other.raw_ptr_ = nullptr;
+        return *this;
+    }
 
     // Прекращает владением массивом в памяти, возвращает значение адреса массива
     // После вызова метода указатель на массив должен обнулиться

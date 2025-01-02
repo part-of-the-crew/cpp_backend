@@ -1,9 +1,10 @@
 #pragma once
 
 #include <initializer_list>
-#include <memory>
 #include <stdexcept>
 #include <utility>
+#include <cassert>
+#include "array_ptr.h"
 
 struct ReserveProxyObj {
     size_t capacity_;
@@ -18,7 +19,7 @@ template <typename T>
 class SimpleVector {
     size_t size_ = 0;
     size_t capacity_ = 0;
-    std::unique_ptr<T[]> ar_;
+    ArrayPtr<T> ar_;
 
 public:
     using Iterator = T*;
@@ -28,33 +29,34 @@ public:
     SimpleVector() noexcept = default;
 
     explicit SimpleVector(size_t size)
-        : size_(size)
-        , capacity_(size)
-        , ar_(std::make_unique<T[]>(size)) 
+        : SimpleVector(size, T{})
     {}
 
     SimpleVector(size_t size, const T& value)
-        : SimpleVector(size) 
+        : size_(size)
+        , capacity_(size)
+        , ar_(new T[size]) 
     {
-        std::fill(ar_.get(), ar_.get() + size_, value);
+        std::fill(ar_.Get(), ar_.Get() + size_, value);
     }
     SimpleVector(const ReserveProxyObj& reserve)
         : size_(0)
         , capacity_(reserve.capacity_)
-        , ar_(std::make_unique<T[]>(capacity_)) 
+        , ar_(ArrayPtr<T>(capacity_)) 
     {}
 
     SimpleVector(std::initializer_list<T> init)
         : SimpleVector(init.size()) 
     {
-        std::copy(init.begin(), init.end(), ar_.get());
+        std::copy(init.begin(), init.end(), ar_.Get());
     }
 
     SimpleVector(const SimpleVector& other)
-        : size_(other.size_), capacity_(other.capacity_),
-          ar_(std::make_unique<T[]>(other.capacity_)) 
+        : size_(other.size_)
+        , capacity_(other.capacity_)
+        , ar_(ArrayPtr<T>(other.capacity_))
     {
-        std::copy(other.begin(), other.end(), ar_.get());
+        std::copy(other.begin(), other.end(), ar_.Get());
     }
 
     SimpleVector& operator=(const SimpleVector& other) {
@@ -66,23 +68,37 @@ public:
     }
 
     SimpleVector(SimpleVector&& other) noexcept {
-        std::swap(size_, other.size_);
-        std::swap(capacity_, other.capacity_);
-        std::swap(ar_, other.ar_);
+        size_ = std::exchange(other.size_, 0);
+        capacity_ = std::exchange(other.capacity_, 0);
+        ar_ =  std::exchange(other.ar_, nullptr);
     };
+
     SimpleVector& operator=(SimpleVector&& other) noexcept {
-        std::swap(size_, other.size_);
-        std::swap(capacity_, other.capacity_);
-        std::swap(ar_, other.ar_);
+        size_ = std::exchange(other.size_, 0);
+        capacity_ = std::exchange(other.capacity_, 0);
+        ar_ =  std::exchange(other.ar_, nullptr);
         return *this;
     };
 
-    size_t GetSize() const noexcept { return size_; }
-    size_t GetCapacity() const noexcept { return capacity_; }
-    bool IsEmpty() const noexcept { return size_ == 0; }
+    size_t GetSize() const noexcept {
+        return size_;
+    }
 
-    T& operator[](size_t index) noexcept { return ar_[index]; }
-    const T& operator[](size_t index) const noexcept { return ar_[index]; }
+    size_t GetCapacity() const noexcept {
+        return capacity_;
+    }
+
+    bool IsEmpty() const noexcept {
+        return size_ == 0;
+    }
+
+    T& operator[](size_t index) noexcept {
+        return ar_[index];
+    }
+
+    const T& operator[](size_t index) const noexcept {
+        return ar_[index];
+    }
 
     T& At(size_t index) {
         if (index >= size_) {
@@ -98,16 +114,8 @@ public:
         return ar_[index];
     }
 
-    void Clear() noexcept { size_ = 0; }
-
-    size_t Allocate(size_t new_capacity) {
-        if (new_capacity == 0)
-            new_capacity = 1;
-        auto new_ar = std::make_unique<T[]>(new_capacity);
-        std::move(ar_.get(), ar_.get() + size_, new_ar.get());
-        ar_ = std::move(new_ar);
-        capacity_ = new_capacity;
-        return new_capacity;
+    void Clear() noexcept {
+        size_ = 0;
     }
 
     void Resize(size_t new_size) {
@@ -116,12 +124,12 @@ public:
             return;
         }
         if (new_size > capacity_) {
-            Allocate(new_size);
+            Reserve(new_size);
         }
         if (new_size > size_) {
-            //std::uninitialized_fill(ar_.get() + size_, ar_.get() + new_size, T{});
+            //std::uninitialized_fill(ar_.Get() + size_, ar_.Get() + new_size, T{});
             for (size_t i = size_; i < new_size; ++i) {
-                new (ar_.get() + i) T{};
+                new (ar_.Get() + i) T{};
             } 
         }
         size_ = new_size;
@@ -131,7 +139,7 @@ public:
     void PushBack(const T& item) {
         auto old_size = size_;
         if (capacity_ == size_) {
-            Allocate(capacity_ == 0 ? 1 : capacity_ * 2);
+            Reserve(capacity_ == 0 ? 1 : capacity_ * 2);
         }
         size_++;
         ar_[old_size] = item;
@@ -140,11 +148,12 @@ public:
     void PushBack(T&& item) {
         auto old_size = size_;
         if (capacity_ == size_) {
-            Allocate(capacity_ == 0 ? 1 : capacity_ * 2);
+            Reserve(capacity_ == 0 ? 1 : capacity_ * 2);
         }
         size_++;
         ar_[old_size] = std::move(item);
     }
+
     // Вставляет значение value в позицию pos.
     // Возвращает итератор на вставленное значение
     // Если перед вставкой значения вектор был заполнен полностью,
@@ -152,10 +161,10 @@ public:
     Iterator Insert(ConstIterator pos, const T& value) {
         auto it = std::distance(cbegin(), pos);
         if (size_ == capacity_) {
-            Allocate(capacity_ == 0 ? 1 : capacity_ * 2);
+            Reserve(capacity_ == 0 ? 1 : capacity_ * 2);
         }
-        size_++; // Increase size for correct calculation of new position
-        std::copy_backward(begin() + it, end(), end() + 1); // Correctly shift elements
+        size_++;
+        std::copy_backward(begin() + it, end(), end() + 1);
         ar_[it] = value;
         return begin() + it;
     }
@@ -163,41 +172,64 @@ public:
     Iterator Insert(ConstIterator pos, T&& value) {
         auto it = std::distance(cbegin(), pos);
         if (size_ == capacity_) {
-            Allocate(capacity_ == 0 ? 1 : capacity_ * 2);
+            Reserve(capacity_ == 0 ? 1 : capacity_ * 2);
         }
-        size_++; // Increase size for correct calculation of new position
-        std::move_backward(begin() + it, end(), end() + 1); // Correctly shift elements
+        std::move_backward(begin() + it, begin() + size_, begin() + size_ + 1); // Adjust move range
         ar_[it] = std::move(value);
+        size_++;
         return begin() + it;
     }
 
     Iterator Erase(ConstIterator pos) {
         auto it = std::distance(cbegin(), pos); // Get position index
         std::move(begin() + it + 1, end(), begin() + it); // Shift elements left
-        --size_; // Decrease size
+        --size_;
         return begin() + it; // Return iterator to the next element
     }
 
     // "Удаляет" последний элемент вектора. Вектор не должен быть пустым
     void PopBack() noexcept {
-        if (size_ > 0)
-            size_--;
+        assert(size_ > 0);
+        size_--;
     }
+
     void Reserve(size_t new_capacity) {
         if (capacity_ >= new_capacity)
             return;
-        Allocate(new_capacity);
+        auto new_ar = ArrayPtr<T>(new_capacity);
+        std::move(ar_.Get(), ar_.Get() + size_, new_ar.Get());
+        ar_ = std::move(new_ar);
+        capacity_ = new_capacity;
     }
+
     // Обменивает значение с другим вектором
     void swap(SimpleVector& other) noexcept {
         std::swap(*this, other);
     }
-    Iterator begin() noexcept { return ar_.get(); }
-    Iterator end() noexcept { return ar_.get() + size_; }
-    ConstIterator begin() const noexcept { return ar_.get(); }
-    ConstIterator end() const noexcept { return ar_.get() + size_; }
-    ConstIterator cbegin() const noexcept { return ar_.get(); }
-    ConstIterator cend() const noexcept { return ar_.get() + size_; }
+
+    Iterator begin() noexcept {
+        return ar_.Get();
+    }
+
+    Iterator end() noexcept {
+        return ar_.Get() + size_;
+    }
+
+    ConstIterator begin() const noexcept {
+        return ar_.Get();
+    }
+
+    ConstIterator end() const noexcept {
+        return ar_.Get() + size_;
+    }
+
+    ConstIterator cbegin() const noexcept {
+        return ar_.Get();
+    }
+
+    ConstIterator cend() const noexcept {
+        return ar_.Get() + size_;
+    }
 };
 
 template <typename Type>

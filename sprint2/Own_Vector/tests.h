@@ -244,8 +244,20 @@ inline void Test1() {
         }
     }
 }
-
+class TestObj {
+public:
+int a = 0;
+    TestObj() { std::cout << "Constructor called\n"; }
+    ~TestObj() { std::cout << "Destructor called\n"; }
+};
 inline void Test2() {
+        // PushBack
+    {
+        SimpleVector<TestObj> v(1);
+        TestObj to;
+        to.a = 1;
+        v.PushBack(std::move(to));
+    }
     // PushBack
     {
         SimpleVector<int> v(1);
