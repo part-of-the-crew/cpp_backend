@@ -4,7 +4,7 @@ NAME = executable
 #SRCDIR = ./srcs/
 #HEADDIR = ./includes/
 
-SOURCES_FILES = main.cpp
+SOURCES_FILES = main.cpp xml.cpp
 
 # Compiler
 CXX = g++-13
