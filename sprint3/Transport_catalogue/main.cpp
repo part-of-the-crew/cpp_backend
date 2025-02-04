@@ -20,6 +20,7 @@ int main() {
             reader.ParseLine(line);
         }
         reader.ApplyCommands(catalogue);
+        reader.PrintCommands();
     }
 
     int stat_request_count;
