@@ -47,3 +47,6 @@ private:
 
     void ReorderCommands ( void );
 };
+
+CommandDescription ParseCommandDescription(std::string_view line);
+CommandDescription ParseRequestsDescription(std::string_view line);

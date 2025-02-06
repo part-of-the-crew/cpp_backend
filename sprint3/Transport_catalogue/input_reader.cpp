@@ -114,7 +114,7 @@ void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) 
             continue;
         }
         if (cmd.command == "Bus") {
-            catalogue.AddRoute();
+            catalogue.AddRoute(cmd.id, ParseRoute(cmd.description));
             continue;
         }
     }
