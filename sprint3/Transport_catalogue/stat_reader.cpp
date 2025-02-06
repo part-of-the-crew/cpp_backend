@@ -1,5 +1,5 @@
 #include "stat_reader.h"
-#include "input_reader.h"
+
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
@@ -24,9 +24,9 @@ void ParseAndPrintStat(const TransportCatalogue& tansport_catalogue, std::string
                        std::ostream& output) {
     const auto v = ParseRequest(request);
     if (v.command == "Bus") {
-        std::vector<std::deque<Stop>::const_iterator> Stops_for_bus;
+        std::vector<std::deque<Stop>::const_iterator> stops_for_bus;
         try {
-            Stops_for_bus = tansport_catalogue.GetStopsForBus(v.id);
+            stops_for_bus = tansport_catalogue.GetStopsForBus(v.id);
         } catch (...){
             //Bus 751: not found
             output << "Bus " << v.id << ": not found" << std::endl;
@@ -36,15 +36,47 @@ void ParseAndPrintStat(const TransportCatalogue& tansport_catalogue, std::string
         //print
         double distance {0};
         std::unordered_set<std::string_view> unique_stops;
-        for (const auto& stop : Stops_for_bus){
+        for (const auto& stop : stops_for_bus){
             unique_stops.insert(stop->name);
         }
-        for (size_t i = 0; i < Stops_for_bus.size() - 1; ++i){
-            distance += ComputeDistance(Stops_for_bus[i]->coordinates, Stops_for_bus[i + 1]->coordinates);
+        for (size_t i = 0; i < stops_for_bus.size() - 1; ++i){
+            distance += ComputeDistance(stops_for_bus[i]->coordinates, stops_for_bus[i + 1]->coordinates);
         }
 
-        output << "Bus " << v.id << ": " << Stops_for_bus.size() << " stops on route, ";
+        output << "Bus " << v.id << ": " << stops_for_bus.size() << " stops on route, ";
         output << unique_stops.size() << " unique stops, ";
         output << std::setprecision(6) << distance << " route length" << std::endl;
+        return;
     }
+    if (v.command == "Stop") {
+        /*
+        Stop Samara: not found
+        Stop Prazhskaya: no buses
+        Stop Biryulyovo Zapadnoye: buses 256 828
+        */
+        output << "Stop " << v.id << ": ";
+        //std::set<std::deque<Bus>::const_iterator> stops_for_bus;
+        std::vector<std::deque<Bus>::const_iterator> stops_for_bus;
+        try {
+            stops_for_bus = tansport_catalogue.GetBusesForStop(v.id);
+            if (stops_for_bus.empty()) {
+                output << "no buses" << std::endl;
+                return;
+            }
+            output << "buses ";
+            std::set<std::string_view> buses;
+            for (const auto& bus : stops_for_bus) {
+                buses.insert(bus->name);
+            }
+            for (const auto& bus : buses) {
+                output << bus << " ";
+            }
+            output << std::endl;
+            return;
+        } catch (...) {
+            output << "not found" << std::endl;
+            return;
+        }
+    }
+
 }

@@ -5,7 +5,7 @@
 #include <vector>
 #include <deque>
 #include <unordered_map>
-
+#include <set>
 #include "geo.h"
 
 struct Stop {
@@ -25,14 +25,17 @@ class TransportCatalogue {
 public:
 	std::deque<Stop> stops;
 	std::unordered_map<std::string_view, std::deque<Stop>::const_iterator> stopname_to_stop;
+	std::unordered_map<std::string_view, std::vector<std::deque<Bus>::const_iterator>> stopname_to_bus;
 
     std::deque <Bus> routes;
 	std::unordered_map<std::string_view, std::deque<Bus>::const_iterator> busname_to_route;
-	
+
+
 public:
     // Методы для добавления и получения маршрутов и остановок
     void AddStop(const Stop& stop);
 
     void AddRoute(const std::string& name, const std::vector<std::string_view>& stops_list);
     std::vector<std::deque<Stop>::const_iterator> GetStopsForBus(std::string_view busname) const;
+    std::vector<std::deque<Bus>::const_iterator> GetBusesForStop(std::string_view stopName) const;
 };
