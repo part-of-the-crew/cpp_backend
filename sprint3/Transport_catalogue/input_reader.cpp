@@ -6,10 +6,11 @@
 #include <iostream>
 #include <string>
 
+namespace parsing {
 /**
  * Парсит строку вида "10.123,  -30.1837" и возвращает пару координат (широта, долгота)
  */
-Coordinates ParseCoordinates(std::string_view str) {
+geo::Coordinates ParseCoordinates(std::string_view str) {
     static const double nan = std::nan("");
 
     auto not_space = str.find_first_not_of(' ');
@@ -97,8 +98,23 @@ CommandDescription ParseCommandDescription(std::string_view line) {
             std::string(line.substr(colon_pos + 1))};
 }
 
-void InputReader::ParseLine(std::string_view line) {
-    auto command_description = ParseCommandDescription(line);
+} // namespace
+
+void InputReader::ReadInput(std::istream &in)
+{
+    int base_request_count;
+    in >> base_request_count >> std::ws;
+
+    for (int i = 0; i < base_request_count; ++i) {
+        std::string line;
+        std::getline(in, line);
+        ParseLine(line);
+    }
+}
+
+void InputReader::ParseLine(std::string_view line)
+{
+    auto command_description = parsing::ParseCommandDescription(line);
     if (command_description) {
         commands_.push_back(std::move(command_description));
     }
@@ -109,12 +125,12 @@ void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) 
     InputReader::ReorderCommands();
     for (auto& cmd : commands_) {
         if (cmd.command == "Stop") {
-            Stop stop {cmd.id, ParseCoordinates(cmd.description)};
+            Stop stop {cmd.id, parsing::ParseCoordinates(cmd.description)};
             catalogue.AddStop(std::move(stop));
             continue;
         }
         if (cmd.command == "Bus") {
-            catalogue.AddRoute(cmd.id, ParseRoute(cmd.description));
+            catalogue.AddRoute(cmd.id, parsing::ParseRoute(cmd.description));
             continue;
         }
     }

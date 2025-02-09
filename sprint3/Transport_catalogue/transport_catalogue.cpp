@@ -20,23 +20,26 @@ void TransportCatalogue::AddRoute(const std::string& bus, const std::vector<std:
         }
 
         auto it2 = stopname_to_bus.find(stop_name);
-        it2->second.push_back(routes.cend() - 1);
+        auto it3 = routes.end() - 1;
+        it2->second.insert(it3->name);
     }
     busname_to_route[routes.back().name] = routes.cend() - 1;
 }
 
-std::vector<std::deque<Stop>::const_iterator> TransportCatalogue::GetStopsForBus(std::string_view busName) const {
+std::optional<std::vector<std::deque<Stop>::const_iterator>> 
+TransportCatalogue::GetStopsForBus(std::string_view busName) const {
     const auto it = busname_to_route.find(busName);
     if (it == busname_to_route.cend()){
-        throw std::invalid_argument("Unknown bus name");
+        return std::nullopt;
     }
     return it->second->stops;
 }
 
-std::vector<std::deque<Bus>::const_iterator> TransportCatalogue::GetBusesForStop(std::string_view stopName) const {
+std::optional<std::set<std::string_view>>
+TransportCatalogue::GetBusesForStop(std::string_view stopName) const {
     const auto it = stopname_to_bus.find(stopName);
     if (it == stopname_to_bus.cend()){
-        throw std::invalid_argument("Unknown stop name");
+        return std::nullopt;
     }
     return it->second;
 }

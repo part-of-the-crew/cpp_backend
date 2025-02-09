@@ -7,6 +7,7 @@
 using namespace std;
 
 int main() {
+    /*
     {
         TransportCatalogue catalogue;
         catalogue.AddStop({"Moscow", {0.0, 0.0}});
@@ -32,13 +33,14 @@ int main() {
                 std::vector<std::deque<Stop>::const_iterator>({catalogue.stopname_to_stop.find("Spb")->second,
                                catalogue.stopname_to_stop.find("Moscow")->second})));
     }
+                               */
     {
         std::string s1 = "Bus 11";
-        assert("11" == ParseRequest(s1).id);
-        assert("Bus" == ParseRequest(s1).command);
+        assert("11" == statistics::ParseRequest(s1).id);
+        assert("Bus" == statistics::ParseRequest(s1).command);
         std::string s2 = "Bus  12";
 
-        assert("12" == ParseRequest(s2).id);
+        assert("12" == statistics::ParseRequest(s2).id);
         std::string s3 = "Bus  13  ";
         //std::cout << ParseBusName(s3) << std::endl;
         //return 0;
@@ -48,24 +50,15 @@ int main() {
         std::string s5 = " Bus  15 67";
         //std::cout << ParseBusName(s5) << std::endl;
         //return 0;
-        assert(("15 67" == ParseRequest(s5).id));
-        assert("Bus" == ParseRequest(s5).command);
+        assert(("15 67" == statistics::ParseRequest(s5).id));
+        assert("Bus" == statistics::ParseRequest(s5).command);
     }
     //return 0;
     TransportCatalogue catalogue;
-
-    int base_request_count;
-    cin >> base_request_count >> ws;
-
     {
         InputReader reader;
-        for (int i = 0; i < base_request_count; ++i) {
-            string line;
-            getline(cin, line);
-            reader.ParseLine(line);
-        }
+        reader.ReadInput(cin);
         reader.ApplyCommands(catalogue);
-        //reader.PrintCommands();
     }
 
     int stat_request_count;
@@ -73,6 +66,6 @@ int main() {
     for (int i = 0; i < stat_request_count; ++i) {
         string line;
         getline(cin, line);
-        ParseAndPrintStat(catalogue, line, cout);
+        statistics::ParseAndPrint(catalogue, line, cout);
     }
 }

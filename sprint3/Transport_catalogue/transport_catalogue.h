@@ -6,29 +6,38 @@
 #include <deque>
 #include <unordered_map>
 #include <set>
+#include <optional>
+
 #include "geo.h"
 
 struct Stop {
-	std::string name;
-	Coordinates coordinates;
+    std::string name;
+    geo::Coordinates coordinates;
     bool operator==(const Stop& other) const {
         return (other.name == name) && (other.coordinates == coordinates);
     }
 };
 
 struct Bus {
-	std::string name;
+    std::string name;
     std::vector<std::deque<Stop>::const_iterator> stops;
 };
 
+struct BusStatistics {
+    std::string name;
+    double distance;
+    int unique_stops;
+    int total_stops;
+};
+
 class TransportCatalogue {
-public:
-	std::deque<Stop> stops;
-	std::unordered_map<std::string_view, std::deque<Stop>::const_iterator> stopname_to_stop;
-	std::unordered_map<std::string_view, std::vector<std::deque<Bus>::const_iterator>> stopname_to_bus;
+
+    std::deque<Stop> stops;
+    std::unordered_map<std::string_view, std::deque<Stop>::const_iterator> stopname_to_stop;
+    std::unordered_map<std::string_view, std::set<std::string_view>> stopname_to_bus;
 
     std::deque <Bus> routes;
-	std::unordered_map<std::string_view, std::deque<Bus>::const_iterator> busname_to_route;
+    std::unordered_map<std::string_view, std::deque<Bus>::const_iterator> busname_to_route;
 
 
 public:
@@ -36,6 +45,8 @@ public:
     void AddStop(const Stop& stop);
 
     void AddRoute(const std::string& name, const std::vector<std::string_view>& stops_list);
-    std::vector<std::deque<Stop>::const_iterator> GetStopsForBus(std::string_view busname) const;
-    std::vector<std::deque<Bus>::const_iterator> GetBusesForStop(std::string_view stopName) const;
+    std::optional<std::vector<std::deque<Stop>::const_iterator>> 
+    GetStopsForBus(std::string_view busname) const;
+    std::optional<std::set<std::string_view>> 
+    GetBusesForStop(std::string_view stopName) const;
 };

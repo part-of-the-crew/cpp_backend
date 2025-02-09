@@ -34,6 +34,7 @@ public:
     /**
      * Парсит строку в структуру CommandDescription и сохраняет результат в commands_
      */
+    void ReadInput(std::istream& in);
     void ParseLine(std::string_view line);
     /**
      * Наполняет данными транспортный справочник, используя команды из commands_
@@ -48,5 +49,6 @@ private:
     void ReorderCommands ( void );
 };
 
+namespace parsing { 
 CommandDescription ParseCommandDescription(std::string_view line);
-CommandDescription ParseRequestsDescription(std::string_view line);
+}
