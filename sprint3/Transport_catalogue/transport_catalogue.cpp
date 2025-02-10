@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <unordered_set>
 
 #include "transport_catalogue.h"
 
@@ -42,4 +43,32 @@ TransportCatalogue::GetBusesForStop(std::string_view stopName) const {
         return std::nullopt;
     }
     return it->second;
+}
+
+std::optional<RouteStatistics> 
+TransportCatalogue::GetRouteStatistics(std::string_view busName) const {
+    /*
+    struct RouteStatistics {
+    std::string_view busName;
+    double distance;
+    int uniqueStops;
+    int totalStops;
+};
+*/
+    double distance {0};
+    std::unordered_set<std::string_view> unique_stops;
+
+    const auto it = busname_to_route.find(busName);
+    if (it == busname_to_route.cend()){
+        return std::nullopt;
+    }
+    const auto& v = it->second->stops;
+
+    for (const auto& stop : v){
+        unique_stops.insert(stop->name);
+    }
+    for (size_t i = 0; i < v.size() - 1; ++i){
+        distance += ComputeDistance(v[i]->coordinates, v[i + 1]->coordinates);
+    }
+    return RouteStatistics(busName, distance, unique_stops.size(), v.size());
 }

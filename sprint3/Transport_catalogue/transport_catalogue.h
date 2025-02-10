@@ -23,11 +23,11 @@ struct Bus {
     std::vector<std::deque<Stop>::const_iterator> stops;
 };
 
-struct BusStatistics {
-    std::string name;
+struct RouteStatistics {
+    std::string_view busName;
     double distance;
-    int unique_stops;
-    int total_stops;
+    int uniqueStops;
+    int totalStops;
 };
 
 class TransportCatalogue {
@@ -49,4 +49,5 @@ public:
     GetStopsForBus(std::string_view busname) const;
     std::optional<std::set<std::string_view>> 
     GetBusesForStop(std::string_view stopName) const;
+    std::optional<RouteStatistics> GetRouteStatistics(std::string_view busName) const;
 };

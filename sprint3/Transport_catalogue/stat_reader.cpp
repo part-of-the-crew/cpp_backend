@@ -25,25 +25,16 @@ void ParseAndPrint(const TransportCatalogue& transport_catalogue, std::string_vi
                        std::ostream& output) {
     const auto v = ParseRequest(request);
     if (v.command == "Bus") {
-        const auto stops_for_bus = transport_catalogue.GetStopsForBus(v.id);
-        if (!stops_for_bus.has_value()) {
+        //Bus 256: 6 stops on route, 5 unique stops, 4371.02 route length
+        const auto stat = transport_catalogue.GetRouteStatistics(v.id);
+        if (!stat.has_value()) {
             //Bus 751: not found
             output << "Bus " << v.id << ": not found" << std::endl;
             return;
         }
-        //Bus 256: 6 stops on route, 5 unique stops, 4371.02 route length
-        double distance {0};
-        std::unordered_set<std::string_view> unique_stops;
-        for (const auto& stop : stops_for_bus.value()){
-            unique_stops.insert(stop->name);
-        }
-        for (size_t i = 0; i < stops_for_bus.value().size() - 1; ++i){
-            distance += ComputeDistance(stops_for_bus.value()[i]->coordinates, stops_for_bus.value()[i + 1]->coordinates);
-        }
-
-        output << "Bus " << v.id << ": " << stops_for_bus.value().size() << " stops on route, ";
-        output << unique_stops.size() << " unique stops, ";
-        output << std::setprecision(6) << distance << " route length" << std::endl;
+        output << "Bus " << stat.value().busName << ": " << stat.value().totalStops << " stops on route, ";
+        output << stat.value().uniqueStops << " unique stops, ";
+        output << std::setprecision(6) << stat.value().distance << " route length" << std::endl;
         return;
     }
     if (v.command == "Stop") {
