@@ -1,10 +1,10 @@
-#include "stat_reader.h"
-
 #include <iostream>
 #include <algorithm>
-#include <set>
 #include <unordered_set>
 #include <iomanip>
+
+#include "stat_reader.h"
+#include "input_reader.h"
 
 namespace statistics {
 CommandDescription ParseRequest(std::string_view request){
@@ -44,7 +44,7 @@ void ParseAndPrint(const TransportCatalogue& transport_catalogue, std::string_vi
         Stop Biryulyovo Zapadnoye: buses 256 828
         */
         output << "Stop " << v.id << ": ";
-        const auto stops_for_bus = transport_catalogue.GetBusesForStop(v.id);
+        const auto& stops_for_bus = transport_catalogue.GetBusesForStop(v.id);
         if (!stops_for_bus.has_value()){
             output << "not found" << std::endl;
             return;
@@ -59,6 +59,18 @@ void ParseAndPrint(const TransportCatalogue& transport_catalogue, std::string_vi
         }
         output << std::endl;
         return;
+    }
+}
+
+void ReadAndPrintRequests(const TransportCatalogue &transport_catalogue, std::istream &in, 
+                                std::ostream &out){
+    int base_request_count;
+    in >> base_request_count >> std::ws;
+
+    for (int i = 0; i < base_request_count; ++i) {
+        std::string line;
+        std::getline(in, line);
+        ParseAndPrint(transport_catalogue, line, out);
     }
 }
 
