@@ -4,7 +4,6 @@
 #include <iomanip>
 
 #include "stat_reader.h"
-#include "input_reader.h"
 
 namespace statistics {
 CommandDescription ParseRequest(std::string_view request){
@@ -32,9 +31,10 @@ void ParseAndPrint(const TransportCatalogue& transport_catalogue, std::string_vi
             output << "Bus " << v.id << ": not found" << std::endl;
             return;
         }
-        output << "Bus " << stat.value().busName << ": " << stat.value().totalStops << " stops on route, ";
-        output << stat.value().uniqueStops << " unique stops, ";
-        output << std::setprecision(6) << stat.value().distance << " route length" << std::endl;
+        auto const& stat_value = stat.value();
+        output << "Bus " << stat_value.busName << ": " << stat_value.totalStops << " stops on route, ";
+        output << stat_value.uniqueStops << " unique stops, ";
+        output << std::setprecision(6) << stat_value.distance << " route length" << std::endl;
         return;
     }
     if (v.command == "Stop") {
@@ -45,16 +45,16 @@ void ParseAndPrint(const TransportCatalogue& transport_catalogue, std::string_vi
         */
         output << "Stop " << v.id << ": ";
         const auto& stops_for_bus = transport_catalogue.GetBusesForStop(v.id);
-        if (!stops_for_bus.has_value()){
+        if (stops_for_bus == nullptr){
             output << "not found" << std::endl;
             return;
         }
-        if (stops_for_bus.value().empty()) {
+        if (stops_for_bus->empty()) {
                 output << "no buses" << std::endl;
                 return;
         }
         output << "buses ";
-        for (const auto& bus : stops_for_bus.value()) {
+        for (const auto& bus : *stops_for_bus) {
             output << bus << " ";
         }
         output << std::endl;

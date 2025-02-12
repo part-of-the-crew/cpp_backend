@@ -27,22 +27,22 @@ void TransportCatalogue::AddRoute(const std::string& bus, const std::vector<std:
     busname_to_route[routes.back().name] = routes.cend() - 1;
 }
 
-std::optional<std::vector<std::deque<Stop>::const_iterator>> 
+const Bus*
 TransportCatalogue::GetStopsForBus(std::string_view busName) const {
     const auto it = busname_to_route.find(busName);
     if (it == busname_to_route.cend()){
-        return std::nullopt;
+        return nullptr;
     }
-    return it->second->stops;
+    return &(*it->second);
 }
 
-std::optional<std::set<std::string_view>>
+const std::set<std::string_view>* 
 TransportCatalogue::GetBusesForStop(std::string_view stopName) const {
     const auto it = stopname_to_bus.find(stopName);
-    if (it == stopname_to_bus.cend()){
-        return std::nullopt;
+    if (it == stopname_to_bus.cend()) {
+        return nullptr;  // Indicate absence
     }
-    return it->second;
+    return &it->second;  // Return pointer to set
 }
 
 std::optional<RouteStatistics> 
@@ -58,11 +58,11 @@ TransportCatalogue::GetRouteStatistics(std::string_view busName) const {
     double distance {0};
     std::unordered_set<std::string_view> unique_stops;
 
-    const auto it = busname_to_route.find(busName);
-    if (it == busname_to_route.cend()){
+    const auto p = GetStopsForBus(busName);
+    if (p == nullptr) {
         return std::nullopt;
     }
-    const auto& v = it->second->stops;
+    const auto v = p->stops;
 
     for (const auto& stop : v){
         unique_stops.insert(stop->name);

@@ -45,9 +45,9 @@ public:
     void AddStop(const Stop& stop);
 
     void AddRoute(const std::string& name, const std::vector<std::string_view>& stops_list);
-    std::optional<std::vector<std::deque<Stop>::const_iterator>> 
+    const Bus*
     GetStopsForBus(std::string_view busname) const;
-    std::optional<std::set<std::string_view>> 
+    const std::set<std::string_view>*
     GetBusesForStop(std::string_view stopName) const;
     std::optional<RouteStatistics> GetRouteStatistics(std::string_view busName) const;
 };
