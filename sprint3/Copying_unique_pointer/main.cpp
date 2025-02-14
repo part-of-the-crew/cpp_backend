@@ -43,22 +43,16 @@ public:
     Witch& operator=(Witch&& other) noexcept = default;
     ~Witch() = default;
 
-    //copy constructor
-    Witch(Witch& other){
-        name_ = other.name_;
-        auto cat1 = other.ReleaseCat();
-        auto cat2 = std::make_unique<Cat>(cat1->GetName(), cat1->GetAge());
-        other.SetCat(std::move(cat2));
-        SetCat(std::move(cat1));
-    };
-    //copy assugment operator
-    Witch& operator=(Witch& other){
-        if (this!= &other) {
-            name_ = other.name_;
-            auto cat1 = other.ReleaseCat();
-            auto cat2 = std::make_unique<Cat>(cat1->GetName(), cat1->GetAge());
-            other.SetCat(std::move(cat2));
-            SetCat(std::move(cat1));
+    Witch(const Witch& other)
+            : name_(other.name_)
+            , cat_(make_unique<Cat>(*other.cat_)) // Создаем копию кота
+    {
+    }
+
+    Witch& operator=(const Witch& rhs) {
+        if (this != &rhs) {
+            name_ = rhs.name_;
+            cat_ = make_unique<Cat>(*rhs.cat_); // Создаём копию кота
         }
         return *this;
     }
