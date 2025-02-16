@@ -1,5 +1,5 @@
 #include <cassert>
-
+#include <iostream>
 #include "bimap.h"
 
 int main() {
@@ -10,7 +10,8 @@ int main() {
         const bool cat_added = bimap.Add("Cat"sv, "Koshka"sv);
 
         assert(cat_added);
-
+        //std::cout << bimap.FindValue("Cat"sv).value() << std::endl;
+        //return 0;
         assert(bimap.FindValue("Cat"sv) == "Koshka"sv);
         assert(bimap.FindKey("Koshka"sv) == "Cat"sv);
         assert(!bimap.FindKey("Cat"sv));
