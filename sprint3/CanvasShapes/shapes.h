@@ -1,6 +1,6 @@
 #pragma once
 #include "texture.h"
-
+#include <iostream>
 #include <memory>
 
 // Поддерживаемые виды фигур: прямоугольник и эллипс
@@ -53,23 +53,38 @@ public:
         2 image in texture
 
         */
-        if (!texture_)
-            return;
-        auto tsize = texture_->GetSize();
-        auto pixel_color = texture_->GetPixelColor({0, 0});
-        for (int y = 0; y < size_.height; ++y) {
-            for (int x = 0; x < size_.width; ++x) {
-                if (type_ == ShapeType::RECTANGLE) {
-                    if (IsPointInEllipse(Point{x, y}, size_)) {
-                        pixel_color = texture_->GetPixelColor({x + pos_.x, y + pos_.y});
-                    } else {
+        Size tsize;
+        if (!texture_) {
+            tsize = {0,0};
+        } else {
+            tsize = texture_->GetSize();
+        }
+        
+        auto isize = GetImageSize(image);
+        //if (isize.height == 0 || isize.width == 0 || tsize.height == 0 || tsize.width == 0)
+        //    return;
 
+        //auto pixel_color = texture_->GetPixelColor({0, 0});
+        // Заполняем полотно цветом фигуры
+        //std::cout << pos_.x << " " << pos_.y << texture_->GetPixelColor({pos_.x, pos_.y}) << std::endl;
+        //for (int y = 0; y < size_.height; ++y) {
+            //for (int x = 0; x < size_.width; ++x) {
+        for (int y = pos_.y; y < std::min(size_.height + pos_.y, isize.height); ++y) {
+            for (int x = pos_.x; x < std::min(size_.width + pos_.x, isize.width); ++x) {
+                //image.at(y).at(x) =  ' ';
+                if (type_ == ShapeType::RECTANGLE) {
+                    if (tsize.height <= y - pos_.y || tsize.width <= x - pos_.x) {
+                        image.at(y).at(x) = '.';
+                    } else {
+                        image.at(y).at(x) = texture_->GetPixelColor({x - pos_.x, y - pos_.y});
                     }
                 } else if (type_ == ShapeType::ELLIPSE) {
-                    if (IsPointInEllipse(Point{x, y}, size_)) {
-                        pixel_color = texture_->GetPixelColor({x + pos_.x, y + pos_.y});
-                    } else {
-
+                    if (IsPointInEllipse(Point{x - pos_.x, y - pos_.y}, size_)) {
+                        if (tsize.height <= y - pos_.y || tsize.width <= x - pos_.x) {
+                            image.at(y).at(x) = '.';
+                        } else {
+                            image.at(y).at(x) = texture_->GetPixelColor({x - pos_.x, y - pos_.y});
+                        }
                     }
                 }
             }
@@ -79,7 +94,7 @@ public:
     //
 private:
     ShapeType type_;
-    Point pos_;
-    Size size_;
-    std::shared_ptr<Texture> texture_;  // Указатель на текстуру, может быть nullptr
+    Point pos_ = {};
+    Size size_ = {};
+    std::shared_ptr<Texture> texture_ = nullptr;  // Указатель на текстуру, может быть nullptr
 };

@@ -16,10 +16,12 @@ public:
     // Возвращает цвет пикселя.
     // Если координаты выходят за границы изображения, возвращается пробел
     char GetPixelColor(Point p) const {
+        
         if (p.x < 0 || p.x >= static_cast<int>(image_.front().size()) ||
             p.y < 0 || p.y >= static_cast<int>(image_.size())) {
-            return '.';
+            return ' ';
         }
+        
         return image_[p.y][p.x];
     }
 
