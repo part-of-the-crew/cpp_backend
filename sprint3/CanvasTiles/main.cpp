@@ -15,7 +15,7 @@ int main() {
             " CCCC             \n");
         Print(img, std::cout);
     }
-
+/*
     {
         Image img{{30, 20}, '.'};
 
@@ -25,4 +25,5 @@ int main() {
 
         Print(img, std::cout);
     }
+*/
 }
