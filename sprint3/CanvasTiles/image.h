@@ -36,7 +36,7 @@ public:
     char GetPixel(Point p) const noexcept {
         if (!IsPointInSize(p, size_))
             return ' ';
-        //return tiles_[GetTileIndex(p)].GetPixel(p - Point{p.x % Tile::SIZE, p.y % Tile::SIZE});
+        return tiles_[GetTileIndex(p)]->GetPixel({p.x - p.x % Tile::SIZE, p.y - p.y % Tile::SIZE});
     }
 
     /**
