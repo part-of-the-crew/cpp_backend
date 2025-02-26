@@ -21,7 +21,7 @@ public:
         , size_in_tiles_{(size_.width + Tile::SIZE - 1) / Tile::SIZE,
                          (size_.height + Tile::SIZE - 1) / Tile::SIZE}
         , tiles_{static_cast<size_t>(size_in_tiles_.width * size_in_tiles_.height),
-                 CoWTile{Tile{color}}} {
+            CoW<Tile>{Tile{color}}} {
     }
 
     // Возвращает размер изображения в пикселях.
@@ -36,7 +36,7 @@ public:
     char GetPixel(Point p) const noexcept {
         if (!IsPointInSize(p, size_))
             return ' ';
-        return tiles_[GetTileIndex(p)]->GetPixel({p.x - p.x % Tile::SIZE, p.y - p.y % Tile::SIZE});
+        return tiles_[GetTileIndex(p)]->GetPixel(GetTilePoint(p));
     }
 
     /**
@@ -46,21 +46,27 @@ public:
     void SetPixel(Point p, char color) {
         if (!IsPointInSize(p, size_))
             return;
-        ///TODO
+        //tiles_[GetTileIndex(p)]->SetPixel(GetTilePoint(p), color);
+        auto& tile = tiles_[GetTileIndex(p)].WriteBad();
+        tile.SetPixel(GetTilePoint(p), color);
     }
 
 private:
-    using CoWTile = CoW<Tile>;
+    //using CoWTile = CoW<Tile>;
 
     // Возвращает порядковый номер тайла, в котором находится пиксель с координатами p
     int GetTileIndex(Point p) const noexcept {
         assert((p.x >= 0) && (p.x < size_.width) && (p.y >= 0) && (p.y < size_.height));
         return (p.y / Tile::SIZE) * size_in_tiles_.width + (p.x / Tile::SIZE);
     }
-
+    // Возвращает координаты внутри тайла, в котором находится пиксель с координатами p
+    Point GetTilePoint(Point p) const noexcept {
+        return {p.x % Tile::SIZE, p.y % Tile::SIZE};
+    }
+    
     Size size_;                   // Размер изображения в пикселях.
     Size size_in_tiles_;          // Размер изображения в тайлах.
-    std::vector<CoWTile> tiles_;  // Тайлы изображения (строка за строкой).
+    std::vector<CoW<Tile>> tiles_;  // Тайлы изображения (строка за строкой).
 };
 
 /**
