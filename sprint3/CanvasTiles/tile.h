@@ -49,7 +49,7 @@ public:
      * Возвращает цвет пикселя. Если координаты выходят за пределы тайла, возвращается пробел.
      */
     char GetPixel(Point p) const noexcept {
-        if (p.x >= SIZE || p.y >= SIZE)
+        if (p.x >= SIZE || p.y >= SIZE || p.x < 0 || p.y < 0)
             return ' ';
         return image_.at(p.y).at(p.x);
     }
