@@ -10,8 +10,9 @@ public:
     constexpr static int SIZE = 8;
     using Image = std::vector<std::string>;
     // Конструктор по умолчанию. Заполняет тайл указанным цветом.
-    Tile(char color = ' ') noexcept {
-        /* Реализуйте недостающий код самостоятельно. */
+    Tile(char color = ' ') noexcept :
+        image_(SIZE, std::string(SIZE, color)) 
+        {
 
         // -------------- не удалять ------------
         assert(instance_count_ >= 0);
@@ -20,8 +21,7 @@ public:
     }
 
     Tile(const Tile& other) {
-        /* Реализуйте недостающий код самостоятельно. */
-
+        image_ = other.image_;
         // -------------- не удалять ------------
         assert(instance_count_ >= 0);
         ++instance_count_;  // Увеличиваем счётчик тайлов (для целей тестирования).
@@ -40,7 +40,9 @@ public:
      * Если координаты выходят за пределы тайла, метод ничего не делает.
      */
     void SetPixel(Point p, char color) noexcept {
-        image_[p.y][p.x] = color;
+        if (p.x >= SIZE || p.y >= SIZE)
+            return;
+        image_.at(p.y).at(p.x) = color;
     }
 
     /**
@@ -49,7 +51,7 @@ public:
     char GetPixel(Point p) const noexcept {
         if (p.x >= SIZE || p.y >= SIZE)
             return ' ';
-        return image_[p.y][p.x];
+        return image_.at(p.y).at(p.x);
     }
 
     // Возвращает количество экземпляра класса Tile в программе.
