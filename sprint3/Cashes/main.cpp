@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 
 using namespace std::string_literals;
 
@@ -18,8 +19,8 @@ public:
     // Фабрика должна вернуть shared_ptr<Value> либо unique_ptr<Value>.
     // Пример использования:
     // shared_ptr<Value> value = value_factory(key);
-    explicit Cache(ValueFactoryFn value_factory) {
-        m_value_factory = value_factory;
+    explicit Cache(ValueFactoryFn value_factory)
+            : m_value_factory(std::move(value_factory)) {
     }
 
     // Возвращает закешированное значение по ключу. Если значение отсутствует или уже удалено,
@@ -42,7 +43,7 @@ public:
     private:
     std::unordered_map<Key, std::weak_ptr<Value>> m_key;
     // weak_ptr для того, чтобы удаление не приводило к удалению ссылок на объект
-    std::unordered_map<Key, std::weak_ptr<Value>> m_value;
+    //std::unordered_map<Key, std::weak_ptr<Value>> m_value;
     // Значение фабрики, создаваемое при инициализации кеша
     ValueFactoryFn m_value_factory;
 
@@ -130,7 +131,10 @@ public:
     using BookStore = std::unordered_map<std::string, std::string>;
 
     // Принимает константную ссылку на хранилище книг и ссылку на переменную-счётчик загрузок
-    explicit BookLoader(const BookStore& store, size_t& load_count) {
+    explicit BookLoader(const std::unordered_map<std::string, std::string>& store, size_t& load_count)
+    : m_books(store)
+    , m_load_count(load_count)  //
+    {
         // Реализуйте конструктор самостоятельно
     }
 
@@ -140,19 +144,29 @@ public:
     // Если книга в хранилище отсутствует, нужно выбросить исключение std::out_of_range,
     // а счётчик не увеличивать
     std::shared_ptr<Book> operator()(const std::string& title) const {
-        // Заглушка, реализуйте метод самостоятельно
-        (void) title;
-        throw std::out_of_range("Not implemented"s);
+        const std::string& content = m_books.at(title);
+        auto book = std::make_shared<Book>(title, content);
+        ++m_load_count;
+        return book;
     }
 
 private:
     // Добавьте необходимые данные и/или методы
+    // для работы с книгами и хранилищем
+    // (например, хранение книг и счётчика загрузок)
+    const std::unordered_map<std::string, std::string> &m_books;
+    // Ссылка на счётчик загрузок, переданный в конструкторе
+    size_t& m_load_count;
+    // Данные и/или методы для работы с книгами и хранилищем
+    // (например, загрузка книг из файла, базы данных, etc.)
+    //std::unordered_map<std::string, std::weak_ptr<Book>> m_weak;
+
 };
 
 void Test2() {
     using namespace std;
     // Хранилище книг.
-    BookLoader::BookStore books{
+    std::unordered_map<std::string, std::string> books{
         {"Sherlock Holmes"s,
          "To Sherlock Holmes she is always the woman. I have seldom heard him mention her under any other name."s},
         {"Harry Potter"s, "Chapter 1. The boy who lived. ...."s},
@@ -215,5 +229,5 @@ void Test2() {
 
 int main() {
     Test1();
-    //Test2();
+    Test2();
 }
