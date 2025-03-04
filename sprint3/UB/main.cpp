@@ -11,14 +11,27 @@ using namespace std;
 
 template <typename T>
 std::optional<T> SafeAdd(T a, T b) {
-    // при переполнении возвращается nullopt, иначе - сумма
-    ...
-    std::numeric_limits<T>::max();
+    if (a > 0 && b > 0) {
+        if (a > numeric_limits<T>::max() - b) {
+            return nullopt;
+        }
+    }
+    if (a < 0 && b < 0) {
+        if (a < numeric_limits<T>::min() - b) {
+            return nullopt;
+        }
+    }
+    return a + b;
 }
 
 int main() {
     int64_t a;
     int64_t b;
     cin >> a >> b;
-    cout << a + b << endl;
+    auto result = SafeAdd(a, b);
+    if (result.has_value()) {
+        cout << result.value() << endl;
+    } else {
+        cout << "Overflow!" << endl;
+    }
 }
