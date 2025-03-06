@@ -1,5 +1,5 @@
-Bus 256: 6 stops on route, 5 unique stops, 4371.02 route length
-Bus 750: 5 stops on route, 3 unique stops, 20939.5 route length
+Bus 256: 6 stops on route, 5 unique stops, 5950 route length, 1.36124 curvature
+Bus 750: 7 stops on route, 3 unique stops, 27400 route length, 1.30853 curvature
 Bus 751: not found
 Stop Samara: not found
 Stop Prazhskaya: no buses
