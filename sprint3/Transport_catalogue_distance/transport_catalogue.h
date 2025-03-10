@@ -39,7 +39,8 @@ class TransportCatalogue {
     std::deque <Bus> routes;
     std::unordered_map<std::string_view, std::deque<Bus>::const_iterator> busname_to_route;
 
-
+    std::unordered_map<std::pair<Stop*, Stop*>, int> distances;
+    
 public:
     // Методы для добавления и получения маршрутов и остановок
     void AddStop(const Stop& stop);

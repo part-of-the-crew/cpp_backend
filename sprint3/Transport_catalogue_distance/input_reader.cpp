@@ -28,6 +28,9 @@ geo::Coordinates ParseCoordinates(std::string_view str) {
     return {lat, lng};
 }
 
+void ParseLocation(std::string_view desc) {
+
+}
 /**
  * Удаляет пробелы в начале и конце строки
  */
@@ -77,7 +80,7 @@ std::vector<std::string_view> ParseRoute(std::string_view route) {
     return results;
 }
 
-CommandDescription ParseCommandDescription(std::string_view line) {
+CommandDescription ParseCommandLine(std::string_view line) {
     auto colon_pos = line.find(':');
     if (colon_pos == line.npos) {
         return {};
@@ -121,11 +124,11 @@ void InputReader::ParseLine(std::string_view line)
 }
 
 void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) {
-    // Реализуйте метод самостоятельно
     InputReader::ReorderCommands();
     for (auto& cmd : commands_) {
         if (cmd.command == "Stop") {
-            Stop stop {cmd.id, parsing::ParseCoordinates(cmd.description)};
+            //Stop stop {cmd.id, parsing::ParseCoordinates(cmd.description)};
+            Stop stop {cmd.id, parsing::ParseLocation(cmd.description)};
             catalogue.AddStop(std::move(stop));
             continue;
         }
