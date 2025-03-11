@@ -4,6 +4,7 @@
 #include "input_reader.h"
 #include "stat_reader.h"
 #include <cassert>
+#include <vector>
 using namespace std;
 
 int main() {
@@ -25,6 +26,12 @@ int main() {
         //return 0;
         assert(("15 67" == statistics::ParseRequest(s5).id));
         assert("Bus" == statistics::ParseRequest(s5).command);
+    }
+    {
+        auto vp = parsing::ParseDistances("55.611087, 37.20829, 3900m to Marushkino");
+        auto test_vp = std::vector<std::pair<std::string, int>> ({std::make_pair("Marushkino", 3900)});
+        std::cout << test_vp[0].first << std::endl;
+        //assert(vp == test_vp);
     }
     //return 0;
     TransportCatalogue catalogue;

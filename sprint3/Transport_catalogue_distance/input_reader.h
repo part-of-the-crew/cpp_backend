@@ -51,4 +51,5 @@ private:
 
 namespace parsing { 
 CommandDescription ParseCommandDescription(std::string_view line);
+std::vector<std::pair<std::string, int>> ParseDistances(std::string_view sv);
 }

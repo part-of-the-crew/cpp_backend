@@ -130,7 +130,7 @@ void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) 
             continue;
         }
         if (cmd.command == "Bus") {
-            catalogue.AddRoute(cmd.id, parsing::ParseRoute(cmd.description));
+            catalogue.AddBus(cmd.id, parsing::ParseRoute(cmd.description));
             continue;
         }
     }

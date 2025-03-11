@@ -28,8 +28,27 @@ geo::Coordinates ParseCoordinates(std::string_view str) {
     return {lat, lng};
 }
 
-void ParseLocation(std::string_view desc) {
+std::vector<std::pair<std::string, int>> ParseDistances(std::string_view sv) {
+    std::vector<std::pair<std::string, int>> result;
+    sv.remove_prefix(sv.find_first_of(',') + 1);
+    sv.remove_prefix(sv.find_first_of(',') + 2);
+    //std::cout << sv << std::endl;
+    //return result;
+    //size_t pos = 0;
+    while (sv.size() > 1) {
+        int m = std::stoi(std::string(sv));
+        sv.remove_prefix(sv.find_first_of('m'));
+        sv.remove_prefix(sv.find_first_of(' '));
+        sv.remove_prefix(sv.find_first_of(' '));
+        auto pos = sv.find_first_of(' ');
+        auto stop = sv.substr(0, pos);
+        result.push_back(std::make_pair(std::string(stop), m));
+        sv.remove_prefix(pos);
+        std::cout << sv << std::endl;
+        return result;
+    }
 
+    return result;
 }
 /**
  * Удаляет пробелы в начале и конце строки
@@ -80,6 +99,27 @@ std::vector<std::string_view> ParseRoute(std::string_view route) {
     return results;
 }
 
+CommandDescription ParseCommandDescription(std::string_view line) {
+    auto colon_pos = line.find(':');
+    if (colon_pos == line.npos) {
+        return {};
+    }
+
+    auto space_pos = line.find(' ');
+    if (space_pos >= colon_pos) {
+        return {};
+    }
+
+    auto not_space = line.find_first_not_of(' ', space_pos);
+    if (not_space >= colon_pos) {
+        return {};
+    }
+
+    return {std::string(line.substr(0, space_pos)),
+            std::string(line.substr(not_space, colon_pos - not_space)),
+            std::string(line.substr(colon_pos + 1))};
+}
+
 CommandDescription ParseCommandLine(std::string_view line) {
     auto colon_pos = line.find(':');
     if (colon_pos == line.npos) {
@@ -127,18 +167,16 @@ void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) 
     InputReader::ReorderCommands();
     for (auto& cmd : commands_) {
         if (cmd.command == "Stop") {
-            //Stop stop {cmd.id, parsing::ParseCoordinates(cmd.description)};
-            Stop stop {cmd.id, parsing::ParseLocation(cmd.description)};
-            catalogue.AddStop(std::move(stop));
+            Stop stop {cmd.id, parsing::ParseCoordinates(cmd.description)};
+            catalogue.AddStop(std::move(stop), parsing::ParseDistances(cmd.description));
             continue;
         }
         if (cmd.command == "Bus") {
-            catalogue.AddRoute(cmd.id, parsing::ParseRoute(cmd.description));
+            catalogue.AddBus(cmd.id, parsing::ParseRoute(cmd.description));
             continue;
         }
     }
 }
-
 void InputReader::PrintCommands() const
 {
     for (const auto& command_ : commands_) {

@@ -44,7 +44,7 @@ public:
     // Методы для добавления и получения маршрутов и остановок
     void AddStop(const Stop& stop);
 
-    void AddRoute(const std::string& name, const std::vector<std::string_view>& stops_list);
+    void AddBus(const std::string& name, const std::vector<std::string_view>& stops_list);
     const Bus*
     GetStopsForBus(std::string_view busname) const;
     const std::set<std::string_view>*

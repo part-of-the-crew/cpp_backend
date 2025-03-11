@@ -9,7 +9,7 @@ void TransportCatalogue::AddStop(const Stop& stop) {
     stopname_to_bus[stops.back().name] = {};
 };
 
-void TransportCatalogue::AddRoute(const std::string& bus, const std::vector<std::string_view>& stops_list){
+void TransportCatalogue::AddBus(const std::string& bus, const std::vector<std::string_view>& stops_list){
     routes.push_back({ std::move(bus), {}});
     for ( auto const& stop_name: stops_list){
         const auto it = stopname_to_stop.find(stop_name);
