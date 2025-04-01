@@ -15,10 +15,6 @@ int main() {
         std::string s2 = "Bus  12";
 
         assert("12" == statistics::ParseRequest(s2).id);
-        std::string s3 = "Bus  13  ";
-        //std::cout << ParseBusName(s3) << std::endl;
-        //return 0;
-        //assert("13" == ParseBusName(s3));
         std::string s4 = " Bus  14  ";
         //assert(("14" == ParseBusName(s4)));
         std::string s5 = " Bus  15 67";
@@ -28,10 +24,25 @@ int main() {
         assert("Bus" == statistics::ParseRequest(s5).command);
     }
     {
+        auto vp = parsing::ParseDistances("55.611087, 37.20829");
+        assert(vp.size() == 0);
+
+    }
+    {
         auto vp = parsing::ParseDistances("55.611087, 37.20829, 3900m to Marushkino");
         auto test_vp = std::vector<std::pair<std::string, int>> ({std::make_pair("Marushkino", 3900)});
-        std::cout << test_vp[0].first << std::endl;
-        //assert(vp == test_vp);
+        assert(vp == test_vp);
+
+    }
+    {
+        auto vp = parsing::ParseDistances("55.595884, 37.209755, 9900m to Biryulyovo Passazhirskaya1, 100m to Biryulyovo Passazhirskaya2");
+        auto test_vp = std::vector<std::pair<std::string, int>> (
+            {
+                {"Biryulyovo Passazhirskaya1", 9900},
+                {"Biryulyovo Passazhirskaya2", 100}
+            }
+        );
+        assert(vp == test_vp);
     }
     //return 0;
     TransportCatalogue catalogue;

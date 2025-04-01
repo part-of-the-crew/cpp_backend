@@ -31,14 +31,20 @@ struct RouteStatistics {
 };
 
 class TransportCatalogue {
-    struct Hasher {
-        size_t operator() (const std::pair<Stop*, Stop*> &p) const {
-            std::size_t h1 = std::hash<Stop*>()(p.first);
-            std::size_t h2 = std::hash<Stop*>()(p.second);
+    struct PtrPtrHasher {
+        size_t operator() (const std::pair<const Stop*, const Stop*> &p) const {
+            std::size_t h1 = std::hash<const Stop*>()(p.first);
+            std::size_t h2 = std::hash<const Stop*>()(p.second);
             return (h1 << 1) ^ (h2);
         }
     };
-
+    struct PtrStrHasher {
+        size_t operator() (const std::pair<const Stop*, std::string> &p) const {
+            std::size_t h1 = std::hash<const Stop*>()(p.first);
+            std::size_t h2 = std::hash<std::string>()(p.second);
+            return (h1 << 1) ^ (h2);
+        }
+    };
     std::deque<Stop> stops;
     std::unordered_map<std::string_view, std::deque<Stop>::const_iterator> stopname_to_stop;
     std::unordered_map<std::string_view, std::set<std::string_view>> stopname_to_bus;
@@ -46,8 +52,8 @@ class TransportCatalogue {
     std::deque <Bus> routes;
     std::unordered_map<std::string_view, std::deque<Bus>::const_iterator> busname_to_route;
 
-    std::unordered_map<std::pair<Stop*, Stop*>, int, Hasher> distances;
-
+    std::unordered_map<std::pair<const Stop*, const Stop*>, int, PtrPtrHasher> distances;
+    std::unordered_map<std::pair<const Stop*, std::string>, int, PtrStrHasher> buffer_distances;
 
     
 public:
@@ -57,4 +63,5 @@ public:
     const Bus* GetStopsForBus(std::string_view busname) const;
     const std::set<std::string_view>* GetBusesForStop(std::string_view stopName) const;
     std::optional<RouteStatistics> GetRouteStatistics(std::string_view busName) const;
+    void ReallocateDistances(void);
 };

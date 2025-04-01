@@ -3,10 +3,22 @@
 
 #include "transport_catalogue.h"
 
-void TransportCatalogue::AddStop(const Stop& stop, std::vector<std::pair<std::string, int>>) { 
+void TransportCatalogue::AddStop(const Stop& stop, std::vector<std::pair<std::string, int>> vp) { 
     stops.push_back(std::move(stop));
     stopname_to_stop[stops.back().name] = stops.cend() - 1;
     stopname_to_bus[stops.back().name] = {};
+    buffer_distances.insert({{&stops.back(), stop.name}, 0});
+    for (auto& [str, m]: vp){
+        buffer_distances.insert({{&stops.back(), std::move(str)}, m});
+    }
+}
+void TransportCatalogue::ReallocateDistances() {
+    for (auto [pair, m]: buffer_distances){
+        const Stop* ptr = &(*stopname_to_stop[pair.second]);
+        auto p_to_ins = std::make_pair(pair.first, ptr);
+        distances.insert({p_to_ins, m});
+    }
+    buffer_distances.clear();
 };
 
 void TransportCatalogue::AddBus(const std::string& bus, const std::vector<std::string_view>& stops_list){

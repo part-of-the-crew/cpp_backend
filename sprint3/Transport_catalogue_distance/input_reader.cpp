@@ -30,22 +30,23 @@ geo::Coordinates ParseCoordinates(std::string_view str) {
 
 std::vector<std::pair<std::string, int>> ParseDistances(std::string_view sv) {
     std::vector<std::pair<std::string, int>> result;
+    
     sv.remove_prefix(sv.find_first_of(',') + 1);
+    size_t pos = sv.find_first_of(',');
+    if (pos == std::string::npos)
+        return result;
+    sv.remove_prefix(pos);    
     sv.remove_prefix(sv.find_first_of(',') + 2);
-    //std::cout << sv << std::endl;
-    //return result;
-    //size_t pos = 0;
     while (sv.size() > 1) {
         int m = std::stoi(std::string(sv));
-        sv.remove_prefix(sv.find_first_of('m'));
-        sv.remove_prefix(sv.find_first_of(' '));
-        sv.remove_prefix(sv.find_first_of(' '));
-        auto pos = sv.find_first_of(' ');
+        sv.remove_prefix(sv.find_first_of('m') + 5);
+        pos = std::min(sv.find_first_of(','), sv.size());
         auto stop = sv.substr(0, pos);
-        result.push_back(std::make_pair(std::string(stop), m));
+        result.push_back({std::string(stop), m});
         sv.remove_prefix(pos);
-        std::cout << sv << std::endl;
-        return result;
+        sv.remove_prefix(std::min(sv.find_first_of(' '), sv.size()));
+        //std::cout << sv << pos << std::endl;
+        //return result;
     }
 
     return result;
