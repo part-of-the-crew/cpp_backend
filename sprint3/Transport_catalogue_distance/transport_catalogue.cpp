@@ -8,11 +8,10 @@ void TransportCatalogue::AddStop(const Stop& stop, std::vector<std::pair<std::st
     stops.push_back(std::move(stop));
     stopname_to_stop[stops.back().name] = stops.cend() - 1;
     stopname_to_bus[stops.back().name] = {};
-    buffer_distances.insert({{&stops.back(), stop.name}, 0});
     for (auto& [str, m]: vp){
         buffer_distances.insert({{&stops.back(), std::move(str)}, m});
     }
-    
+    buffer_distances.insert({{&stops.back(), stop.name}, 0});
 }
 void TransportCatalogue::ReallocateDistances() {
     for (auto [pair, m]: buffer_distances){
@@ -103,20 +102,21 @@ TransportCatalogue::GetRouteStatistics(std::string_view busName) const {
         throw std::invalid_argument("Division by 0");
     }
     int j = 0;
-    std::cout << "size = " << v.size() << std::endl;
+    //std::cout << "size = " << v.size() << std::endl;
     for (size_t i = 0; i < v.size() - 1; ++i){
         j++;
-        auto p_to_ins = std::make_pair(&(*v[i]), &(*v[i + 1]));
-        auto it = distances.find(p_to_ins);
-        if (j < 6)
-            std::cout << it->second << " ";
+        //auto p_to_ins = std::make_pair(&(*v[i]), &(*v[i + 1]));
+        auto it = distances.find({&(*v[i]), &(*v[i + 1])});
+        //if (j < 6)
+        //    std::cout << it->second << " ";
         
-        if (it == distances.end() && 0) {
-            //std::cout << &(*v[i]) << std::endl << std::flush;
-            throw std::invalid_argument (std::to_string(j));
+        if (it == distances.end()) {
+            it = distances.find({&(*v[i + 1]), &(*v[i])});
+            if (it == distances.end()) 
+                throw std::invalid_argument ("Help");
         }
-        std::cout << std::endl;
-        //trajectory += it->second;
+        //std::cout << std::endl;
+        trajectory += it->second;
     }
     return RouteStatistics(busName, trajectory, trajectory/distance, unique_stops.size(), v.size());
 }
