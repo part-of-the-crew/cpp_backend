@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <iostream>
 #include <unordered_set>
 
 #include "transport_catalogue.h"
@@ -11,6 +12,7 @@ void TransportCatalogue::AddStop(const Stop& stop, std::vector<std::pair<std::st
     for (auto& [str, m]: vp){
         buffer_distances.insert({{&stops.back(), std::move(str)}, m});
     }
+    
 }
 void TransportCatalogue::ReallocateDistances() {
     for (auto [pair, m]: buffer_distances){
@@ -68,6 +70,7 @@ TransportCatalogue::GetRouteStatistics(std::string_view busName) const {
 };
 */
     double distance {0};
+    double trajectory {0};
     std::unordered_set<std::string_view> unique_stops;
 
     const auto p = GetStopsForBus(busName);
@@ -79,8 +82,41 @@ TransportCatalogue::GetRouteStatistics(std::string_view busName) const {
     for (const auto& stop : v){
         unique_stops.insert(stop->name);
     }
+    //std::cout << "size =  " << distances.size() << std::endl;
+    /*
+    for (size_t i = 0; i < v.size(); ++i){
+        PtrPtrHasher hasher;
+
+        size_t hashValue = hasher({&(*v[i]), &(*v[i + 1])});
+        std::cout << &(*v[i]) << " " << hashValue << std::endl;
+    }
+    for (auto [f, s]: distances){
+        PtrPtrHasher hasher;
+        size_t hashValue = hasher({f.first, f.second});
+        std::cout << f.first << " " << f.second << " " << hashValue << std::endl;
+    }
+    */
     for (size_t i = 0; i < v.size() - 1; ++i){
         distance += ComputeDistance(v[i]->coordinates, v[i + 1]->coordinates);
     }
-    return RouteStatistics(busName, distance, unique_stops.size(), v.size());
+    if (0 == distance){
+        throw std::invalid_argument("Division by 0");
+    }
+    int j = 0;
+    std::cout << "size = " << v.size() << std::endl;
+    for (size_t i = 0; i < v.size() - 1; ++i){
+        j++;
+        auto p_to_ins = std::make_pair(&(*v[i]), &(*v[i + 1]));
+        auto it = distances.find(p_to_ins);
+        if (j < 6)
+            std::cout << it->second << " ";
+        
+        if (it == distances.end() && 0) {
+            //std::cout << &(*v[i]) << std::endl << std::flush;
+            throw std::invalid_argument (std::to_string(j));
+        }
+        std::cout << std::endl;
+        //trajectory += it->second;
+    }
+    return RouteStatistics(busName, trajectory, trajectory/distance, unique_stops.size(), v.size());
 }

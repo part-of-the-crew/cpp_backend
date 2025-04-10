@@ -50,6 +50,7 @@ int main() {
         InputReader reader;
         reader.ReadInput(cin);
         reader.ApplyCommands(catalogue);
+        catalogue.ReallocateDistances();
     }
 
     statistics::ReadAndPrintRequests(catalogue, cin, cout);

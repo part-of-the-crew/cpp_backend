@@ -25,7 +25,8 @@ struct Bus {
 
 struct RouteStatistics {
     std::string_view busName;
-    double distance;
+    double trajectory;
+    double curvature;
     int uniqueStops;
     int totalStops;
 };

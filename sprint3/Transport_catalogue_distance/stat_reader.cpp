@@ -34,7 +34,8 @@ void ParseAndPrint(const TransportCatalogue& transport_catalogue, std::string_vi
         auto const& stat_value = stat.value();
         output << "Bus " << stat_value.busName << ": " << stat_value.totalStops << " stops on route, ";
         output << stat_value.uniqueStops << " unique stops, ";
-        output << std::setprecision(6) << stat_value.distance << " route length" << std::endl;
+        output << std::setprecision(6) << stat_value.trajectory << " route length, " << 
+        stat_value.curvature << " curvature" << std::endl;
         return;
     }
     if (v.command == "Stop") {
