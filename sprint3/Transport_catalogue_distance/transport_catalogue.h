@@ -46,6 +46,14 @@ class TransportCatalogue {
             return (h1 << 1) ^ (h2);
         }
     };
+
+    struct StrStrHasher {
+        std::size_t operator()(const std::pair<std::string, std::string>& p) const {
+            std::hash<std::string> hasher;
+            return hasher(p.first) ^ (hasher(p.second) << 1); // simple hash combine
+        }
+    };
+
     std::deque<Stop> stops;
     std::unordered_map<std::string_view, std::deque<Stop>::const_iterator> stopname_to_stop;
     std::unordered_map<std::string_view, std::set<std::string_view>> stopname_to_bus;
@@ -58,11 +66,13 @@ class TransportCatalogue {
 
     
 public:
-    void AddStop(const Stop& stop, std::vector<std::pair<std::string, int>>);
+
+    using distanceBtwStops_t = std::unordered_map<std::pair<std::string, std::string>, int, StrStrHasher>;
+    void AddStop(const Stop& stop);
 
     void AddBus(const std::string& name, const std::vector<std::string_view>& stops_list);
     const Bus* GetStopsForBus(std::string_view busname) const;
     const std::set<std::string_view>* GetBusesForStop(std::string_view stopName) const;
     std::optional<RouteStatistics> GetRouteStatistics(std::string_view busName) const;
-    void ReallocateDistances(void);
+    void ReallocateDistances(distanceBtwStops_t& );
 };

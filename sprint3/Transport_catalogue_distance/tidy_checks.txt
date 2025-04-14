@@ -1,0 +1,737 @@
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:13:6: warning: no header providing "geo::Coordinates" is directly included [misc-include-cleaner]
+    2 | 
+    3 | #include <algorithm>
+    4 | #include <cassert>
+    5 | #include <iterator>
+    6 | #include <iostream>
+    7 | #include <string>
+    8 | 
+    9 | namespace parsing {
+   10 | /**
+   11 |  * Парсит строку вида "10.123,  -30.1837" и возвращает пару координат (широта, долгота)
+   12 |  */
+   13 | geo::Coordinates ParseCoordinates(std::string_view str) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:13:40: warning: no header providing "std::string_view" is directly included [misc-include-cleaner]
+    8 | 
+    9 | namespace parsing {
+   10 | /**
+   11 |  * Парсит строку вида "10.123,  -30.1837" и возвращает пару координат (широта, долгота)
+   12 |  */
+   13 | geo::Coordinates ParseCoordinates(std::string_view str) {
+      |                                        ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:14:36: warning: no header providing "std::nan" is directly included [misc-include-cleaner]
+    5 | #include <iterator>
+    6 | #include <iostream>
+    7 | #include <string>
+    8 | 
+    9 | namespace parsing {
+   10 | /**
+   11 |  * Парсит строку вида "10.123,  -30.1837" и возвращает пару координат (широта, долгота)
+   12 |  */
+   13 | geo::Coordinates ParseCoordinates(std::string_view str) {
+   14 |     static const double nan = std::nan("");
+      |                                    ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:16:22: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   16 |     auto not_space = str.find_first_not_of(' ');
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:531:37: note: default parameter was declared here
+  531 |       find_first_not_of(_CharT __c, size_type __pos = 0) const noexcept;
+      |                                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:17:18: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   17 |     auto comma = str.find(',');
+      |                  ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:453:24: note: default parameter was declared here
+  453 |       find(_CharT __c, size_type __pos = 0) const noexcept;
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:19:18: warning: static member accessed through instance [readability-static-accessed-through-instance]
+   19 |     if (comma == str.npos) {
+      |                  ^~~~
+      |                  std::string_view::
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:25:5: warning: variable 'lat' of type 'double' can be declared 'const' [misc-const-correctness]
+   25 |     double lat = std::stod(std::string(str.substr(not_space, comma - not_space)));
+      |     ^
+      |            const 
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:25:18: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   25 |     double lat = std::stod(std::string(str.substr(not_space, comma - not_space)));
+      |                  ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:4150:29: note: default parameter was declared here
+ 4150 |   stod(const string& __str, size_t* __idx = 0)
+      |                             ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:25:28: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   25 |     double lat = std::stod(std::string(str.substr(not_space, comma - not_space)));
+      |                            ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:26:5: warning: variable 'lng' of type 'double' can be declared 'const' [misc-const-correctness]
+   26 |     double lng = std::stod(std::string(str.substr(not_space2)));
+      |     ^
+      |            const 
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:26:18: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   26 |     double lng = std::stod(std::string(str.substr(not_space2)));
+      |                  ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:4150:29: note: default parameter was declared here
+ 4150 |   stod(const string& __str, size_t* __idx = 0)
+      |                             ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:26:28: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   26 |     double lng = std::stod(std::string(str.substr(not_space2)));
+      |                            ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:26:40: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   26 |     double lng = std::stod(std::string(str.substr(not_space2)));
+      |                                        ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:334:35: note: default parameter was declared here
+  334 |       substr(size_type __pos = 0, size_type __n = npos) const noexcept(false)
+      |                                   ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:31:6: warning: no header providing "std::vector" is directly included [misc-include-cleaner]
+    8 | std::vector<std::pair<std::string, int>> ParseDistances(std::string_view sv) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:31:18: warning: no header providing "std::pair" is directly included [misc-include-cleaner]
+    8 | std::vector<std::pair<std::string, int>> ParseDistances(std::string_view sv) {
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:31:74: warning: parameter name 'sv' is too short, expected at least 3 characters [readability-identifier-length]
+   31 | std::vector<std::pair<std::string, int>> ParseDistances(std::string_view sv) {
+      |                                                                          ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:34:22: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   34 |     sv.remove_prefix(sv.find_first_of(',') + 1);
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:489:33: note: default parameter was declared here
+  489 |       find_first_of(_CharT __c, size_type __pos = 0) const noexcept
+      |                                 ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:35:5: warning: no header providing "size_t" is directly included [misc-include-cleaner]
+    5 |     size_t pos = sv.find_first_of(',');
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:35:18: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   35 |     size_t pos = sv.find_first_of(',');
+      |                  ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:489:33: note: default parameter was declared here
+  489 |       find_first_of(_CharT __c, size_type __pos = 0) const noexcept
+      |                                 ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:36:34: warning: statement should be inside braces [google-readability-braces-around-statements,hicpp-braces-around-statements,readability-braces-around-statements]
+   36 |     if (pos == std::string::npos)
+      |                                  ^
+      |                                   {
+   37 |         return result;
+      |                       
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:39:22: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   39 |     sv.remove_prefix(sv.find_first_of(',') + 2);
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:489:33: note: default parameter was declared here
+  489 |       find_first_of(_CharT __c, size_type __pos = 0) const noexcept
+      |                                 ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:40:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   40 |     while (sv.size() > 1) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:41:9: warning: variable 'm' of type 'int' can be declared 'const' [misc-const-correctness]
+   41 |         int m = std::stoi(std::string(sv));
+      |         ^
+      |             const 
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:41:13: warning: variable name 'm' is too short, expected at least 3 characters [readability-identifier-length]
+   41 |         int m = std::stoi(std::string(sv));
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:41:17: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   41 |         int m = std::stoi(std::string(sv));
+      |                 ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:4120:29: note: default parameter was declared here
+ 4120 |   stoi(const string& __str, size_t* __idx = 0, int __base = 10)
+      |                             ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:41:27: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   41 |         int m = std::stoi(std::string(sv));
+      |                           ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:42:26: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   42 |         sv.remove_prefix(sv.find_first_of('m') + 5);
+      |                          ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:489:33: note: default parameter was declared here
+  489 |       find_first_of(_CharT __c, size_type __pos = 0) const noexcept
+      |                                 ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:42:50: warning: 5 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   42 |         sv.remove_prefix(sv.find_first_of('m') + 5);
+      |                                                  ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:43:24: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   43 |         pos = std::min(sv.find_first_of(','), sv.size());
+      |                        ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:489:33: note: default parameter was declared here
+  489 |       find_first_of(_CharT __c, size_type __pos = 0) const noexcept
+      |                                 ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:45:16: warning: use emplace_back instead of push_back [hicpp-use-emplace,modernize-use-emplace]
+   45 |         result.push_back({std::string(stop), m});
+      |                ^~~~~~~~~~~                    ~
+      |                emplace_back(
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:45:27: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   45 |         result.push_back({std::string(stop), m});
+      |                           ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:47:35: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   47 |         sv.remove_prefix(std::min(sv.find_first_of(' '), sv.size()));
+      |                                   ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:489:33: note: default parameter was declared here
+  489 |       find_first_of(_CharT __c, size_type __pos = 0) const noexcept
+      |                                 ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:58:24: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   58 |     const auto start = string.find_first_not_of(' ');
+      |                        ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:531:37: note: default parameter was declared here
+  531 |       find_first_not_of(_CharT __c, size_type __pos = 0) const noexcept;
+      |                                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:59:18: warning: static member accessed through instance [readability-static-accessed-through-instance]
+   59 |     if (start == string.npos) {
+      |                  ^~~~~~~
+      |                  std::string_view::
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:62:33: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   62 |     return string.substr(start, string.find_last_not_of(' ') + 1 - start);
+      |                                 ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:554:36: note: default parameter was declared here
+  554 |       find_last_not_of(_CharT __c, size_type __pos = npos) const noexcept;
+      |                                    ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:72:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   72 |     while ((pos = string.find_first_not_of(' ', pos)) < string.length()) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:72:12: warning: backward branch (while loop) is ID-dependent due to variable reference to 'pos' and may cause performance degradation [altera-id-dependent-backward-branch]
+   72 |     while ((pos = string.find_first_not_of(' ', pos)) < string.length()) {
+      |            ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:71:5: note: inferred assignment of ID-dependent value from ID-dependent 
+   71 |     size_t pos = 0;
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:74:26: warning: static member accessed through instance [readability-static-accessed-through-instance]
+   74 |         if (delim_pos == string.npos) {
+      |                          ^~~~~~~
+      |                          std::string_view::
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:92:9: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   92 |     if (route.find('>') != route.npos) {
+      |         ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:453:24: note: default parameter was declared here
+  453 |       find(_CharT __c, size_type __pos = 0) const noexcept;
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:92:28: warning: static member accessed through instance [readability-static-accessed-through-instance]
+   92 |     if (route.find('>') != route.npos) {
+      |                            ^~~~~~
+      |                            std::string_view::
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:97:35: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   97 |     std::vector<std::string_view> results(stops.begin(), stops.end());
+      |                                   ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:708:9: note: default parameter was declared here
+  708 |                const allocator_type& __a = allocator_type())
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:98:35: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   98 |     results.insert(results.end(), std::next(stops.rbegin()), stops.rend());
+      |                                   ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_iterator_base_funcs.h:232:30: note: default parameter was declared here
+  232 |     next(_InputIterator __x, typename
+      |                              ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:104:22: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  104 |     auto colon_pos = line.find(':');
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:453:24: note: default parameter was declared here
+  453 |       find(_CharT __c, size_type __pos = 0) const noexcept;
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:105:22: warning: static member accessed through instance [readability-static-accessed-through-instance]
+  105 |     if (colon_pos == line.npos) {
+      |                      ^~~~~
+      |                      std::string_view::
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:109:22: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  109 |     auto space_pos = line.find(' ');
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:453:24: note: default parameter was declared here
+  453 |       find(_CharT __c, size_type __pos = 0) const noexcept;
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:119:13: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  119 |     return {std::string(line.substr(0, space_pos)),
+      |             ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:120:13: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  120 |             std::string(line.substr(not_space, colon_pos - not_space)),
+      |             ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:121:13: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  121 |             std::string(line.substr(colon_pos + 1))};
+      |             ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:121:25: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  121 |             std::string(line.substr(colon_pos + 1))};
+      |                         ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:334:35: note: default parameter was declared here
+  334 |       substr(size_type __pos = 0, size_type __n = npos) const noexcept(false)
+      |                                   ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:125:22: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  125 |     auto colon_pos = line.find(':');
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:453:24: note: default parameter was declared here
+  453 |       find(_CharT __c, size_type __pos = 0) const noexcept;
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:126:22: warning: static member accessed through instance [readability-static-accessed-through-instance]
+  126 |     if (colon_pos == line.npos) {
+      |                      ^~~~~
+      |                      std::string_view::
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:130:22: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  130 |     auto space_pos = line.find(' ');
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:453:24: note: default parameter was declared here
+  453 |       find(_CharT __c, size_type __pos = 0) const noexcept;
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:140:13: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  140 |     return {std::string(line.substr(0, space_pos)),
+      |             ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:141:13: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  141 |             std::string(line.substr(not_space, colon_pos - not_space)),
+      |             ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:142:13: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  142 |             std::string(line.substr(colon_pos + 1))};
+      |             ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:142:25: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  142 |             std::string(line.substr(colon_pos + 1))};
+      |                         ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:334:35: note: default parameter was declared here
+  334 |       substr(size_type __pos = 0, size_type __n = npos) const noexcept(false)
+      |                                   ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:145:2: warning: namespace 'parsing' ends with a comment that refers to a wrong namespace '' [google-readability-namespace-comments]
+  145 | } // namespace
+      |  ^~~~~~~~~~~~~
+      |    // namespace parsing
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:9:11: note: namespace 'parsing' starts here
+    9 | namespace parsing {
+      |           ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:147:43: warning: parameter name 'in' is too short, expected at least 3 characters [readability-identifier-length]
+  147 | void InputReader::ReadInput(std::istream &in)
+      |                                           ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:149:9: warning: variable 'base_request_count' is not initialized [cppcoreguidelines-init-variables]
+  149 |     int base_request_count;
+      |         ^                 
+      |                            = 0
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:152:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  152 |     for (int i = 0; i < base_request_count; ++i) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:163:34: warning: no header providing "std::move" is directly included [misc-include-cleaner]
+  163 |         commands_.push_back(std::move(command_description));
+      |                                  ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:167:50: warning: no header providing "TransportCatalogue" is directly included [misc-include-cleaner]
+    2 | void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) {
+      |                                                  ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:169:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  169 |     for (auto& cmd : commands_) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:171:13: warning: variable 'stop' of type 'Stop' can be declared 'const' [misc-const-correctness]
+  171 |             Stop stop {cmd.id, parsing::ParseCoordinates(cmd.description)};
+      |             ^
+      |                  const 
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:171:13: warning: no header providing "Stop" is directly included [misc-include-cleaner]
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:172:31: warning: passing result of std::move() as a const reference argument; no move will actually happen [hicpp-move-const-arg,performance-move-const-arg]
+  172 |             catalogue.AddStop(std::move(stop), parsing::ParseDistances(cmd.description));
+      |                               ^~~~~~~~~~    ~
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:183:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  183 |     for (const auto& command_ : commands_) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/input_reader.cpp:189:36: warning: redundant void argument list in function definition [modernize-redundant-void-arg]
+  189 | void InputReader::ReorderCommands( void ) {
+      |                                    ^~~~
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:12:9: warning: variable 's1' of type 'std::string' (aka 'basic_string<char>') can be declared 'const' [misc-const-correctness]
+   12 |         std::string s1 = "Bus 11";
+      |         ^
+      |                     const 
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:12:21: warning: variable name 's1' is too short, expected at least 3 characters [readability-identifier-length]
+   12 |         std::string s1 = "Bus 11";
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:12:26: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   12 |         std::string s1 = "Bus 11";
+      |                          ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:15:9: warning: variable 's2' of type 'std::string' (aka 'basic_string<char>') can be declared 'const' [misc-const-correctness]
+   15 |         std::string s2 = "Bus  12";
+      |         ^
+      |                     const 
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:15:21: warning: variable name 's2' is too short, expected at least 3 characters [readability-identifier-length]
+   15 |         std::string s2 = "Bus  12";
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:15:26: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   15 |         std::string s2 = "Bus  12";
+      |                          ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:18:9: warning: variable 's4' of type 'std::string' (aka 'basic_string<char>') can be declared 'const' [misc-const-correctness]
+   18 |         std::string s4 = " Bus  14  ";
+      |         ^
+      |                     const 
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:18:21: warning: unused local variable 's4' of type 'std::string' (aka 'basic_string<char>') [bugprone-unused-local-non-trivial-variable]
+   18 |         std::string s4 = " Bus  14  ";
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:18:21: warning: variable name 's4' is too short, expected at least 3 characters [readability-identifier-length]
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:18:26: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   18 |         std::string s4 = " Bus  14  ";
+      |                          ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:20:9: warning: variable 's5' of type 'std::string' (aka 'basic_string<char>') can be declared 'const' [misc-const-correctness]
+   20 |         std::string s5 = " Bus  15 67";
+      |         ^
+      |                     const 
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:20:21: warning: variable name 's5' is too short, expected at least 3 characters [readability-identifier-length]
+   20 |         std::string s5 = " Bus  15 67";
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:20:26: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   20 |         std::string s5 = " Bus  15 67";
+      |                          ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:27:14: warning: variable name 'vp' is too short, expected at least 3 characters [readability-identifier-length]
+   27 |         auto vp = parsing::ParseDistances("55.611087, 37.20829");
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:28:16: warning: the 'empty' method should be used to check for emptiness instead of 'size' [readability-container-size-empty]
+   28 |         assert(vp.size() == 0);
+      |                ^~~~~~~~~~~~~~
+      |                vp.empty()
+/usr/include/assert.h:103:27: note: expanded from macro 'assert'
+  103 |      (static_cast <bool> (expr)                                         \
+      |                           ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:1088:7: note: method 'vector'::empty() defined here
+ 1088 |       empty() const _GLIBCXX_NOEXCEPT
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:32:14: warning: variable name 'vp' is too short, expected at least 3 characters [readability-identifier-length]
+   32 |         auto vp = parsing::ParseDistances("55.611087, 37.20829, 3900m to Marushkino");
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:33:24: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   33 |         auto test_vp = std::vector<std::pair<std::string, int>> ({std::make_pair("Marushkino", 3900)});
+      |                        ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:679:7: note: default parameter was declared here
+  679 |              const allocator_type& __a = allocator_type())
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:33:41: warning: no header providing "std::pair" is directly included [misc-include-cleaner]
+    7 |         auto test_vp = std::vector<std::pair<std::string, int>> ({std::make_pair("Marushkino", 3900)});
+      |                                         ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:33:72: warning: no header providing "std::make_pair" is directly included [misc-include-cleaner]
+   33 |         auto test_vp = std::vector<std::pair<std::string, int>> ({std::make_pair("Marushkino", 3900)});
+      |                                                                        ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:33:96: warning: 3900 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   33 |         auto test_vp = std::vector<std::pair<std::string, int>> ({std::make_pair("Marushkino", 3900)});
+      |                                                                                                ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:38:14: warning: variable name 'vp' is too short, expected at least 3 characters [readability-identifier-length]
+   38 |         auto vp = parsing::ParseDistances("55.595884, 37.209755, 9900m to Biryulyovo Passazhirskaya1, 100m to Biryulyovo Passazhirskaya2");
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:39:24: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   39 |         auto test_vp = std::vector<std::pair<std::string, int>> (
+      |                        ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:679:7: note: default parameter was declared here
+  679 |              const allocator_type& __a = allocator_type())
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:41:48: warning: 9900 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   41 |                 {"Biryulyovo Passazhirskaya1", 9900},
+      |                                                ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:42:48: warning: 100 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   42 |                 {"Biryulyovo Passazhirskaya2", 100}
+      |                                                ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/main.cpp:48:5: warning: no header providing "TransportCatalogue" is directly included [misc-include-cleaner]
+    6 |     TransportCatalogue catalogue;
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:2:1: warning: included header algorithm is not used directly [misc-include-cleaner]
+    2 | #include <algorithm>
+      | ^~~~~~~~~~~~~~~~~~~~
+    3 | #include <unordered_set>
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:3:1: warning: included header unordered_set is not used directly [misc-include-cleaner]
+    3 | #include <unordered_set>
+      | ^~~~~~~~~~~~~~~~~~~~~~~~
+    4 | #include <iomanip>
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:9:1: warning: no header providing "CommandDescription" is directly included [misc-include-cleaner]
+    7 | 
+    8 | namespace statistics {
+    9 | CommandDescription ParseRequest(std::string_view request){
+      | ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:9:38: warning: no header providing "std::string_view" is directly included [misc-include-cleaner]
+    3 | #include <unordered_set>
+    4 | #include <iomanip>
+    5 | 
+    6 | #include "stat_reader.h"
+    7 | 
+    8 | namespace statistics {
+    9 | CommandDescription ParseRequest(std::string_view request){
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:10:5: warning: no header providing "size_t" is directly included [misc-include-cleaner]
+    1 | #include <iostream>
+    2 | #include <algorithm>
+    3 | #include <unordered_set>
+    4 | #include <iomanip>
+    5 | 
+    6 | #include "stat_reader.h"
+    7 | 
+    8 | namespace statistics {
+    9 | CommandDescription ParseRequest(std::string_view request){
+   10 |     size_t start_pos = request.find_first_not_of(' ');
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:10:24: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   10 |     size_t start_pos = request.find_first_not_of(' ');
+      |                        ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:531:37: note: default parameter was declared here
+  531 |       find_first_not_of(_CharT __c, size_type __pos = 0) const noexcept;
+      |                                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:12:17: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   12 |     start_pos = request.find_first_of(' ');
+      |                 ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:489:33: note: default parameter was declared here
+  489 |       find_first_of(_CharT __c, size_type __pos = 0) const noexcept
+      |                                 ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:15:17: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   15 |     start_pos = request.find_first_not_of(' ');
+      |                 ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/string_view:531:37: note: default parameter was declared here
+  531 |       find_first_not_of(_CharT __c, size_type __pos = 0) const noexcept;
+      |                                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:18:13: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   18 |     return {std::string(command),
+      |             ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:18:18: warning: no header providing "std::string" is directly included [misc-include-cleaner]
+    3 | #include <unordered_set>
+    4 | #include <iomanip>
+    5 | 
+    6 | #include "stat_reader.h"
+    7 | 
+    8 | namespace statistics {
+    9 | CommandDescription ParseRequest(std::string_view request){
+   10 |     size_t start_pos = request.find_first_not_of(' ');
+   11 |     request.remove_prefix(start_pos);
+   12 |     start_pos = request.find_first_of(' ');
+   13 |     auto command = request.substr(0, start_pos);
+   14 |     request.remove_prefix(start_pos);
+   15 |     start_pos = request.find_first_not_of(' ');
+   16 |     request.remove_prefix(start_pos);
+   17 | 
+   18 |     return {std::string(command),
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:19:13: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   19 |             std::string(request),
+      |             ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:20:13: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   20 |             ""};
+      |             ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:23:26: warning: no header providing "TransportCatalogue" is directly included [misc-include-cleaner]
+    7 | void ParseAndPrint(const TransportCatalogue& transport_catalogue, std::string_view request,
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:25:16: warning: variable name 'v' is too short, expected at least 3 characters [readability-identifier-length]
+   25 |     const auto v = ParseRequest(request);
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:31:58: warning: do not use 'std::endl' with streams; use '\n' instead [performance-avoid-endl]
+   31 |             output << "Bus " << v.id << ": not found" << std::endl;
+      |                                                          ^~~~~~~~~
+      |                                                          '\n'
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:37:37: warning: 6 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   37 |         output << std::setprecision(6) << stat_value.trajectory << " route length, " << 
+      |                                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:38:49: warning: do not use 'std::endl' with streams; use '\n' instead [performance-avoid-endl]
+   38 |         stat_value.curvature << " curvature" << std::endl;
+      |                                                 ^~~~~~~~~
+      |                                                 '\n'
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:50:38: warning: do not use 'std::endl' with streams; use '\n' instead [performance-avoid-endl]
+   50 |             output << "not found" << std::endl;
+      |                                      ^~~~~~~~~
+      |                                      '\n'
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:54:41: warning: do not use 'std::endl' with streams; use '\n' instead [performance-avoid-endl]
+   54 |                 output << "no buses" << std::endl;
+      |                                         ^~~~~~~~~
+      |                                         '\n'
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:58:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   58 |         for (const auto& bus : *stops_for_bus) {
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:61:19: warning: do not use 'std::endl' with streams; use '\n' instead [performance-avoid-endl]
+   61 |         output << std::endl;
+      |                   ^~~~~~~~~
+      |                   '\n'
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:66:88: warning: parameter name 'in' is too short, expected at least 3 characters [readability-identifier-length]
+   66 | void ReadAndPrintRequests(const TransportCatalogue &transport_catalogue, std::istream &in, 
+      |                                                                                        ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:68:9: warning: variable 'base_request_count' is not initialized [cppcoreguidelines-init-variables]
+   68 |     int base_request_count;
+      |         ^                 
+      |                            = 0
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:71:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   71 |     for (int i = 0; i < base_request_count; ++i) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:73:14: warning: no header providing "std::getline" is directly included [misc-include-cleaner]
+   73 |         std::getline(in, line);
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:78:2: warning: namespace 'statistics' ends with a comment that refers to a wrong namespace '' [google-readability-namespace-comments]
+   78 | } //namespace
+      |  ^~~~~~~~~~~~
+      |    // namespace statistics
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/stat_reader.cpp:8:11: note: namespace 'statistics' starts here
+    8 | namespace statistics {
+      |           ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:2:1: warning: included header iostream is not used directly [misc-include-cleaner]
+    2 | #include <iostream>
+      | ^~~~~~~~~~~~~~~~~~~
+    3 | #include <unordered_set>
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:7:57: warning: no header providing "std::vector" is directly included [misc-include-cleaner]
+    4 | 
+    5 | #include "transport_catalogue.h"
+    6 | 
+    7 | void TransportCatalogue::AddStop(const Stop& stop, std::vector<std::pair<std::string, int>> vp) { 
+      |                                                         ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:7:69: warning: no header providing "std::pair" is directly included [misc-include-cleaner]
+    4 | 
+    5 | #include "transport_catalogue.h"
+    6 | 
+    7 | void TransportCatalogue::AddStop(const Stop& stop, std::vector<std::pair<std::string, int>> vp) { 
+      |                                                                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:7:79: warning: no header providing "std::string" is directly included [misc-include-cleaner]
+    3 | #include <unordered_set>
+    4 | 
+    5 | #include "transport_catalogue.h"
+    6 | 
+    7 | void TransportCatalogue::AddStop(const Stop& stop, std::vector<std::pair<std::string, int>> vp) { 
+      |                                                                               ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:7:93: warning: parameter name 'vp' is too short, expected at least 3 characters [readability-identifier-length]
+    7 | void TransportCatalogue::AddStop(const Stop& stop, std::vector<std::pair<std::string, int>> vp) { 
+      |                                                                                             ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:8:21: warning: std::move of the const variable 'stop' has no effect; remove std::move() or make the variable non-const [hicpp-move-const-arg,performance-move-const-arg]
+    8 |     stops.push_back(std::move(stop));
+      |                     ^~~~~~~~~~    ~
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:8:26: warning: no header providing "std::move" is directly included [misc-include-cleaner]
+    8 |     stops.push_back(std::move(stop));
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:11:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   11 |     for (auto& [str, m]: vp){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:14:46: warning: 'stop' used after it was moved [bugprone-use-after-move,hicpp-invalid-access-moved]
+   14 |     buffer_distances.insert({{&stops.back(), stop.name}, 0});
+      |                                              ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:8:11: note: move occurred here
+    8 |     stops.push_back(std::move(stop));
+      |           ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:17:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   17 |     for (auto [pair, m]: buffer_distances){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:17:15: warning: loop variable is copied but only used as const reference; consider making it a const reference [performance-for-range-copy]
+   17 |     for (auto [pair, m]: buffer_distances){
+      |               ^
+      |          const  &
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:19:30: warning: no header providing "std::make_pair" is directly included [misc-include-cleaner]
+   19 |         auto p_to_ins = std::make_pair(pair.first, ptr);
+      |                              ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:25:80: warning: no header providing "std::string_view" is directly included [misc-include-cleaner]
+    3 | void TransportCatalogue::AddBus(const std::string& bus, const std::vector<std::string_view>& stops_list){
+      |                                                                                ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:26:24: warning: std::move of the const variable 'bus' has no effect; remove std::move() or make the variable non-const [hicpp-move-const-arg,performance-move-const-arg]
+   26 |     routes.push_back({ std::move(bus), {}});
+      |                        ^~~~~~~~~~   ~
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:27:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   27 |     for ( auto const& stop_name: stops_list){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:28:20: warning: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length]
+   28 |         const auto it = stopname_to_stop.find(stop_name);
+      |                    ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:45:16: warning: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length]
+   45 |     const auto it = busname_to_route.find(busName);
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:52:12: warning: no header providing "std::set" is directly included [misc-include-cleaner]
+    1 | const std::set<std::string_view>* 
+      |            ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:54:16: warning: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length]
+   54 |     const auto it = stopname_to_bus.find(stopName);
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:61:6: warning: no header providing "std::optional" is directly included [misc-include-cleaner]
+    1 | std::optional<RouteStatistics> 
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:75:5: warning: 'const auto p' can be declared as 'const auto *const p' [readability-qualified-auto]
+   75 |     const auto p = GetStopsForBus(busName);
+      |     ^~~~~~~~~~
+      |     const auto *const 
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:75:16: warning: variable name 'p' is too short, expected at least 3 characters [readability-identifier-length]
+   75 |     const auto p = GetStopsForBus(busName);
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:77:21: warning: no header providing "std::nullopt" is directly included [misc-include-cleaner]
+   77 |         return std::nullopt;
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:79:16: warning: variable name 'v' is too short, expected at least 3 characters [readability-identifier-length]
+   79 |     const auto v = p->stops;
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:81:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   81 |     for (const auto& stop : v){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:98:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   98 |     for (size_t i = 0; i < v.size() - 1; ++i){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:98:10: warning: no header providing "size_t" is directly included [misc-include-cleaner]
+    1 |     for (size_t i = 0; i < v.size() - 1; ++i){
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:98:24: warning: backward branch (for loop) is ID-dependent due to variable reference to 'v' and may cause performance degradation [altera-id-dependent-backward-branch]
+   98 |     for (size_t i = 0; i < v.size() - 1; ++i){
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:79:5: note: inferred assignment of ID-dependent value from ID-dependent 
+   79 |     const auto v = p->stops;
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:99:21: warning: no header providing "geo::ComputeDistance" is directly included [misc-include-cleaner]
+    6 |         distance += ComputeDistance(v[i]->coordinates, v[i + 1]->coordinates);
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:104:9: warning: variable name 'j' is too short, expected at least 3 characters [readability-identifier-length]
+  104 |     int j = 0;
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:106:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  106 |     for (size_t i = 0; i < v.size() - 1; ++i){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:106:24: warning: backward branch (for loop) is ID-dependent due to variable reference to 'v' and may cause performance degradation [altera-id-dependent-backward-branch]
+  106 |     for (size_t i = 0; i < v.size() - 1; ++i){
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:79:5: note: inferred assignment of ID-dependent value from ID-dependent 
+   79 |     const auto v = p->stops;
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:109:14: warning: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length]
+  109 |         auto it = distances.find({&(*v[i]), &(*v[i + 1])});
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:115:39: warning: statement should be inside braces [google-readability-braces-around-statements,hicpp-braces-around-statements,readability-braces-around-statements]
+  115 |             if (it == distances.end()) 
+      |                                       ^
+      |                                        {
+  116 |                 throw std::invalid_argument ("Help");
+      |                                                      
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:121:12: error: no matching constructor for initialization of 'RouteStatistics' [clang-diagnostic-error]
+  121 |     return RouteStatistics(busName, trajectory, trajectory/distance, unique_stops.size(), v.size());
+      |            ^               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.h:26:8: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 5 were provided
+   26 | struct RouteStatistics {
+      |        ^~~~~~~~~~~~~~~
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.h:26:8: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 5 were provided
+   26 | struct RouteStatistics {
+      |        ^~~~~~~~~~~~~~~
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.h:26:8: note: candidate constructor (the implicit default constructor) not viable: requires 0 arguments, but 5 were provided
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.h:63:10: warning: function 'TransportCatalogue::AddBus' has a definition with different parameter names [readability-inconsistent-declaration-parameter-name]
+   63 |     void AddBus(const std::string& name, const std::vector<std::string_view>& stops_list);
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.cpp:25:26: note: the definition seen here
+   25 | void TransportCatalogue::AddBus(const std::string& bus, const std::vector<std::string_view>& stops_list){
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint3/Transport_catalogue_distance/transport_catalogue.h:63:10: note: differing parameters are named here: ('name'), in definition: ('bus')
+   63 |     void AddBus(const std::string& name, const std::vector<std::string_view>& stops_list);
+      |          ^                         ~~~~
+      |                                    bus

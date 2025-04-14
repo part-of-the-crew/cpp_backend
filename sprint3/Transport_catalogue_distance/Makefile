@@ -7,7 +7,7 @@ NAME = executable
 SOURCES_FILES = $(wildcard *.cpp)
 
 # Compiler
-CXX = g++-13
+CXX = g++
 
 # Compiler flags
 CXXFLAGS = -O2 -lm -fno-stack-limit -std=c++2a -Wall -Wextra -DMYBUILD -g

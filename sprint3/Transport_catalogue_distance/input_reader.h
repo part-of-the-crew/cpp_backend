@@ -2,6 +2,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <unordered_map>
 
 #include "geo.h"
 #include "transport_catalogue.h"
@@ -50,6 +51,6 @@ private:
 };
 
 namespace parsing { 
-CommandDescription ParseCommandDescription(std::string_view line);
-std::vector<std::pair<std::string, int>> ParseDistances(std::string_view sv);
+    CommandDescription ParseCommandDescription(std::string_view line);
+    std::unordered_map<std::string, int> ParseDistances(std::string_view sv);
 }

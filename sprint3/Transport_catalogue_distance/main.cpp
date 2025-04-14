@@ -30,13 +30,12 @@ int main() {
     }
     {
         auto vp = parsing::ParseDistances("55.611087, 37.20829, 3900m to Marushkino");
-        auto test_vp = std::vector<std::pair<std::string, int>> ({std::make_pair("Marushkino", 3900)});
+        auto test_vp = std::unordered_map<std::string, int> ({std::make_pair("Marushkino", 3900)});
         assert(vp == test_vp);
-
     }
     {
         auto vp = parsing::ParseDistances("55.595884, 37.209755, 9900m to Biryulyovo Passazhirskaya1, 100m to Biryulyovo Passazhirskaya2");
-        auto test_vp = std::vector<std::pair<std::string, int>> (
+        auto test_vp = std::unordered_map<std::string, int>  (
             {
                 {"Biryulyovo Passazhirskaya1", 9900},
                 {"Biryulyovo Passazhirskaya2", 100}
@@ -50,7 +49,6 @@ int main() {
         InputReader reader;
         reader.ReadInput(cin);
         reader.ApplyCommands(catalogue);
-        catalogue.ReallocateDistances();
     }
 
     statistics::ReadAndPrintRequests(catalogue, cin, cout);

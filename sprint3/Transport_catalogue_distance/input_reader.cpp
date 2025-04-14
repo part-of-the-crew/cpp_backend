@@ -28,8 +28,8 @@ geo::Coordinates ParseCoordinates(std::string_view str) {
     return {lat, lng};
 }
 
-std::vector<std::pair<std::string, int>> ParseDistances(std::string_view sv) {
-    std::vector<std::pair<std::string, int>> result;
+std::unordered_map<std::string, int> ParseDistances(std::string_view sv) {
+    std::unordered_map<std::string, int> result;
     
     sv.remove_prefix(sv.find_first_of(',') + 1);
     size_t pos = sv.find_first_of(',');
@@ -42,13 +42,10 @@ std::vector<std::pair<std::string, int>> ParseDistances(std::string_view sv) {
         sv.remove_prefix(sv.find_first_of('m') + 5);
         pos = std::min(sv.find_first_of(','), sv.size());
         auto stop = sv.substr(0, pos);
-        result.push_back({std::string(stop), m});
+        result.insert({std::string(stop), m});
         sv.remove_prefix(pos);
         sv.remove_prefix(std::min(sv.find_first_of(' '), sv.size()));
-        //std::cout << sv << pos << std::endl;
-        //return result;
     }
-
     return result;
 }
 /**
@@ -165,11 +162,16 @@ void InputReader::ParseLine(std::string_view line)
 }
 
 void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) {
+
     InputReader::ReorderCommands();
+    TransportCatalogue::distanceBtwStops_t distancesBtwStops;
     for (auto& cmd : commands_) {
         if (cmd.command == "Stop") {
-            Stop stop {cmd.id, parsing::ParseCoordinates(cmd.description)};
-            catalogue.AddStop(std::move(stop), parsing::ParseDistances(cmd.description));
+            Stop stop {cmd.id, parsing::ParseCoordinates(cmd.description)};          
+            catalogue.AddStop(std::move(stop));
+
+            for (auto [f, s]: parsing::ParseDistances(cmd.description))
+                distancesBtwStops.insert({{cmd.id, f}, s});
             continue;
         }
         if (cmd.command == "Bus") {
@@ -177,6 +179,7 @@ void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) 
             continue;
         }
     }
+    catalogue.ReallocateDistances(distancesBtwStops);
 }
 void InputReader::PrintCommands() const
 {
