@@ -172,6 +172,8 @@ void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) 
 
             for (auto [f, s]: parsing::ParseDistances(cmd.description))
                 distancesBtwStops.insert({{cmd.id, f}, s});
+
+            distancesBtwStops.insert({{cmd.id, cmd.id}, 0});
             continue;
         }
         if (cmd.command == "Bus") {
