@@ -9,13 +9,10 @@ void TransportCatalogue::AddStop(const Stop& stop) {
     stopname_to_stop[stops.back().name] = stops.cend() - 1;
     stopname_to_bus[stops.back().name] = {};
 }
-void TransportCatalogue::ReallocateDistances (distanceBtwStops_t &distancesBtwStops) {
-    for (auto [pair, m]: distancesBtwStops){
-        const Stop* ptr1 = &(*stopname_to_stop[pair.first]);
-        const Stop* ptr2 = &(*stopname_to_stop[pair.second]);
-        auto p_to_ins = std::make_pair(ptr1, ptr2);
-        distances.insert({p_to_ins, m});
-    }
+void TransportCatalogue::AddDistanceBtwStops (const std::pair<std::string, std::string>& p, int m) {
+    const Stop* ptr1 = &(*stopname_to_stop[p.first]);
+    const Stop* ptr2 = &(*stopname_to_stop[p.second]);
+    distances.insert({{ptr1, ptr2 }, m});
 };
 
 void TransportCatalogue::AddBus(const std::string& bus, const std::vector<std::string_view>& stops_list){

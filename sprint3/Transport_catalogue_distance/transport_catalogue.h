@@ -62,9 +62,7 @@ class TransportCatalogue {
     std::unordered_map<std::string_view, std::deque<Bus>::const_iterator> busname_to_route;
 
     std::unordered_map<std::pair<const Stop*, const Stop*>, int, PtrPtrHasher> distances;
-    std::unordered_map<std::pair<const Stop*, std::string>, int, PtrStrHasher> buffer_distances;
 
-    
 public:
 
     using distanceBtwStops_t = std::unordered_map<std::pair<std::string, std::string>, int, StrStrHasher>;
@@ -74,5 +72,5 @@ public:
     const Bus* GetStopsForBus(std::string_view busname) const;
     const std::set<std::string_view>* GetBusesForStop(std::string_view stopName) const;
     std::optional<RouteStatistics> GetRouteStatistics(std::string_view busName) const;
-    void ReallocateDistances(distanceBtwStops_t& );
+    void AddDistanceBtwStops (const std::pair<std::string, std::string>& p, int m);
 };

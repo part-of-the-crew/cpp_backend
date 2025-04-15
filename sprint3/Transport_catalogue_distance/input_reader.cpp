@@ -181,7 +181,10 @@ void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) 
             continue;
         }
     }
-    catalogue.ReallocateDistances(distancesBtwStops);
+
+    for (auto const& [pair, m]: distancesBtwStops){
+        catalogue.AddDistanceBtwStops (pair, m);
+    }
 }
 void InputReader::PrintCommands() const
 {
