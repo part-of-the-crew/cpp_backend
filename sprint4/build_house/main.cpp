@@ -1,14 +1,54 @@
 #include <cassert>
 #include <string>
+#include <iostream>
+#include <stdexcept>
+#include <exception>
 
 using namespace std;
 
 class House {
-    // Реализуйте самостоятельно
+    const int length = 0;
+    const int width = 0;
+    const int height = 0;
+
+    public:
+    House (int l, int w, int h): length{l}, width{w}, height{h} {};
+    int GetLength(){
+        return length;
+    }
+    int GetWidth(){
+        return width;
+    }
+    int GetHeight(){
+        return height;
+    }
+    int GetLength() const {
+        return length;
+    }
+    int GetWidth() const {
+        return width;
+    }
+    int GetHeight() const {
+        return height;
+    }
 };
 
 class Resources {
-    // Реализуйте самостоятельно
+    int bricks_;
+    public:
+    Resources (int bricks): bricks_{bricks} {};
+    int GetBrickCount(){
+        return bricks_;
+    }
+    int GetBrickCount() const {
+        return bricks_;
+    }
+    void TakeBricks (int bricks){
+        if (bricks > bricks_ || bricks < 0)
+            throw std::out_of_range{"invalid"};
+
+        bricks_ -= bricks;
+    }
 };
 
 struct HouseSpecification {
@@ -18,7 +58,22 @@ struct HouseSpecification {
 };
 
 class Builder {
-    // Реализуйте самостоятельно
+    Resources &resources;
+
+    public:
+
+    Builder (Resources &res):resources{res} {};
+
+    House BuildHouse(HouseSpecification hs){
+        int bricks_needed = 2 * (hs.width * 4 * hs.height * 8) + 2 * (hs.length * 4 * hs.height * 8);
+        try {
+            resources.TakeBricks (bricks_needed);
+        } catch (...) {
+            throw std::runtime_error{"invalid"};
+        }
+        return {hs.length, hs.width, hs.height};
+    }
+
 };
 
 int main() {
