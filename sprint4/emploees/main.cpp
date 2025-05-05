@@ -4,8 +4,6 @@
 #include <stdexcept>
 #include <exception>
 
-using namespace std;
-
 #include "people.h"
 
 
