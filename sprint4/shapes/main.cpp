@@ -29,15 +29,54 @@ ostream& operator<<(ostream& out, Color color) {
 }
 
 class Shape {
-    // Напишите реализацию самостоятельно
+    Color color_;
+    double area_{0.0};
+    std::string type {"Shape"};
+public:
+    Shape(Color color) : color_{color} {}
+    std::string GetType( void ){
+        return type;
+    }
+    Color GetColor(void){
+        return color_;
+    }
+    double GetArea(void){
+        return area_;
+    }
+    void SetColor(Color color){
+        color_= color;
+    }
 };
 
-class Rectangle {
-    // Напишите реализацию самостоятельно
+class Rectangle : public Shape {
+    double wigth_;
+    double height_;
+public:
+class Rectangle : public Shape {
+    Rectangle (double wigth, double height, Color color):
+        Shape(color), Shape::type{"Rectangle"}, wigth_{wigth}, height_{height}{}
+    void SetSize ( double wigth, double height){
+        wigth_ = wigth;
+        height_ = height;
+    }
+    double GetWidth(){
+        return wigth_;
+    }
+    double GetHeight(){
+        return height_;
+    }
 };
 
-class Circle {
-    // Напишите реализацию самостоятельно
+class Circle : public Shape {
+    double radius_;
+public:
+    Circle (double radius, Color color): Shape(color), radius_{radius}{}
+    void SetRadius(double radius){
+        radius_ = radius;
+    }
+    double GetRadius(){
+        return radius_;
+    }
 };
 
 // Возвращает суммарную площадь фигур, указатели на которые находятся в переданной коллекции collection
