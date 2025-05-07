@@ -31,16 +31,28 @@ ostream& operator<<(ostream& out, Color color) {
 class Shape {
     Color color_;
     double area_{0.0};
-    std::string type {"Shape"};
+    std::string type_ {"Shape"};
+protected:
+    Shape(Color color, std::string type) : color_{color}, type_{type} {}
 public:
     Shape(Color color) : color_{color} {}
-    std::string GetType( void ){
-        return type;
+
+    virtual std::string GetType( void ) const {
+        return type_;
+    }
+    virtual std::string GetType( void ) {
+        return type_;
     }
     Color GetColor(void){
         return color_;
     }
-    double GetArea(void){
+    Color GetColor(void) const {
+        return color_;
+    }
+    virtual double GetArea(void){
+        return area_;
+    }
+    virtual double GetArea(void) const {
         return area_;
     }
     void SetColor(Color color){
@@ -51,10 +63,11 @@ public:
 class Rectangle : public Shape {
     double wigth_;
     double height_;
+    std::string type_ {"Rectangle"};
 public:
-class Rectangle : public Shape {
     Rectangle (double wigth, double height, Color color):
-        Shape(color), Shape::type{"Rectangle"}, wigth_{wigth}, height_{height}{}
+        Shape(color), wigth_{wigth}, height_{height}{}
+
     void SetSize ( double wigth, double height){
         wigth_ = wigth;
         height_ = height;
@@ -65,10 +78,29 @@ class Rectangle : public Shape {
     double GetHeight(){
         return height_;
     }
+    double GetWidth() const {
+        return wigth_;
+    }
+    double GetHeight() const {
+        return height_;
+    }
+    double GetArea(void) override {
+        return wigth_*height_;
+    }
+    double GetArea(void) const override {
+        return wigth_*height_;
+    }
+    std::string GetType ( void ) override {
+        return type_;
+    }
+    std::string GetType ( void ) const override {
+        return type_;
+    }
 };
 
 class Circle : public Shape {
     double radius_;
+    std::string type_ {"Circle"};
 public:
     Circle (double radius, Color color): Shape(color), radius_{radius}{}
     void SetRadius(double radius){
@@ -77,13 +109,31 @@ public:
     double GetRadius(){
         return radius_;
     }
+    double GetRadius() const {
+        return radius_;
+    }
+    double GetArea(void) override {
+        return M_PI * radius_ * radius_;
+    }
+    double GetArea(void) const override {
+        return M_PI * radius_ * radius_;
+    }
+    std::string GetType ( void ) override {
+        return type_;
+    }
+    std::string GetType ( void ) const override {
+        return type_;
+    }
 };
 
 // Возвращает суммарную площадь фигур, указатели на которые находятся в переданной коллекции collection
 template <typename ShapeCollection>
 double CalcSumArea(const ShapeCollection& collection) {
-    // Заглушка. Напишите реализацию самостоятельно
-    return 0;
+    double sum = 0;
+    for (auto f: collection ){
+        sum += f->GetArea();
+    }
+    return sum;
 }
 
 void PrintShapeInfo(const Shape& shape) {
