@@ -1,0 +1,4 @@
+Circle: color: green, area:3.14159
+Rectangle: color: red, area:35
+Shape: color: blue, area:0
+Total area: 38.1416
