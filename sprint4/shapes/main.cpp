@@ -63,10 +63,9 @@ public:
 class Rectangle : public Shape {
     double wigth_;
     double height_;
-    std::string type_ {"Rectangle"};
 public:
     Rectangle (double wigth, double height, Color color):
-        Shape(color), wigth_{wigth}, height_{height}{}
+        Shape(color, "Rectangle"), wigth_{wigth}, height_{height}{}
 
     void SetSize ( double wigth, double height){
         wigth_ = wigth;
@@ -90,19 +89,12 @@ public:
     double GetArea(void) const override {
         return wigth_*height_;
     }
-    std::string GetType ( void ) override {
-        return type_;
-    }
-    std::string GetType ( void ) const override {
-        return type_;
-    }
 };
 
 class Circle : public Shape {
     double radius_;
-    std::string type_ {"Circle"};
 public:
-    Circle (double radius, Color color): Shape(color), radius_{radius}{}
+    Circle (double radius, Color color): Shape(color, "Circle"), radius_{radius}{}
     void SetRadius(double radius){
         radius_ = radius;
     }
@@ -117,12 +109,6 @@ public:
     }
     double GetArea(void) const override {
         return M_PI * radius_ * radius_;
-    }
-    std::string GetType ( void ) override {
-        return type_;
-    }
-    std::string GetType ( void ) const override {
-        return type_;
     }
 };
 
