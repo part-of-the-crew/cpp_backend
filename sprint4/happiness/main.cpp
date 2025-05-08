@@ -6,7 +6,7 @@
 #include <memory>
 #include <optional>
 #include <vector>
-
+#define ASSERT_EQUAL(a, b) (assert(a == b))
 using namespace std;
 
 // Симуляция жизни группы людей в течение num_steps дней
@@ -101,12 +101,15 @@ void Tests() {
 
         // После второго подхода к работе уровень счастья станет равен 90
         w.Work();
+        assert(w.GetWorkDone() == 2);
+        assert(w.GetSatisfaction() == 98);
         // Чтобы компенсировать падение уровня счастья,
         // надзиратель побудит рабочего станцевать
         // 35-летний рабочий за 4 танца поднимет свой уровень удовлетворённости
         // до отметки не ниже 97 (по 2 пункта за танец)
+        //assert(w.GetSatisfaction() == 98);
         assert(w.GetDanceCount() == 4);
-        assert(w.GetSatisfaction() == 98);
+
     }
 
     // Проверка полиморфного разрушения объекта Person
@@ -132,6 +135,45 @@ void Tests() {
         p.reset();
         assert(person_destroyed);
     }
+    {
+        Student p("ivan"s, 17);
+        SatisfactionSupervisor sup{105, 107};
+        p.SetObserver(&sup);
+ 
+        ASSERT_EQUAL(p.GetDanceCount(), 0);
+        ASSERT_EQUAL(p.GetSatisfaction(), 100);
+        ASSERT_EQUAL(p.GetKnowledgeLevel(), 0);
+        p.LiveADay();
+        ASSERT_EQUAL(p.GetDanceCount(), 10);
+        ASSERT_EQUAL(p.GetSatisfaction(), 107);
+        ASSERT_EQUAL(p.GetKnowledgeLevel(), 1);
+ 
+        p.Dance();
+        ASSERT_EQUAL(p.GetDanceCount(), 10 + 1);
+        ASSERT_EQUAL(p.GetSatisfaction(), 107 + 1);
+        ASSERT_EQUAL(p.GetKnowledgeLevel(), 1);
+        p.LiveADay();
+        ASSERT_EQUAL(p.GetDanceCount(), 10 + 1);
+        ASSERT_EQUAL(p.GetSatisfaction(), 107 + 1 - 3);
+        ASSERT_EQUAL(p.GetKnowledgeLevel(), 1 + 1);
+ 
+        p.Dance();
+        p.Dance();
+        ASSERT_EQUAL(p.GetDanceCount(), 10 + 1 + 2);
+        ASSERT_EQUAL(p.GetSatisfaction(), 107 + 1 - 3 + 2);
+        ASSERT_EQUAL(p.GetKnowledgeLevel(), 1 + 1);
+ 
+        p.Study();
+        ASSERT_EQUAL(p.GetDanceCount(), 10 + 1 + 2 + 3);
+        ASSERT_EQUAL(p.GetSatisfaction(), 107);
+        ASSERT_EQUAL(p.GetKnowledgeLevel(), 1 + 1 + 1);
+ 
+        const auto& p_c = p;
+        ASSERT_EQUAL(p_c.GetDanceCount(), 10 + 1 + 2 + 3);
+        ASSERT_EQUAL(p_c.GetSatisfaction(), 107);
+        ASSERT_EQUAL(p_c.GetKnowledgeLevel(), 1 + 1 + 1);
+    }
+
 }
 
 int main() {

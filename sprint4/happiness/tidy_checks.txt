@@ -1,0 +1,354 @@
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:15:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   15 |         for (auto& person : people) {
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:21:6: warning: function 'Tests' has cognitive complexity of 31 (threshold 25) [readability-function-cognitive-complexity]
+   21 | void Tests() {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:26:9: note: nesting level increased to 1
+   26 |         void OnSatisfactionChanged(Person& p, int old_value, int new_value) override {
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:22:12: note: nesting level increased to 1
+   22 |     struct TestObserver : public PersonObserver {
+      |            ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:22:12: note: nesting level increased to 1
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:22:12: note: nesting level increased to 1
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:22:12: note: nesting level increased to 1
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:22:12: note: nesting level increased to 1
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:22:12: note: nesting level increased to 1
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:35:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   35 |         assert(p.GetDanceCount() == 0);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:37:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   37 |         assert(old_satisfaction == 100);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:39:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   39 |         assert(p.GetDanceCount() == 1);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:40:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   40 |         assert(p.GetSatisfaction() == old_satisfaction + 1);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:44:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   44 |         assert(o.person == nullptr);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:47:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   47 |         assert(o.person == &p);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:48:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   48 |         assert(o.old_satisfaction == old_satisfaction + 1);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:49:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   49 |         assert(o.new_satisfaction == old_satisfaction + 2);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:55:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   55 |         assert(w.GetWorkDone() == 0);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:57:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   57 |         assert(w.GetSatisfaction() == old_satisfaction - 5);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:58:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   58 |         assert(w.GetWorkDone() == 1);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:62:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   62 |         assert(w.GetSatisfaction() == old_satisfaction - 10);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:63:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   63 |         assert(w.GetWorkDone() == 2);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:65:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   65 |         assert(w.GetDanceCount() == 0);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:67:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   67 |         assert(w.GetDanceCount() == 1);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:68:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   68 |         assert(w.GetSatisfaction() == old_satisfaction - 10 + 2);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:74:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   74 |         assert(s.GetKnowledgeLevel() == 0);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:76:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   76 |         assert(s.GetSatisfaction() == old_satisfaction - 3);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:77:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   77 |         assert(s.GetKnowledgeLevel() == 1);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:81:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   81 |         assert(s.GetSatisfaction() == old_satisfaction - 6);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:82:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   82 |         assert(s.GetKnowledgeLevel() == 2);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:84:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   84 |         assert(s.GetDanceCount() == 0);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:86:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   86 |         assert(s.GetDanceCount() == 1);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:87:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   87 |         assert(s.GetSatisfaction() == old_satisfaction - 6 + 1);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:98:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+   98 |         assert(w.GetSatisfaction() == 95);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:100:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+  100 |         assert(w.GetDanceCount() == 0);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:104:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+  104 |         assert(w.GetWorkDone() == 2);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:105:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+  105 |         assert(w.GetSatisfaction() == 98);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:111:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+  111 |         assert(w.GetDanceCount() == 4);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:119:13: note: nesting level increased to 1
+  119 |             explicit DestructivePerson(bool& destruction_flag)
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:125:13: note: nesting level increased to 1
+  125 |             ~DestructivePerson() {
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:118:16: note: nesting level increased to 1
+  118 |         struct DestructivePerson : public Person {
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:118:16: note: nesting level increased to 1
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:134:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+  134 |         assert(!person_destroyed);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:136:9: note: +1, including nesting penalty of 0, nesting level increased to 1
+  136 |         assert(person_destroyed);
+      |         ^
+/usr/include/assert.h:104:7: note: expanded from macro 'assert'
+  104 |       ? void (0)                                                        \
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:22:12: warning: accessing fields in struct 'TestObserver' is inefficient due to poor alignment; currently aligned to 8 bytes, but recommended alignment is 32 bytes [altera-struct-pack-align]
+   22 |     struct TestObserver : public PersonObserver {
+      |            ^
+   23 |         Person* person = nullptr;
+   24 |         optional<int> old_satisfaction;
+   25 |         optional<int> new_satisfaction;
+   26 |         void OnSatisfactionChanged(Person& p, int old_value, int new_value) override {
+   27 |             this->person = &p;
+   28 |             this->old_satisfaction = old_value;
+   29 |             this->new_satisfaction = new_value;
+   30 |         }
+   31 |     };
+      |      
+      |       __attribute__((aligned(32)))
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:22:12: note: use "__attribute__((aligned(32)))" to align struct 'TestObserver' to 32 bytes
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:23:17: warning: member variable 'person' has public visibility [misc-non-private-member-variables-in-classes]
+   23 |         Person* person = nullptr;
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:24:23: warning: member variable 'old_satisfaction' has public visibility [misc-non-private-member-variables-in-classes]
+   24 |         optional<int> old_satisfaction;
+      |                       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:25:23: warning: member variable 'new_satisfaction' has public visibility [misc-non-private-member-variables-in-classes]
+   25 |         optional<int> new_satisfaction;
+      |                       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:26:44: warning: parameter name 'p' is too short, expected at least 3 characters [readability-identifier-length]
+   26 |         void OnSatisfactionChanged(Person& p, int old_value, int new_value) override {
+      |                                            ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:26:47: warning: 2 adjacent parameters of 'OnSatisfactionChanged' of similar type ('int') are easily swapped by mistake [bugprone-easily-swappable-parameters]
+   26 |         void OnSatisfactionChanged(Person& p, int old_value, int new_value) override {
+      |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:26:51: note: the first parameter in the range is 'old_value'
+   26 |         void OnSatisfactionChanged(Person& p, int old_value, int new_value) override {
+      |                                                   ^~~~~~~~~
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:26:66: note: the last parameter in the range is 'new_value'
+   26 |         void OnSatisfactionChanged(Person& p, int old_value, int new_value) override {
+      |                                                                  ^~~~~~~~~
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:34:16: warning: variable name 'p' is too short, expected at least 3 characters [readability-identifier-length]
+   34 |         Person p{"Ivan"s, 30};
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:34:24: warning: no header providing "std::operator""s" is directly included [misc-include-cleaner]
+    4 |         Person p{"Ivan"s, 30};
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:34:27: warning: 30 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   34 |         Person p{"Ivan"s, 30};
+      |                           ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:42:22: warning: variable name 'o' is too short, expected at least 3 characters [readability-identifier-length]
+   42 |         TestObserver o;
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:53:16: warning: variable name 'w' is too short, expected at least 3 characters [readability-identifier-length]
+   53 |         Worker w{"Ivan"s, 35};
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:53:27: warning: 35 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   53 |         Worker w{"Ivan"s, 35};
+      |                           ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:72:17: warning: variable name 's' is too short, expected at least 3 characters [readability-identifier-length]
+   72 |         Student s{"Ivan"s, 18};
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:72:28: warning: 18 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   72 |         Student s{"Ivan"s, 18};
+      |                            ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:91:16: warning: variable name 'w' is too short, expected at least 3 characters [readability-identifier-length]
+   91 |         Worker w("Ivan"s, 35);
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:91:27: warning: 35 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   91 |         Worker w("Ivan"s, 35);
+      |                           ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:93:36: warning: 95 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   93 |         SatisfactionSupervisor sup{95, 97};
+      |                                    ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:93:40: warning: 97 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   93 |         SatisfactionSupervisor sup{95, 97};
+      |                                        ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:118:16: warning: accessing fields in struct 'DestructivePerson' is inefficient due to padding; only needs 8 bytes but is using 72 bytes [altera-struct-pack-align]
+  118 |         struct DestructivePerson : public Person {
+      |                ^
+  119 |             explicit DestructivePerson(bool& destruction_flag)
+  120 |                 : Person("test"s, 20)
+  121 |                 , destruction_flag_(destruction_flag) {
+  122 |                 destruction_flag_ = false;
+  123 |             }
+  124 | 
+  125 |             ~DestructivePerson() {
+  126 |                 destruction_flag_ = true;
+  127 |             }
+  128 | 
+  129 |             bool& destruction_flag_;
+  130 |         };
+      |          
+      |           __attribute__((packed))
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:118:16: note: use "__attribute__((packed))" to reduce the amount of padding applied to struct 'DestructivePerson'
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:118:16: warning: class 'DestructivePerson' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator [cppcoreguidelines-special-member-functions,hicpp-special-member-functions]
+  118 |         struct DestructivePerson : public Person {
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:120:35: warning: 20 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  120 |                 : Person("test"s, 20)
+      |                                   ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:125:13: warning: annotate this function with 'override' or (rarely) 'final' [cppcoreguidelines-explicit-virtual-functions,hicpp-use-override,modernize-use-override]
+  125 |             ~DestructivePerson() {
+      |             ^
+      |                                  override
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:129:19: warning: member 'destruction_flag_' of type 'bool &' is a reference [cppcoreguidelines-avoid-const-or-ref-data-members]
+  129 |             bool& destruction_flag_;
+      |                   ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:129:19: warning: member variable 'destruction_flag_' has public visibility [misc-non-private-member-variables-in-classes]
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:133:28: warning: variable name 'p' is too short, expected at least 3 characters [readability-identifier-length]
+  133 |         unique_ptr<Person> p = make_unique<DestructivePerson>(person_destroyed);
+      |                            ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:135:9: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  135 |         p.reset();
+      |         ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/unique_ptr.h:505:13: note: default parameter was declared here
+  505 |       reset(pointer __p = pointer()) noexcept
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:144:55: warning: 35 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  144 |     people.emplace_back(make_unique<Worker>("Mario"s, 35));
+      |                                                       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:145:63: warning: 18 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  145 |     people.emplace_back(make_unique<Student>("Harry Potter"s, 18));
+      |                                                               ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:148:39: warning: 90 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  148 |     SatisfactionSupervisor supervisor(90, 100);
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:148:43: warning: 100 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  148 |     SatisfactionSupervisor supervisor(90, 100);
+      |                                           ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:149:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  149 |     for (auto& person : people) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:153:27: warning: 10 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  153 |     RunSimulation(people, 10);
+      |                           ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:155:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  155 |     for (auto& person : people) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:157:44: warning: do not use 'endl' with streams; use '\n' instead [performance-avoid-endl]
+  157 |              << person->GetDanceCount() << endl;
+      |                                            ^~~~
+      |                                            '\n'
+/home/amente/Desktop/cpp_backend/sprint4/happiness/main.cpp:161:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  161 |     for (auto& person : people) {
+      |     ^

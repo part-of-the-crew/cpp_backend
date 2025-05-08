@@ -8,13 +8,13 @@ class Person;
 class PersonObserver {
 public:
     // Этот метод вызывается, когда меняется состояние удовлетворённости человека
-    void OnSatisfactionChanged(Person& /*person*/, int /*old_value*/, int /*new_value*/) {
+    virtual void OnSatisfactionChanged(Person& /*person*/, int /*old_value*/, int /*new_value*/) {
         // Реализация метода базового класса ничего не делает
     }
 
 protected:
     // Класс PersonObserver не предназначен для удаления напрямую
-    ~PersonObserver() = default;
+    virtual ~PersonObserver() = default;
 };
 
 /*
@@ -49,14 +49,16 @@ public:
 
     // Увеличивает на 1 количество походов на танцы
     // Увеличивает удовлетворённость на 1
-    virtual void Dance() {
+    virtual void Dance( void ) {
         danceCount += 1;
-        observer_->OnSatisfactionChanged(*this, satisfaction_, satisfaction_ + 1);
-        satisfaction_++;
+        ChangeSatisfaction (1);
     }
-    int ChangeSatisfaction( int satisfaction) {
-        observer_->OnSatisfactionChanged(*this, satisfaction_, satisfaction_ + 1);
-        return danceCount;
+    void ChangeSatisfaction( int delta) {
+        int old_satisfaction = satisfaction_;
+        satisfaction_ += delta;
+        if (observer_ != nullptr)
+            observer_->OnSatisfactionChanged(*this, old_satisfaction, satisfaction_);
+
     }
     int GetDanceCount() const {
         return danceCount;
@@ -66,13 +68,16 @@ public:
     virtual void LiveADay() {
         // Подклассы могут переопределить этот метод
     }
+    virtual ~Person() = default;
 
 private:
     std::string name_;
     PersonObserver* observer_ = nullptr;
     int age_;
-    int danceCount = 0;
+
 protected:
+    int danceCount = 0;
+
     int satisfaction_ = 100;
 };
 
@@ -90,9 +95,11 @@ public:
     // Увеличивает счётчик сделанной работы на 1, уменьшает удовлетворённость на 5
     void Work() {
         work_++;
-        satisfaction_ -= 5;
+        ChangeSatisfaction(-5);
     }
-
+    void LiveADay() override {
+        Work();
+    }
     // Возвращает значение счётчика сделанной работы
     int GetWorkDone() const {
         return work_;
@@ -100,10 +107,11 @@ public:
 
     void Dance() override {
         if (GetAge() > 30 && GetAge() < 40){
-            work_ += 2;
+            ChangeSatisfaction(2);
         } else {
-            work_ += 1;
+            ChangeSatisfaction(1);
         }
+        danceCount++;
     }
 };
 
@@ -119,9 +127,16 @@ public:
     // Учёба увеличивает уровень знаний на 1, уменьшает уровень удовлетворённости на 3
     void Study() {
         knowledge++;
-        satisfaction_ -= 3;
+        ChangeSatisfaction(-3);
     }
 
+    void LiveADay() override {
+        Study();
+    }
+    void Dance() override {
+        ChangeSatisfaction(1);
+        danceCount++;
+    }
     // Возвращает уровень знаний
     int GetKnowledgeLevel() const {
         return knowledge;
