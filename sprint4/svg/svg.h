@@ -55,7 +55,7 @@ struct RenderContext {
  */
 class Object {
 public:
-    void Render(const RenderContext& context) const;
+    virtual void Render(const RenderContext& context) const;
 
     virtual ~Object() = default;
 
@@ -139,7 +139,7 @@ private:
     std::string data_;
 
     void RenderObject(const RenderContext& context) const override;
-
+    void Replace (std::string from, std::string to);
 };
 
 class Document {

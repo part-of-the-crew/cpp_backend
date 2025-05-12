@@ -31,7 +31,7 @@ int main() {
                 .SetOffset({0, 6})
                 .SetFontSize(12)
                 .SetFontWeight("bold"s)
-                .SetData("Hello C++"s));
+                .SetData("Hello, <UserName>. Would you like some \"M&M's\"?"s));
     doc.Add(CreateStar({20, 50}, 10, 5, 5));
     doc.Render(std::cout);
 }
