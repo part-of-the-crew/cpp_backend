@@ -98,7 +98,7 @@ public:
  * Класс Text моделирует элемент <text> для отображения текста
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text
  */
-class Text {
+class Text final : public Object {
 public:
     // Задаёт координаты опорной точки (атрибуты x и y)
     Text& SetPosition(Point pos);
@@ -138,6 +138,8 @@ private:
     // Задаёт текстовое содержимое объекта (отображается внутри тега text)
     std::string data_;
 
+    void RenderObject(const RenderContext& context) const override;
+
 };
 
 class Document {
@@ -148,7 +150,10 @@ public:
      Document doc;
      doc.Add(Circle().SetCenter({20, 30}).SetRadius(15));
     */
-    // void Add(???);
+    template <typename Obj>
+    void Add(Obj obj) {
+        objects.emplace_back(std::make_unique<Obj>(std::move(obj)));
+    }
 
     // Добавляет в svg-документ объект-наследник svg::Object
     void AddPtr(std::unique_ptr<Object>&& obj);
@@ -156,7 +161,9 @@ public:
     // Выводит в ostream svg-представление документа
     void Render(std::ostream& out) const;
 
-    // Прочие методы и данные, необходимые для реализации класса Document
+private:
+
+    std::vector <std::unique_ptr<Object>> objects;
 };
 
 }  // namespace svg
