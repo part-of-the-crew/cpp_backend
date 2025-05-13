@@ -21,24 +21,6 @@ struct Point {
 };
 
 
-// Интерфейс Graphics предоставляет методы для рисования графических примитивов
-class Graphics {
-    public:
-        virtual void MoveTo(Point p) = 0;
-        virtual void LineTo(Point p) = 0;
-        virtual void DrawEllipse(Point left_top, Point right_bottom) = 0;
-        virtual void SetColor(Color color) = 0;
-        // Прочие методы рисования графических примитивов
-        // ...
-    };
-    
-// Интерфейс Drawable задаёт объекты, которые можно нарисовать с помощью Graphics
-class Drawable {
-public:
-    virtual void Draw(Graphics& g) const = 0;
-};
-
-
 class ObjectContainer {
 
     template <typename Obj>
@@ -51,7 +33,13 @@ class ObjectContainer {
 
     // Выводит в ostream svg-представление документа
     virtual void Render(std::ostream& out) const = 0;
-}
+};
+
+// Интерфейс Drawable задаёт объекты, которые можно нарисовать с помощью ObjectContainer
+class Drawable {
+public:
+    virtual void Draw(ObjectContainer& oc) const = 0;
+};
 
 
 
@@ -108,6 +96,10 @@ class Circle final : public Object {
 public:
     Circle& SetCenter(Point center);
     Circle& SetRadius(double radius);
+    Circle (Point center, double radius) :
+        center_{center},
+        radius_{radius}
+    {}
 
 private:
     void RenderObject(const RenderContext& context) const override;
@@ -179,20 +171,9 @@ private:
     void Replace (std::string from, std::string to);
 };
 
-class ObjectContainer : public ObjectContainer {
+class Document : public ObjectContainer {
 public:
-    /*
-     Метод Add добавляет в svg-документ любой объект-наследник svg::Object.
-     Пример использования:
-     Document doc;
-     doc.Add(Circle().SetCenter({20, 30}).SetRadius(15));
-    */
-    template <typename Obj>
-    void Add(Obj obj) {
-        objects.emplace_back(std::make_unique<Obj>(std::move(obj)));
-    }
 
-    // Добавляет в svg-документ объект-наследник svg::Object
     void AddPtr(std::unique_ptr<Object>&& obj);
 
     // Выводит в ostream svg-представление документа
