@@ -20,25 +20,25 @@ struct Point {
     double y = 0;
 };
 
+class Object;
 
 class ObjectContainer {
-
+public:
     template <typename Obj>
     void Add(Obj obj) {
-        objects.emplace_back(std::make_unique<Obj>(std::move(obj)));
+        AddPtr(std::make_unique<Obj>(std::move(obj)));
     }
-
     // Добавляет в svg-документ объект-наследник svg::Object
     virtual void AddPtr(std::unique_ptr<Object>&& obj) = 0;
 
-    // Выводит в ostream svg-представление документа
-    virtual void Render(std::ostream& out) const = 0;
+    virtual ~ObjectContainer() = default;
 };
 
 // Интерфейс Drawable задаёт объекты, которые можно нарисовать с помощью ObjectContainer
 class Drawable {
 public:
     virtual void Draw(ObjectContainer& oc) const = 0;
+    virtual ~Drawable() = default;
 };
 
 
@@ -100,7 +100,7 @@ public:
         center_{center},
         radius_{radius}
     {}
-
+    Circle () = default;
 private:
     void RenderObject(const RenderContext& context) const override;
 
@@ -174,7 +174,7 @@ private:
 class Document : public ObjectContainer {
 public:
 
-    void AddPtr(std::unique_ptr<Object>&& obj);
+    void AddPtr(std::unique_ptr<Object>&& obj) override;
 
     // Выводит в ostream svg-представление документа
     void Render(std::ostream& out) const;

@@ -1,6 +1,6 @@
 #define _USE_MATH_DEFINES
 #include "svg.h"
-
+#include <cassert>
 #include <cmath>
 
 using namespace std::literals;
@@ -60,8 +60,8 @@ private:
 class Snowman : public svg::Drawable {
 public:
     Snowman(svg::Point center, double rad) {
-        circles.emplace_back(Circle{center.y - rad*5, rad*2});
-        circles.emplace_back(Circle{center.y - rad*2, rad*1.5});
+        circles.emplace_back(Circle{{center.x, center.y + rad*5}, rad*2});
+        circles.emplace_back(Circle{{center.x, center.y + rad*2}, rad*1.5});
         circles.emplace_back(Circle{center, rad});
     }
 
@@ -93,13 +93,37 @@ void DrawPicture(const Container& container, svg::ObjectContainer& target) {
     DrawPicture(begin(container), end(container), target);
 }
 
+void Polymorph() {
+    using namespace std;
+        {
+            Circle c;
+            Object& obj = c;
+ 
+            obj.Render(cout);
+            cout << endl;
+        } {
+            Polyline p;
+            Object& obj = p;
+ 
+            obj.Render(cout);
+            cout << endl;
+        } {
+            Text t;
+            Object& obj = t;
+ 
+            obj.Render(cout);
+        }
+    }
+
 int main() {
     using namespace svg;
     using namespace shapes;
     using namespace std;
-
+    //Polymorph();
+    //std::cout << "ObjectContainer is abstract: " << !std::is_abstract_v<ObjectContainer> << '\n';
+    //assert(!std::is_abstract_v<ObjectContainer> == 1);
     vector<unique_ptr<svg::Drawable>> picture;
-
+    Circle c;
     picture.emplace_back(make_unique<Triangle>(Point{100, 20}, Point{120, 50}, Point{80, 40}));
     // 5-лучевая звезда с центром {50, 20}, длиной лучей 10 и внутренним радиусом 4
     picture.emplace_back(make_unique<Star>(Point{50.0, 20.0}, 10.0, 4.0, 5));
