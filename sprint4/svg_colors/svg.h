@@ -10,6 +10,85 @@
 
 namespace svg {
 
+using Color = std::string;
+inline const Color NoneColor{"none"};
+
+template <typename Owner>
+class PathProps {
+public:
+    Owner& SetFillColor(Color color) {
+        fill_color_ = std::move(color);
+        return AsOwner();
+    }
+    Owner& SetStrokeColor(Color color) {
+        stroke_color_ = std::move(color);
+        return AsOwner();
+    }
+
+protected:
+    ~PathProps() = default;
+
+    // Метод RenderAttrs выводит в поток общие для всех путей атрибуты fill и stroke
+    void RenderAttrs(std::ostream& out) const {
+        using namespace std::literals;
+
+        if (fill_color_) {
+            out << " fill=\""sv << *fill_color_ << "\""sv;
+        }
+        if (stroke_color_) {
+            out << " stroke=\""sv << *stroke_color_ << "\""sv;
+        }
+    }
+
+private:
+    Owner& AsOwner() {
+        // static_cast безопасно преобразует *this к Owner&,
+        // если класс Owner — наследник PathProps
+        return static_cast<Owner&>(*this);
+    }
+
+    std::optional<Color> fill_color_;
+    std::optional<Color> stroke_color_;
+};
+
+enum class StrokeLineCap {
+    BUTT,
+    ROUND,
+    SQUARE,
+};
+
+enum class StrokeLineJoin {
+    ARCS,
+    BEVEL,
+    MITER,
+    MITER_CLIP,
+    ROUND,
+};
+
+
+// Overload operator<< for StrokeLineCap
+std::ostream& operator<<(std::ostream& os, StrokeLineCap cap) {
+    switch (cap) {
+        case StrokeLineCap::BUTT:    return os << "butt";
+        case StrokeLineCap::ROUND:   return os << "round";
+        case StrokeLineCap::SQUARE:  return os << "square";
+        default:                     return os << "unknown";
+    }
+}
+
+// Overload operator<< for StrokeLineJoin
+std::ostream& operator<<(std::ostream& os, StrokeLineJoin join) {
+    switch (join) {
+        case StrokeLineJoin::ARCS:        return os << "arcs";
+        case StrokeLineJoin::BEVEL:       return os << "bevel";
+        case StrokeLineJoin::MITER:       return os << "miter";
+        case StrokeLineJoin::MITER_CLIP:  return os << "miter-clip";
+        case StrokeLineJoin::ROUND:       return os << "round";
+        default:                          return os << "unknown";
+    }
+}
+
+
 struct Point {
     Point() = default;
     Point(double x, double y)
