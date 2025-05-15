@@ -86,6 +86,7 @@ void Circle::RenderObject(const RenderContext &context) const
     auto& out = context.out;
     out << "<circle cx=\""sv << center_.x << "\" cy=\""sv << center_.y << "\" "sv;
     out << "r=\""sv << radius_ << "\" "sv;
+    RenderAttrs(out);
     out << "/>"sv;
 }
 
@@ -101,7 +102,9 @@ void Polyline::RenderObject(const RenderContext &context) const
         context.out << p.x << "," << p.y;
         first = false;
     }
-    context.out << "\" />"sv;
+    context.out << "\" ";
+    RenderAttrs(context.out);
+    context.out << "/>"sv;
 }
 
 void Text::RenderObject(const RenderContext &context) const
@@ -109,6 +112,7 @@ void Text::RenderObject(const RenderContext &context) const
     //<text x="35" y="20" dx="0" dy="6" font-size="12" font-family="Verdana" font-weight="bold">Hello C++</text>
     //context.RenderIndent();
     context.out << "<text "sv;
+    RenderAttrs(context.out);
     context.out << "x=\"" << pos_.x << "\" "sv;
     context.out << "y=\"" << pos_.y << "\" "sv;
     context.out << "dx=\"" << offset_.x << "\" "sv;

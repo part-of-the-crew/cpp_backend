@@ -46,6 +46,7 @@ class Star : public svg::Drawable {
 public:
     Star(svg::Point center, double outer_rad, double inner_rad, int num_rays) {
         star = CreateStar(center, outer_rad, inner_rad, num_rays);
+        star.SetFillColor("red").SetStrokeColor("black");
     }
 
     void Draw(svg::ObjectContainer& container) const override {
@@ -60,9 +61,12 @@ private:
 class Snowman : public svg::Drawable {
 public:
     Snowman(svg::Point center, double rad) {
-        circles.emplace_back(Circle{{center.x, center.y + rad*5}, rad*2});
-        circles.emplace_back(Circle{{center.x, center.y + rad*2}, rad*1.5});
-        circles.emplace_back(Circle{center, rad});
+        circles.emplace_back(Circle{{center.x, center.y + rad*5}, rad*2}.
+            SetFillColor("rgb(240,240,240)").SetStrokeColor("black"));
+        circles.emplace_back(Circle{{center.x, center.y + rad*2}, rad*1.5}
+            .SetFillColor("rgb(240,240,240)").SetStrokeColor("black"));
+        circles.emplace_back(Circle{center, rad}
+            .SetFillColor("rgb(240,240,240)").SetStrokeColor("black"));
     }
 
     void Draw(svg::ObjectContainer& container) const override {

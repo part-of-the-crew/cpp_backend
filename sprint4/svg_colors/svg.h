@@ -5,51 +5,13 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <optional>
 
 
 namespace svg {
 
 using Color = std::string;
 inline const Color NoneColor{"none"};
-
-template <typename Owner>
-class PathProps {
-public:
-    Owner& SetFillColor(Color color) {
-        fill_color_ = std::move(color);
-        return AsOwner();
-    }
-    Owner& SetStrokeColor(Color color) {
-        stroke_color_ = std::move(color);
-        return AsOwner();
-    }
-
-protected:
-    ~PathProps() = default;
-
-    // Метод RenderAttrs выводит в поток общие для всех путей атрибуты fill и stroke
-    void RenderAttrs(std::ostream& out) const {
-        using namespace std::literals;
-
-        if (fill_color_) {
-            out << " fill=\""sv << *fill_color_ << "\""sv;
-        }
-        if (stroke_color_) {
-            out << " stroke=\""sv << *stroke_color_ << "\""sv;
-        }
-    }
-
-private:
-    Owner& AsOwner() {
-        // static_cast безопасно преобразует *this к Owner&,
-        // если класс Owner — наследник PathProps
-        return static_cast<Owner&>(*this);
-    }
-
-    std::optional<Color> fill_color_;
-    std::optional<Color> stroke_color_;
-};
 
 enum class StrokeLineCap {
     BUTT,
@@ -67,7 +29,7 @@ enum class StrokeLineJoin {
 
 
 // Overload operator<< for StrokeLineCap
-std::ostream& operator<<(std::ostream& os, StrokeLineCap cap) {
+inline std::ostream& operator<<(std::ostream& os, StrokeLineCap cap) {
     switch (cap) {
         case StrokeLineCap::BUTT:    return os << "butt";
         case StrokeLineCap::ROUND:   return os << "round";
@@ -77,7 +39,7 @@ std::ostream& operator<<(std::ostream& os, StrokeLineCap cap) {
 }
 
 // Overload operator<< for StrokeLineJoin
-std::ostream& operator<<(std::ostream& os, StrokeLineJoin join) {
+inline std::ostream& operator<<(std::ostream& os, StrokeLineJoin join) {
     switch (join) {
         case StrokeLineJoin::ARCS:        return os << "arcs";
         case StrokeLineJoin::BEVEL:       return os << "bevel";
@@ -87,6 +49,71 @@ std::ostream& operator<<(std::ostream& os, StrokeLineJoin join) {
         default:                          return os << "unknown";
     }
 }
+
+template <typename Owner>
+class PathProps {
+public:
+    Owner& SetFillColor(Color color) {
+        fill_color_ = std::move(color);
+        return AsOwner();
+    }
+    Owner& SetStrokeColor(Color color) {
+        stroke_color_ = std::move(color);
+        return AsOwner();
+    }
+    Owner& SetStrokeWidth(double width) {
+        stroke_width_ = width;
+        return AsOwner();
+    }
+    Owner& SetStrokeWidth(Color color) {
+        stroke_color_ = std::move(color);
+        return AsOwner();
+    }
+    Owner& SetStrokeLineCap(StrokeLineCap line_cap) {
+        strokeLineCap_ = line_cap;
+        return AsOwner();
+    }
+    Owner& SetStrokeLineJoin(StrokeLineJoin line_join) {
+        strokeLineJoin_ = line_join;
+        return AsOwner();
+    }
+protected:
+    ~PathProps() = default;
+
+    // Метод RenderAttrs выводит в поток общие для всех путей атрибуты fill и stroke
+    void RenderAttrs(std::ostream& out) const {
+        using namespace std::literals;
+
+        if (fill_color_) {
+            out << "fill=\""sv << *fill_color_ << "\" "sv;
+        }
+        if (stroke_color_) {
+            out << "stroke=\""sv << *stroke_color_ << "\" "sv;
+        }
+        if (stroke_width_) {
+            out << "stroke-width=\""sv << *stroke_width_ << "\" "sv;
+        }
+        if (strokeLineCap_) {
+            out << "stroke-linecap=\""sv << *strokeLineCap_ << "\" "sv;
+        }
+        if (strokeLineJoin_) {
+            out << "stroke-linejoin=\""sv << *strokeLineJoin_ << "\" "sv;
+        }
+    }
+
+private:
+    Owner& AsOwner() {
+        // static_cast безопасно преобразует *this к Owner&,
+        // если класс Owner — наследник PathProps
+        return static_cast<Owner&>(*this);
+    }
+
+    std::optional<Color> fill_color_;
+    std::optional<Color> stroke_color_;
+    std::optional<double> stroke_width_;
+    std::optional<StrokeLineCap> strokeLineCap_;
+    std::optional<StrokeLineJoin> strokeLineJoin_;
+};
 
 
 struct Point {
@@ -171,7 +198,7 @@ private:
  * Класс Circle моделирует элемент <circle> для отображения круга
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle
  */
-class Circle final : public Object {
+class Circle final : public Object, public PathProps<Circle> {
 public:
     Circle& SetCenter(Point center);
     Circle& SetRadius(double radius);
@@ -191,7 +218,7 @@ private:
  * Класс Polyline моделирует элемент <polyline> для отображения ломаных линий
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline
  */
-class Polyline  final : public Object {
+class Polyline final : public Object, public PathProps<Polyline> {
 public:
     // Добавляет очередную вершину к ломаной линии
     Polyline& AddPoint(Point point);
@@ -206,7 +233,7 @@ public:
  * Класс Text моделирует элемент <text> для отображения текста
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text
  */
-class Text final : public Object {
+class Text final : public Object, public PathProps<Text> {
 public:
     // Задаёт координаты опорной точки (атрибуты x и y)
     Text& SetPosition(Point pos);
