@@ -1,0 +1,8 @@
+none
+purple
+rgb(100,200,255)
+rgba(100,200,255,0.5)
+<?xml version="1.0" encoding="UTF-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <circle cx="1" cy="2" r="3.5" fill="rgba(100,200,255,0.5)" stroke="purple"/>
+</svg>
