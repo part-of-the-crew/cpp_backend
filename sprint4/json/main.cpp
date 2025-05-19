@@ -58,7 +58,7 @@ void MustThrowLogicError(Fn fn) {
         assert(false);
     }
 }
-
+*/
 void TestNull() {
     Node null_node;
     assert(null_node.IsNull());
@@ -82,7 +82,7 @@ void TestNull() {
     // Пробелы, табуляции и символы перевода строки между токенами JSON файла игнорируются
     assert(LoadJSON(" \t\r\n\n\r null \t\r\n\n\r "s).GetRoot() == null_node);
 }
-
+/*
 void TestNumbers() {
     const Node int_node{42};
     assert(int_node.IsInt());
@@ -255,8 +255,9 @@ void Benchmark() {
 }  // namespace
 
 int main() {
-/*
+
     TestNull();
+    /*
     TestNumbers();
     TestStrings();
     TestBool();

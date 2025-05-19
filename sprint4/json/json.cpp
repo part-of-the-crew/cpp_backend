@@ -71,35 +71,82 @@ Node LoadNode(istream& input) {
 }  // namespace
 
 Node::Node(Array array)
-    : as_array_(move(array)) {
+    : data_(move(array)) {
 }
 
 Node::Node(Dict map)
-    : as_map_(move(map)) {
+    : data_(move(map)) {
 }
 
 Node::Node(int value)
-    : as_int_(value) {
+    : data_(value) {
 }
 
 Node::Node(string value)
-    : as_string_(move(value)) {
+    : data_(move(value)) {
 }
 
 const Array& Node::AsArray() const {
-    return as_array_;
+    if (Node::IsArray())
+        return std::get<Array>(data_);
+    else
+        throw std::logic_error {""};
 }
 
 const Dict& Node::AsMap() const {
-    return as_map_;
+    if (Node::IsMap())
+        return std::get<Dict>(data_);
+    else
+        throw std::logic_error {""};
 }
 
 int Node::AsInt() const {
-    return as_int_;
+    if (Node::IsInt())
+        return std::get<int>(data_);
+    else
+        throw std::logic_error {""};
 }
 
 const string& Node::AsString() const {
-    return as_string_;
+    if (Node::IsString())
+        return std::get<std::string>(data_);
+    else
+        throw std::logic_error {""};
+}
+
+bool Node::IsNull() const
+{
+    return std::holds_alternative<std::nullptr_t>(data_);
+}
+
+bool Node::IsInt() const
+{
+    return std::holds_alternative<int>(data_);
+}
+
+bool Node::IsDouble() const
+{
+    return std::holds_alternative<int>(data_) || std::holds_alternative<double>(data_);
+}
+
+bool Node::IsPureDouble() const
+{
+    return std::holds_alternative<double>(data_);
+}
+
+bool Node::IsString() const
+{
+    return std::holds_alternative<std::string>(data_);
+}
+
+bool Node::IsArray() const
+{
+    return std::holds_alternative<Array>(data_);
+}
+
+bool Node::IsMap() const
+{
+    return std::holds_alternative<Dict>(data_);
 }
 
 Document::Document(Node root)

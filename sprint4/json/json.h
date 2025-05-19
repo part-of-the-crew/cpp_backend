@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <variant>
 
 namespace json {
 
@@ -21,7 +22,7 @@ public:
 class Node {
 public:
    /* Реализуйте Node, используя std::variant */
-
+    Node() = default;
     explicit Node(Array array);
     explicit Node(Dict map);
     explicit Node(int value);
@@ -31,8 +32,19 @@ public:
     const Dict& AsMap() const;
     int AsInt() const;
     const std::string& AsString() const;
-
+    bool IsNull() const;
+    bool IsInt() const;
+    bool IsDouble() const;
+    bool IsPureDouble() const;
+    bool IsString() const;
+    bool IsArray() const;
+    bool IsMap() const;
 private:
+
+    std::variant<std::nullptr_t, std::string, int, Array, Dict> data_;
+    
+    //inline const Color NoneColor{};
+
     Array as_array_;
     Dict as_map_;
     int as_int_ = 0;
