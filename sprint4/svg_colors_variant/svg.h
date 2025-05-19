@@ -6,13 +6,98 @@
 #include <string>
 #include <vector>
 #include <optional>
-
+#include <variant>
 
 namespace svg {
 
-using Color = std::string;
-inline const Color NoneColor{"none"};
+struct Rgb {
+    Rgb() = default;
+    Rgb(uint8_t r, uint8_t g, uint8_t b)
+            : red(r)
+            , green(g)
+            , blue(b) {
+    }
+    uint8_t red = 0;
+    uint8_t green = 0;
+    uint8_t blue = 0;
+};
 
+struct Rgba {
+    Rgba() = default;
+    Rgba(uint8_t r, uint8_t g, uint8_t b, double a)
+            : red(r)
+            , green(g)
+            , blue(b)
+            , opacity(a) {
+    }
+    uint8_t red = 0;
+    uint8_t green = 0;
+    uint8_t blue = 0;
+    double opacity = 1.0;
+};
+
+//using NoneColor = std::monostate;
+using Color = std::variant<std::monostate, std::string, Rgb, Rgba>;
+inline const Color NoneColor{};
+
+// Overload for Rgb
+inline std::ostream& operator<<(std::ostream& out, const Rgb& color) {
+    return out << "rgb(" << static_cast<int>(color.red)
+               << "," << static_cast<int>(color.green)
+               << "," << static_cast<int>(color.blue) << ")";
+}
+
+// Overload for Rgba
+inline std::ostream& operator<<(std::ostream& out, const Rgba& color) {
+    return out << "rgba(" << static_cast<int>(color.red)
+               << "," << static_cast<int>(color.green)
+               << "," << static_cast<int>(color.blue)
+               << "," << color.opacity << ")";
+}
+
+struct OstreamSolutionPrinter {
+
+    std::ostream& out;
+
+    void operator()(std::monostate) const {
+        out << "none";
+    }
+    void operator()(std::string s) const {
+        out << s;
+    }
+    void operator()(svg::Rgb rgb) const {
+        out << rgb;
+    }
+    void operator()(svg::Rgba rgba) const {
+        out << rgba;
+    }
+};
+
+// Overload for Color (std::variant)
+
+inline std::ostream& operator<<(std::ostream& out, const Color& color) {
+    std::visit(OstreamSolutionPrinter{out}, color);
+    return out;
+};
+/*
+    ostringstream strm;
+    // Выводим в поток strm
+    visit(OstreamSolutionPrinter{strm}, solution);
+    cout << strm.str();
+
+
+    inline std::ostream& operator<<(std::ostream& out, const Color& color) {
+    std::visit([&out](const auto& value) {
+        using T = std::decay_t<decltype(value)>;
+        if constexpr (std::is_same_v<T, std::monostate>) {
+            out << "none";
+        } else {
+            out << value;
+        }
+    }, color);
+    return out;
+}
+*/
 enum class StrokeLineCap {
     BUTT,
     ROUND,

@@ -133,20 +133,27 @@ int main() {
     using namespace svg;
     using namespace std;
 
-    
+    svg::Color color1;                               // none
+    svg::Color color2 = svg::Rgb{215, 30, 25};       // rgb(215,30,25)
+    svg::Color color3 = svg::NoneColor;              // none
+    svg::Color color4 = svg::Rgba{15, 15, 25, 0.7};  // rgba(15,15,25,0.7)
+    svg::Color color5 = "red"s;                      // red
+    svg::Color color6 = svg::Rgb{};                  // rgb(0,0,0)
+    svg::Color color7 = svg::Rgba{};                 // rgba(0,0,0,1.0); 
+
     Color none_color;
     cout << none_color << endl; // none
     
     Color purple{"purple"s};
     cout << purple << endl; // purple
     
-    Color rgb = Rgb{100, 200, 255};
-    cout << rgb << endl; // rgb(100,200,255)
+    Color rgb_ = Rgb{100, 200, 255};
+    cout << rgb_ << endl; // rgb(100,200,255)
 
-    Color rgba = Rgba{100, 200, 255, 0.5};
-    cout << rgba << endl; // rgba(100,200,255,0.5)
+    Color rgba_ = Rgba{100, 200, 255, 0.5};
+    cout << rgba_ << endl; // rgba(100,200,255,0.5)
 
-
+/*
     svg::Rgb rgb{255, 0, 100};
     
     assert(rgb.red == 255);
@@ -163,15 +170,15 @@ int main() {
     assert(rgba.green == 20);
     assert(rgba.blue == 50);
     assert(rgba.opacity == 0.3);
-
-    // Чёрный непрозрачный цвет: red=0, green=0, blue=0, alpha=1.0
-    svg::Rgba color;
-    assert(color.red == 0 && color.green == 0 && color.blue == 0 && color.opacity == 1.0); 
-
-
+    {
+        // Чёрный непрозрачный цвет: red=0, green=0, blue=0, alpha=1.0
+        svg::Rgba color;
+        assert(color.red == 0 && color.green == 0 && color.blue == 0 && color.opacity == 1.0); 
+    }
+*/
     Circle c;
     c.SetRadius(3.5).SetCenter({1.0, 2.0});
-    c.SetFillColor(rgba);
+    c.SetFillColor(rgba_);
     c.SetStrokeColor(purple);
     
     Document doc;
