@@ -36,6 +36,10 @@ Node LoadString(istream& input) {
     return Node(move(line));
 }
 
+Node LoadNull(void) {
+    return Node{};
+}
+
 Node LoadDict(istream& input) {
     Dict result;
 
@@ -54,7 +58,10 @@ Node LoadDict(istream& input) {
 
 Node LoadNode(istream& input) {
     char c;
-    input >> c;
+    do {
+        input >> c;
+    } while (c == '\t' || c == '\r' || c == '\n' || c == 'r' || c == ' ');
+    
 
     if (c == '[') {
         return LoadArray(input);
@@ -62,6 +69,8 @@ Node LoadNode(istream& input) {
         return LoadDict(input);
     } else if (c == '"') {
         return LoadString(input);
+    } else if (c == 'n') {
+        return LoadNull();
     } else {
         input.putback(c);
         return LoadInt(input);
@@ -112,7 +121,14 @@ int Node::AsBool() const {
     else
         throw std::logic_error {"my exception"};
 }
-const string& Node::AsString() const {
+double Node::AsDouble() const {
+    if (Node::IsDouble())
+        return std::get<double>(data_);
+    else
+        throw std::logic_error {"my exception"};
+}
+const string &Node::AsString() const
+{
     if (Node::IsString())
         return std::get<std::string>(data_);
     else

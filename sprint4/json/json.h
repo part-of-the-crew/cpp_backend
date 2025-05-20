@@ -34,6 +34,7 @@ public:
     const Dict& AsMap() const;
     int AsInt() const;
     int AsBool() const;
+    double AsDouble() const;
     const std::string& AsString() const;
     bool IsNull() const;
     bool IsInt() const;
