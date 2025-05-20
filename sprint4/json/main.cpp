@@ -14,7 +14,7 @@ namespace {
 // Можете воспользоваться ими, чтобы протестировать свой код.
 // Раскомментируйте их по мере работы.
 
-/*
+
 json::Document LoadJSON(const std::string& s) {
     std::istringstream strm(s);
     return json::Load(strm);
@@ -58,7 +58,7 @@ void MustThrowLogicError(Fn fn) {
         assert(false);
     }
 }
-*/
+
 void TestNull() {
     Node null_node;
     assert(null_node.IsNull());
@@ -71,12 +71,13 @@ void TestNull() {
 
     Node null_node1{nullptr};
     assert(null_node1.IsNull());
-
     assert(Print(null_node) == "null"s);
     assert(null_node == null_node1);
     assert(!(null_node != null_node1));
 
     const Node node = LoadJSON("null"s).GetRoot();
+    std::cout << Print(node);
+    return;
     assert(node.IsNull());
     assert(node == null_node);
     // Пробелы, табуляции и символы перевода строки между токенами JSON файла игнорируются

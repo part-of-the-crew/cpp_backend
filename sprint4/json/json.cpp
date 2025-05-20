@@ -90,28 +90,33 @@ const Array& Node::AsArray() const {
     if (Node::IsArray())
         return std::get<Array>(data_);
     else
-        throw std::logic_error {""};
+        throw std::logic_error {"my exception"};
 }
 
 const Dict& Node::AsMap() const {
     if (Node::IsMap())
         return std::get<Dict>(data_);
     else
-        throw std::logic_error {""};
+        throw std::logic_error {"my exception"};
 }
 
 int Node::AsInt() const {
     if (Node::IsInt())
         return std::get<int>(data_);
     else
-        throw std::logic_error {""};
+        throw std::logic_error {"my exception"};
 }
-
+int Node::AsBool() const {
+    if (Node::IsBool())
+        return std::get<bool>(data_);
+    else
+        throw std::logic_error {"my exception"};
+}
 const string& Node::AsString() const {
     if (Node::IsString())
         return std::get<std::string>(data_);
     else
-        throw std::logic_error {""};
+        throw std::logic_error {"my exception"};
 }
 
 bool Node::IsNull() const
@@ -139,6 +144,11 @@ bool Node::IsString() const
     return std::holds_alternative<std::string>(data_);
 }
 
+bool Node::IsBool() const
+{
+    return std::holds_alternative<bool>(data_);
+}
+
 bool Node::IsArray() const
 {
     return std::holds_alternative<Array>(data_);
@@ -162,10 +172,7 @@ Document Load(istream& input) {
 }
 
 void Print(const Document& doc, std::ostream& output) {
-    (void) &doc;
-    (void) &output;
-
-    // Реализуйте функцию самостоятельно
+    doc.GetRoot().PrintNode(doc.GetRoot(), output);
 }
 
 }  // namespace json
