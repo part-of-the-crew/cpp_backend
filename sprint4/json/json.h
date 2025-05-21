@@ -142,4 +142,29 @@ Document Load(std::istream& input);
 
 void Print(const Document& doc, std::ostream& output);
 
+// Контекст вывода, хранит ссылку на поток вывода и текущий отсуп
+struct PrintContext {
+    std::ostream& out;
+    int indent_step = 4;
+    int indent = 0;
+
+    void PrintIndent() const {
+        for (int i = 0; i < indent; ++i) {
+            out.put(' ');
+        }
+    }
+
+    // Возвращает новый контекст вывода с увеличенным смещением
+    PrintContext Indented() const {
+        return {out, indent_step, indent_step + indent};
+    }
+};
+/*
+template <typename Value>
+void PrintValue(const Value& value, const PrintContext& ctx) {
+    ...
+}
+*/
+
+
 }  // namespace json
