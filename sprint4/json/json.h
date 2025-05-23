@@ -24,11 +24,13 @@ public:
     using Value = std::variant<std::nullptr_t, bool, int, double, std::string, Array, Dict>;
 
     Node() = default;
-    explicit Node(std::nullptr_t) : Node(){}
-    explicit Node(Array array);
-    explicit Node(Dict map);
-    explicit Node(int value);
-    explicit Node(std::string value);
+    Node(std::nullptr_t) : Node(){}
+    Node(Array array);
+    Node(Dict map);
+    Node(int value);
+    Node(double value);
+    Node(std::string value);
+    Node(bool value);
 
     const Array& AsArray() const;
     const Dict& AsMap() const;
@@ -36,6 +38,7 @@ public:
     int AsBool() const;
     double AsDouble() const;
     const std::string& AsString() const;
+
     bool IsNull() const;
     bool IsInt() const;
     bool IsBool() const;
@@ -46,7 +49,7 @@ public:
     bool IsMap() const;
 
     bool operator==(const Node& other) const {
-        return data_ == other.data_;
+        return data_.index() == other.data_.index() && data_ == other.data_;
     }
 
     bool operator!=(const Node& other) const {
@@ -64,68 +67,89 @@ private:
     
     Value data_;
 
-    //inline const Color NoneColor{};
-
-    // Шаблон, подходящий для вывода double и int
-    /*
-    template <typename Value>
-    void PrintValue(const Value& value, std::ostream& out) {
-        out << value;
-    }
-    */
     void PrintValue(const int& value, std::ostream& out) const {
         out << value;
     }
     void PrintValue(const double& value, std::ostream& out) const{
         out << value;
     }
-    void PrintValue(const std::string& value, std::ostream& out) const{
-        out << value;
+    void PrintValue(const std::string& value, std::ostream& out) const {
+        std::string str{"\""};
+        for (size_t i = 0; i < value.size(); i++){
+            switch (value[i]) {
+            case '\\':
+                if (i < value.size() - 1 && (value[i + 1] == '\r' ||
+                                             value[i + 1] == '\t' || 
+                                             value[i + 1] == '\n'))
+                {
+                    str += "\\\\";
+                    str += value[i + 1];
+                    i++;
+                } 
+                else
+                    str += "\\\\";
+                break;
+            case '\"':
+                str += "\\\"";
+                break;
+            case '\r':
+                str += '\\';
+                str += 'r';
+                break;
+            case '\n':
+                str += '\\';
+                str += 'n';
+                break;
+            case '\t':
+                str += '\\';
+                str += 't';
+                break;
+                str.back() = value[i];
+                break;
+
+            default:
+                str.push_back(value[i]);
+                break;
+            }
+        }
+        str += "\"";
+
+        out << str;
     }
     void PrintValue(const Dict& value, std::ostream& out) const {
+        out << '{';
+        bool first = 0;
         for (const auto& e: value){
-            out << e.first << " ";
+            if (first)
+                out << ',';
+            PrintNode(e.first, out);
+            out << ": ";
+            PrintNode(e.second, out);
+            first = 1;
         }
+        out << '}';
     }
-    void PrintValue(const Array& value, std::ostream& out) const{
-        for ([[maybe_unused]]const auto& _: value){
-            out << " ";
+    void PrintValue(const Array& value, std::ostream& out) const {
+        out << '[';
+        bool first = 0;
+        for (const auto& _: value){
+            if (first)
+                out << ',';
+            PrintNode(_, out);
+            first = 1;
         }
+        out << ']';
     }
     // Перегрузка функции PrintValue для вывода значений null
     void PrintValue(std::nullptr_t, std::ostream& out) const {
         out << "null";
     }
-    // Другие перегрузки функции PrintValue пишутся аналогично
-    struct OstreamSolutionPrinter {
-        std::ostream& out;
-        void operator()([[maybe_unused]] std::nullptr_t nptr) const {
-            out << "none";
-        }
-        void operator()(int data) const {
-            out << data;
-        }
-        void operator()(double data) const {
-            out << data;
-        }
-        void operator()(std::string data) const {
-            out << data;
-        }
-        void operator()(Dict data) const {
-            for (const auto& e: data){
-                out << e.first << " ";
-            }
-        }
-        void operator()([[maybe_unused]] Array data) const {
-            out << " ";
-        }
-    };
-    /*
-    void PrintNode(const Node& node, std::ostream& out) {
-        std::visit(OstreamSolutionPrinter{out}, node.data_);
+    void PrintValue(const bool& value, std::ostream& out) const {
+        if (value)
+            out << "true";
+        else
+            out << "false";
     }
-    */
-
 };
 
 class Document {
@@ -134,6 +158,13 @@ public:
 
     const Node& GetRoot() const;
 
+    bool operator==(const Document& other) const {
+        return root_ == other.root_ && root_ == other.root_;
+    }
+
+    bool operator!=(const Document& other) const {
+        return !(*this == other);
+    }
 private:
     Node root_;
 };
@@ -159,12 +190,6 @@ struct PrintContext {
         return {out, indent_step, indent_step + indent};
     }
 };
-/*
-template <typename Value>
-void PrintValue(const Value& value, const PrintContext& ctx) {
-    ...
-}
-*/
 
 
 }  // namespace json

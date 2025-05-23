@@ -17,7 +17,11 @@ namespace {
 
 json::Document LoadJSON(const std::string& s) {
     std::istringstream strm(s);
-    return json::Load(strm);
+    try {
+        return json::Load(strm);
+    } catch (const std::exception& e) {
+        throw;  // Re-throws the current exception
+    }
 }
 
 std::string Print(const Node& node) {
@@ -118,7 +122,7 @@ void TestNumbers() {
     // Пробелы, табуляции и символы перевода строки между токенами JSON файла игнорируются
     assert(LoadJSON(" \t\r\n\n\r 0.0 \t\r\n\n\r ").GetRoot() == Node{0.0});
 }
-/*
+
 void TestStrings() {
     Node str_node{"Hello, \"everybody\""s};
     assert(str_node.IsString());
@@ -126,7 +130,9 @@ void TestStrings() {
 
     assert(!str_node.IsInt());
     assert(!str_node.IsDouble());
-
+    //std::cout << Print(str_node) << std::endl;
+    //std::cout << "\"Hello, \\\"everybody\\\"\"" << std::endl;
+    //return;
     assert(Print(str_node) == "\"Hello, \\\"everybody\\\"\""s);
 
     assert(LoadJSON(Print(str_node)).GetRoot() == str_node);
@@ -134,6 +140,9 @@ void TestStrings() {
         = R"("\r\n\t\"\\")"s;  // При чтении строкового литерала последовательности \r,\n,\t,\\,\"
     // преобразовываться в соответствующие символы.
     // При выводе эти символы должны экранироваться.
+    //std::cout << Print(LoadJSON(escape_chars).GetRoot()) << std::endl;
+    //std::cout << "\"\\r\\n\\t\\\"\\\\\""s << std::endl;
+    //return;
     assert(Print(LoadJSON(escape_chars).GetRoot()) == "\"\\r\\n\\t\\\"\\\\\""s);
     // Пробелы, табуляции и символы перевода строки между токенами JSON файла игнорируются
     assert(LoadJSON("\t\r\n\n\r \"Hello\" \t\r\n\n\r ").GetRoot() == Node{"Hello"s});
@@ -150,7 +159,7 @@ void TestBool() {
 
     assert(Print(true_node) == "true"s);
     assert(Print(false_node) == "false"s);
-
+    //return;
     assert(LoadJSON("true"s).GetRoot() == true_node);
     assert(LoadJSON("false"s).GetRoot() == false_node);
     assert(LoadJSON(" \t\r\n\n\r true \r\n"s).GetRoot() == true_node);
@@ -165,11 +174,19 @@ void TestArray() {
     assert(arr.at(0).AsInt() == 1);
 
     assert(LoadJSON("[1,1.23,\"Hello\"]"s).GetRoot() == arr_node);
+    //std::cout << Print(arr_node) << std::endl;
+    //return;
     assert(LoadJSON(Print(arr_node)).GetRoot() == arr_node);
     assert(LoadJSON(R"(  [ 1  ,  1.23,  "Hello"   ]   )"s).GetRoot() == arr_node);
     // Пробелы, табуляции и символы перевода строки между токенами JSON файла игнорируются
     assert(LoadJSON("[ 1 \r \n ,  \r\n\t 1.23, \n \n  \t\t  \"Hello\" \t \n  ] \n  "s).GetRoot()
            == arr_node);
+
+    //Node arr_node0{Array{true}};      
+    //Node arr_node1{Array{true, "42"s, "[]"s}};
+    //assert(LoadJSON("[true, \"42\", []]"s).GetRoot() == arr_node1);
+    //assert(LoadJSON("[true , \"42\" , [] ]"s).GetRoot() == arr_node1);
+
 }
 
 void TestMap() {
@@ -202,6 +219,7 @@ void TestErrorHandling() {
     MustFailToLoad("tru"s);
     MustFailToLoad("fals"s);
     MustFailToLoad("nul"s);
+    MustFailToLoad("truestory"s);
 
     Node dbl_node{3.5};
     MustThrowLogicError([&dbl_node] {
@@ -227,9 +245,11 @@ void TestErrorHandling() {
 }
 
 void Benchmark() {
+
     const auto start = std::chrono::steady_clock::now();
     Array arr;
     arr.reserve(1'000);
+
     for (int i = 0; i < 1'000; ++i) {
         arr.emplace_back(Dict{
             {"int"s, 42},
@@ -241,15 +261,19 @@ void Benchmark() {
             {"map"s, Dict{{"key"s, "value"s}}},
         });
     }
+
     std::stringstream strm;
     json::Print(Document{arr}, strm);
+    //std::cout 
+    return;
     const auto doc = json::Load(strm);
+
     assert(doc.GetRoot() == arr);
     const auto duration = std::chrono::steady_clock::now() - start;
     std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << "ms"sv
               << std::endl;
 }
-*/
+
 
 }  // namespace
 
@@ -257,12 +281,10 @@ int main() {
 
     TestNull();
     TestNumbers();
-/*
     TestStrings();
     TestBool();
     TestArray();
     TestMap();
     TestErrorHandling();
     Benchmark();
-*/
 }

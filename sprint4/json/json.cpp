@@ -10,24 +10,19 @@ Node LoadNode(istream& input);
 
 Node LoadArray(istream& input) {
     Array result;
-
-    for (char c; input >> c && c != ']';) {
+    //std::string s;
+    //getline(input, s);
+    char c = 0;
+    for (; input >> c && c != ']';) {
         if (c != ',') {
             input.putback(c);
         }
         result.push_back(LoadNode(input));
     }
+    if (c != ']')
+        throw ParsingError("Failed to vector from stream"s);
 
     return Node(move(result));
-}
-
-Node LoadInt(istream& input) {
-    int result = 0;
-    while (isdigit(input.peek())) {
-        result *= 10;
-        result += input.get() - '0';
-    }
-    return Node(result);
 }
 
 Node LoadNumber(std::istream& input) {
@@ -106,12 +101,14 @@ Node LoadString(std::istream& input) {
     auto it = std::istreambuf_iterator<char>(input);
     auto end = std::istreambuf_iterator<char>();
     std::string s;
+    char ch{};
+
     while (true) {
         if (it == end) {
             // Поток закончился до того, как встретили закрывающую кавычку?
             throw ParsingError("String parsing error");
         }
-        const char ch = *it;
+        ch = *it;
         if (ch == '"') {
             // Встретили закрывающую кавычку
             ++it;
@@ -154,24 +151,15 @@ Node LoadString(std::istream& input) {
         }
         ++it;
     }
-
+    //if (ch != '"')
+    //    throw ParsingError("Failed to string from stream"s);
     return Node(std::move(s));
-}
-/*
-Node LoadString(istream& input) {
-    string line;
-    getline(input, line, '"');
-    return Node(move(line));
-}
-*/
-Node LoadNull(void) {
-    return Node{};
 }
 
 Node LoadDict(istream& input) {
     Dict result;
-
-    for (char c; input >> c && c != '}';) {
+    char c{};
+    for (; input >> c && c != '}';) {
         if (c == ',') {
             input >> c;
         }
@@ -180,28 +168,53 @@ Node LoadDict(istream& input) {
         input >> c;
         result.insert({move(key), LoadNode(input)});
     }
+    if (c != '}')
+        throw ParsingError("Failed to map from stream"s);
 
     return Node(move(result));
 }
+Node ParseWord(istream& input) {
+    std::string s;
+    getline(input, s);
 
+    while (s.back() == '\t' || s.back() == '\r' || s.back() == '\n' || 
+           s.back() == ' '){
+        s.pop_back();
+    }
+
+    if (s == "null"){
+        return Node{};
+    }
+    if (s == "true"){
+        return Node{true};
+    }
+    if (s == "false"){
+        return Node{false};
+    }
+    throw ParsingError("Wrong word: " + s);
+}
 Node LoadNode(istream& input) {
     char c;
     do {
         input >> c;
-    } while (c == '\t' || c == '\r' || c == '\n' || c == 'r' || c == ' ');
+    } while (c == '\t' || c == '\r' || c == '\n' || c == ' ');
     
-
-    if (c == '[') {
-        return LoadArray(input);
-    } else if (c == '{') {
-        return LoadDict(input);
-    } else if (c == '"') {
-        return LoadString(input);
-    } else if (c == 'n') {
-        return LoadNull();
-    } else {
-        input.putback(c);
-        return LoadInt(input);
+    try {
+        if (c == '[') {
+            return LoadArray(input);
+        } else if (c == '{') {
+            return LoadDict(input);
+        } else if (c == '"') {
+            return LoadString(input);
+        } else if (c == 'n' || c == 't' || c == 'f') {
+            input.putback(c);
+            return ParseWord(input);
+        } else {
+            input.putback(c);
+            return LoadNumber(input);
+        }
+    } catch (const std::exception& e) {
+        throw;  // Re-throws the current exception
     }
 }
 
@@ -219,48 +232,58 @@ Node::Node(int value)
     : data_(value) {
 }
 
+Node::Node(double value)
+    : data_(value) {
+}
+
 Node::Node(string value)
     : data_(move(value)) {
+}
+
+Node::Node(bool value)
+    : data_(value) {
 }
 
 const Array& Node::AsArray() const {
     if (Node::IsArray())
         return std::get<Array>(data_);
     else
-        throw std::logic_error {"my exception"};
+        throw std::logic_error {"my exception1"};
 }
 
 const Dict& Node::AsMap() const {
     if (Node::IsMap())
         return std::get<Dict>(data_);
     else
-        throw std::logic_error {"my exception"};
+        throw std::logic_error {"my exception2"};
 }
 
 int Node::AsInt() const {
     if (Node::IsInt())
         return std::get<int>(data_);
     else
-        throw std::logic_error {"my exception"};
+        throw std::logic_error {"my exception3"};
 }
 int Node::AsBool() const {
     if (Node::IsBool())
         return std::get<bool>(data_);
     else
-        throw std::logic_error {"my exception"};
+        throw std::logic_error {"my exception4"};
 }
 double Node::AsDouble() const {
-    if (Node::IsDouble())
+    if (Node::IsPureDouble())
         return std::get<double>(data_);
+    else if (Node::IsInt())
+        return static_cast<double> (std::get<int>(data_));
     else
-        throw std::logic_error {"my exception"};
+        throw std::logic_error {"my exception5"};
 }
 const string &Node::AsString() const
 {
     if (Node::IsString())
         return std::get<std::string>(data_);
     else
-        throw std::logic_error {"my exception"};
+        throw std::logic_error {"my exception6"};
 }
 
 bool Node::IsNull() const
@@ -312,8 +335,12 @@ const Node& Document::GetRoot() const {
 }
 
 Document Load(istream& input) {
-    return Document{LoadNode(input)};
-}
+    try {
+        return Document{LoadNode(input)};
+    } catch (const std::exception& e) {
+        throw;  // Re-throws the current exception
+    }
+}    
 
 void Print(const Document& doc, std::ostream& output) {
     doc.GetRoot().PrintNode(doc.GetRoot(), output);
