@@ -182,9 +182,11 @@ void TestArray() {
     assert(LoadJSON("[ 1 \r \n ,  \r\n\t 1.23, \n \n  \t\t  \"Hello\" \t \n  ] \n  "s).GetRoot()
            == arr_node);
 
-    //Node arr_node0{Array{true}};      
-    //Node arr_node1{Array{true, "42"s, "[]"s}};
+    Node arr_node0{Array{true}};      
+    Node arr_node1{Array{true, "42"s, "[]"s}};
     //assert(LoadJSON("[true, \"42\", []]"s).GetRoot() == arr_node1);
+    std::cout << Print(LoadJSON("[true, \"42\", []]"s).GetRoot()) << std::endl;
+    std::cout << Print(arr_node1) << std::endl;
     //assert(LoadJSON("[true , \"42\" , [] ]"s).GetRoot() == arr_node1);
 
 }
@@ -218,6 +220,7 @@ void TestErrorHandling() {
 
     MustFailToLoad("tru"s);
     MustFailToLoad("fals"s);
+    MustFailToLoad("falsee"s);
     MustFailToLoad("nul"s);
     MustFailToLoad("truestory"s);
 
@@ -265,7 +268,7 @@ void Benchmark() {
     std::stringstream strm;
     json::Print(Document{arr}, strm);
     //std::cout 
-    return;
+    //return;
     const auto doc = json::Load(strm);
 
     assert(doc.GetRoot() == arr);

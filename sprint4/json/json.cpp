@@ -151,8 +151,6 @@ Node LoadString(std::istream& input) {
         }
         ++it;
     }
-    //if (ch != '"')
-    //    throw ParsingError("Failed to string from stream"s);
     return Node(std::move(s));
 }
 
@@ -175,23 +173,47 @@ Node LoadDict(istream& input) {
 }
 Node ParseWord(istream& input) {
     std::string s;
-    getline(input, s);
+    char c = 0;
+    for (;input >> c;) {
+        s.push_back(c);
 
-    while (s.back() == '\t' || s.back() == '\r' || s.back() == '\n' || 
-           s.back() == ' '){
-        s.pop_back();
-    }
+        if (s == "null"){
+            if (!(input >> c) || c == '\t' || c == '\r' || c == '\n' || c == ' ' ||
+                c == ',' || c == '}' || c == ']'){
+                input.putback(c);
+                return Node{};
+            }
+            else
+                throw ParsingError("Wrong word null");
+        }
+        if (s == "true"){
+            if (!(input >> c) || c == '\t' || c == '\r' || c == '\n' || c == ' ' || 
+                c == ',' || c == '}' || c == ']'){
+                input.putback(c);
+                return Node{true};
+            }
+            else
+                throw ParsingError("Wrong word true");
 
-    if (s == "null"){
-        return Node{};
+        }
+        if (s == "false"){
+            if (!(input >> c) || c == '\t' || c == '\r' || c == '\n' || c == ' ' || 
+                c == ',' || c == '}' || c == ']'){
+                    input.putback(c);
+                    return Node{false};
+                }
+            else
+                throw ParsingError("Wrong word false " + s + c);
+        }
+        if (s.size() == 4 && s != "fals")
+            throw ParsingError("Wrong word 4");
+        
+        if (s.size() == 5)
+            throw ParsingError("Wrong word 5");
     }
-    if (s == "true"){
-        return Node{true};
-    }
-    if (s == "false"){
-        return Node{false};
-    }
-    throw ParsingError("Wrong word: " + s);
+    std::string ex;
+    getline (input, ex);
+    throw ParsingError("Wrong word: " + s + ex);
 }
 Node LoadNode(istream& input) {
     char c;
