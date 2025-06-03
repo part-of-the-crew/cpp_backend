@@ -82,6 +82,7 @@ private:
 Document Load(std::istream& input);
 
 void Print(const Document& doc, std::ostream& output);
-
+struct PrintContext;
+void PrintNode(const Node& node, const PrintContext& ctx);
 
 }  // namespace json

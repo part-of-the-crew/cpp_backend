@@ -5,8 +5,7 @@
 #include <vector>
 
 
-#include "json.h"
-
+#include "json_reader.h"
 
 
 int main() {
@@ -20,8 +19,8 @@ int main() {
      */
 
     json::Document input_doc = json::Load(std::cin);
-    //TransportCatalogue cat = TransformFromJson(input_doc);
-    //Requests requests = CalculateRequests(TransportCatalogue);
+    TransportCatalogue cat = json_reader::TransformFromJson(input_doc);
+    //TransportCatalogue::Requests requests = TransportCatalogue::CalculateRequests(cat);
     //json::Document output_doc = TransformIntoJson(requests);
     //json::Print(output_doc, std::cout);
 }
