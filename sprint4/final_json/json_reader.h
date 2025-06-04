@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <variant>
+#include <set>
 
 #include "transport_catalogue.h"
 #include "json.h"
@@ -12,30 +12,58 @@
 
 namespace json_reader {
 
-struct Bus {
+struct Request {
+public:
     std::string name;
-    std::vector <std::string> stops;
-    bool is_roundtrip = false;
+    virtual ~Request() = default;
+
+    bool operator<(const Request& rhs) {
+        return name < rhs.name;
+    }
 };
 
-struct Stop {
-    std::string name;
+struct Bus : public Request {
+public:
+    std::vector <std::string> stops;
+    bool is_roundtrip = false;
+
+};
+
+struct Stop : public Request {
+public:
     geo::Coordinates coord;
     std::map <std::string, int> road_distances;
 };
+/*
+struct RequestPtrComparator {
+    bool operator()(const std::shared_ptr<Request>& lhs, const std::shared_ptr<Request>& rhs) const {
+        return lhs->name < rhs->name;
+    }
+};
+*/
+class JsonReader {
+public:
+    JsonReader (const json::Document& doc): doc_{doc}{};
+    void ReadFromJson(void);
+    TransportCatalogue CreateTransportCatalogue(void);
+private:
+    const json::Document& doc_;
+    void WriteBuses (const Bus& bus);
+    void WriteStops (const Stop& bus);
+    std::set <Bus> buses_;
+    std::set <Stop> stops_;
+};
 
-
-void WriteBuses (Bus bus){
-
+void JsonReader::WriteBuses (const Bus& bus){
+    buses_.emplace(bus);
 }
 
-void WriteStopes (Stop bus){
-    
+void JsonReader::WriteStops (const Stop& stop){
+    stops_.emplace(stop);
 }
 
-TransportCatalogue TransformFromJson(const json::Document& doc){
-    TransportCatalogue catalogue;
-    auto& const root = doc.GetRoot();
+void JsonReader::ReadFromJson(void){
+    auto& const root = doc_.GetRoot();
     if (root.IsMap()){
         for (auto& const p: root.AsMap()){
             if (!p.second.IsArray()){
@@ -68,7 +96,7 @@ TransportCatalogue TransformFromJson(const json::Document& doc){
                             }
                             //throw std::runtime_error ("Elements of Stop unknown!");
                         }
-                        WriteStopes (stop);
+                        WriteStops (std::move(stop));
                         continue;
                     }
                     if (type == "Bus"){
@@ -90,7 +118,7 @@ TransportCatalogue TransformFromJson(const json::Document& doc){
                             }
                             //throw std::runtime_error ("Elements of Bus unknown!");
                         }
-                        WriteBuses (bus);
+                        WriteBuses (std::move(bus));
                         continue;
                     }
                     throw std::runtime_error ("Wrong type:" + type);
@@ -109,15 +137,24 @@ TransportCatalogue TransformFromJson(const json::Document& doc){
     } else {
         throw std::runtime_error ("Root is not an Array!");
     }
-    
-    return catalogue;
 }
 
-void ParseLine(std::string_view line)
-{
-    auto command_description = TransformFromJson(line);
-    if (command_description) {
-        commands_.push_back(std::move(command_description));
+TransportCatalogue JsonReader::CreateTransportCatalogue(){
+    TransportCatalogue::distanceBtwStops_t distancesBtwStops;
+    for (auto& cmd : stops_) {
+        Stop stop {cmd.name, parsing::ParseCoordinates(cmd.description)};          
+        catalogue.AddStop(std::move(stop));
+        for (auto [f, s]: parsing::ParseDistances(cmd.description))
+            distancesBtwStops.insert({{cmd.id, f}, s});
+        distancesBtwStops.insert({{cmd.id, cmd.id}, 0});
+    }
+
+    for (auto& cmd : buses_) {
+        catalogue.AddBus(cmd.id, parsing::ParseRoute(cmd.description));
+    }
+
+    for (auto const& [pair, m]: distancesBtwStops){
+        catalogue.AddDistanceBtwStops (pair, m);
     }
 }
 
