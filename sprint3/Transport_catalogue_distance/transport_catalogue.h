@@ -10,6 +10,8 @@
 
 #include "geo.h"
 
+namespace transport_catalogue {
+
 struct Stop {
     std::string name;
     geo::Coordinates coordinates;
@@ -74,3 +76,5 @@ public:
     std::optional<RouteStatistics> GetRouteStatistics(std::string_view busName) const;
     void AddDistanceBtwStops (const std::pair<std::string, std::string>& p, int m);
 };
+
+}//transport_catalogue

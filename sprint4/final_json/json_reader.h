@@ -45,7 +45,7 @@ class JsonReader {
 public:
     JsonReader (const json::Document& doc): doc_{doc}{};
     void ReadFromJson(void);
-    TransportCatalogue CreateTransportCatalogue(void);
+    transport_catalogue::TransportCatalogue CreateTransportCatalogue(void);
 private:
     const json::Document& doc_;
     void WriteBuses (const Bus& bus);
@@ -139,12 +139,13 @@ void JsonReader::ReadFromJson(void){
     }
 }
 
-TransportCatalogue JsonReader::CreateTransportCatalogue(){
-    TransportCatalogue::distanceBtwStops_t distancesBtwStops;
+transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
+    transport_catalogue::TransportCatalogue catalogue;
+    transport_catalogue::TransportCatalogue::distanceBtwStops_t distancesBtwStops;
     for (auto& cmd : stops_) {
-        Stop stop {cmd.name, parsing::ParseCoordinates(cmd.description)};          
+        transport_catalogue::Stop stop {cmd.name, cmd.coord};          
         catalogue.AddStop(std::move(stop));
-        for (auto [f, s]: parsing::ParseDistances(cmd.description))
+        for (auto [f, s]: cmd.road_distances))
             distancesBtwStops.insert({{cmd.id, f}, s});
         distancesBtwStops.insert({{cmd.id, cmd.id}, 0});
     }
@@ -156,6 +157,7 @@ TransportCatalogue JsonReader::CreateTransportCatalogue(){
     for (auto const& [pair, m]: distancesBtwStops){
         catalogue.AddDistanceBtwStops (pair, m);
     }
+    return catalogue;
 }
 
 } //namespace json_reader
