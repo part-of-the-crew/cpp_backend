@@ -12,27 +12,33 @@
 
 namespace json_reader {
 
-struct Request {
+struct Enquire {
 public:
     std::string name;
-    virtual ~Request() = default;
+    virtual ~Enquire() = default;
 
-    bool operator<(const Request& rhs) {
+    bool operator<(const Enquire& rhs) {
         return name < rhs.name;
     }
 };
 
-struct Bus : public Request {
+struct Bus : public Enquire {
 public:
-    std::vector <std::string> stops;
+    std::vector <std::string_view> stops;
     bool is_roundtrip = false;
 
 };
 
-struct Stop : public Request {
+struct Stop : public Enquire {
 public:
     geo::Coordinates coord;
     std::map <std::string, int> road_distances;
+};
+
+struct Request : public Enquire {
+public:
+    int id;
+    std::string type;
 };
 /*
 struct RequestPtrComparator {
@@ -52,10 +58,19 @@ private:
     void WriteStops (const Stop& bus);
     std::set <Bus> buses_;
     std::set <Stop> stops_;
+    std::vector <Request> requests_;
 };
 
 void JsonReader::WriteBuses (const Bus& bus){
-    buses_.emplace(bus);
+    Bus bus_temp = bus;
+    if (bus_temp.is_roundtrip){
+        bus_temp.stops.push_back(bus.stops.front());
+    } else {
+        for (auto it = bus.stops.crbegin() + 1; it != bus.stops.crend(); ++it) {
+            bus_temp.stops.push_back(*it);
+        }
+    }
+    buses_.emplace(bus_temp);
 }
 
 void JsonReader::WriteStops (const Stop& stop){
@@ -128,7 +143,33 @@ void JsonReader::ReadFromJson(void){
             
             if (p.first == "stat_requests"){
                 for (auto& const e: p.second.AsArray()){
-                    
+                    if (!e.IsMap()) {
+                        throw std::runtime_error ("Elements array of stat_requests aren't maps!");
+                    }
+                    Request request;
+                    for (auto& const [f, s]: e.AsMap()){
+                        if (f == "id"){
+                            request.id = s.AsInt();
+                            continue;
+                        }
+                        if (f == "type"){
+                            if (s.AsString() == "Stop"){
+                                request.type = "Stop";
+                                continue;
+                            }
+                            if (s.AsString() == "Bus"){
+                                request.type = "Bus";
+                                continue;
+                            }
+                        }
+                        if (f == "name"){
+                            request.name = s.AsString();
+                            continue;
+                        }
+                        throw std::runtime_error ("Unknown type in stat_requests!");
+                    }
+                    requests_.emplace_back(request);
+
                 }
                 continue;
             }
@@ -145,13 +186,13 @@ transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
     for (auto& cmd : stops_) {
         transport_catalogue::Stop stop {cmd.name, cmd.coord};          
         catalogue.AddStop(std::move(stop));
-        for (auto [f, s]: cmd.road_distances))
-            distancesBtwStops.insert({{cmd.id, f}, s});
-        distancesBtwStops.insert({{cmd.id, cmd.id}, 0});
+        for (auto [f, s]: cmd.road_distances)
+            distancesBtwStops.insert({{cmd.name, f}, s});
+        distancesBtwStops.insert({{cmd.name, cmd.name}, 0});
     }
 
     for (auto& cmd : buses_) {
-        catalogue.AddBus(cmd.id, parsing::ParseRoute(cmd.description));
+        catalogue.AddBus(cmd.name, cmd.stops);
     }
 
     for (auto const& [pair, m]: distancesBtwStops){

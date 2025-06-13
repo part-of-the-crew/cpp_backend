@@ -20,9 +20,8 @@ int main() {
 
     json::Document input_doc = json::Load(std::cin);
     json_reader::JsonReader jreader{input_doc};
-    TransportCatalogue cat = jreader.CreateTransportCatalogue();
-
-    //TransportCatalogue::Requests requests = TransportCatalogue::CalculateRequests(cat);
+    transport_catalogue::TransportCatalogue cat = jreader.CreateTransportCatalogue();
+    transport_catalogue::Requests requests = jreader.CalculateRequests(cat);
     //json::Document output_doc = TransformIntoJson(requests);
     //json::Print(output_doc, std::cout);
 }
