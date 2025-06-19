@@ -4,6 +4,8 @@
 
 #include "transport_catalogue.h"
 
+using namespace transport_catalogue;
+
 void TransportCatalogue::AddStop(const Stop& stop) { 
     stops.push_back(std::move(stop));
     stopname_to_stop[stops.back().name] = stops.cend() - 1;
@@ -13,7 +15,7 @@ void TransportCatalogue::AddDistanceBtwStops (const std::pair<std::string, std::
     const Stop* ptr1 = &(*stopname_to_stop[p.first]);
     const Stop* ptr2 = &(*stopname_to_stop[p.second]);
     distances.insert({{ptr1, ptr2 }, m});
-};
+}
 
 void TransportCatalogue::AddBus(const std::string& bus, const std::vector<std::string_view>& stops_list){
     routes.push_back({ std::move(bus), {}});

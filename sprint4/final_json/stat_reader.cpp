@@ -20,7 +20,7 @@ CommandDescription ParseRequest(std::string_view request){
             ""};
 }
 
-void ParseAndPrint(const TransportCatalogue& transport_catalogue, std::string_view request,
+void ParseAndPrint(const transport_catalogue::TransportCatalogue& transport_catalogue, std::string_view request,
                        std::ostream& output) {
     const auto v = ParseRequest(request);
     if (v.command == "Bus") {
@@ -63,7 +63,7 @@ void ParseAndPrint(const TransportCatalogue& transport_catalogue, std::string_vi
     }
 }
 
-void ReadAndPrintRequests(const TransportCatalogue &transport_catalogue, std::istream &in, 
+void ReadAndPrintRequests(const transport_catalogue::TransportCatalogue &transport_catalogue, std::istream &in, 
                                 std::ostream &out){
     int base_request_count;
     in >> base_request_count >> std::ws;

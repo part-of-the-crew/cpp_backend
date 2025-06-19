@@ -40,7 +40,7 @@ public:
     /**
      * Наполняет данными транспортный справочник, используя команды из commands_
      */
-    void ApplyCommands(TransportCatalogue& catalogue);
+    void ApplyCommands(transport_catalogue::TransportCatalogue& catalogue);
 
     void PrintCommands() const;
 

@@ -75,7 +75,7 @@ public:
     const std::set<std::string_view>* GetBusesForStop(std::string_view stopName) const;
     std::optional<RouteStatistics> GetRouteStatistics(std::string_view busName) const;
     void AddDistanceBtwStops (const std::pair<std::string, std::string>& p, int m);
-    CalculateRequests(void);
+
 };
 
 }//transport_catalogue

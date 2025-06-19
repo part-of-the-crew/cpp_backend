@@ -161,13 +161,13 @@ void InputReader::ParseLine(std::string_view line)
     }
 }
 
-void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) {
+void InputReader::ApplyCommands([[maybe_unused]] transport_catalogue::TransportCatalogue& catalogue) {
 
     InputReader::ReorderCommands();
-    TransportCatalogue::distanceBtwStops_t distancesBtwStops;
+    transport_catalogue::TransportCatalogue::distanceBtwStops_t distancesBtwStops;
     for (auto& cmd : commands_) {
         if (cmd.command == "Stop") {
-            Stop stop {cmd.id, parsing::ParseCoordinates(cmd.description)};          
+            transport_catalogue::Stop stop {cmd.id, parsing::ParseCoordinates(cmd.description)};          
             catalogue.AddStop(std::move(stop));
 
             for (auto [f, s]: parsing::ParseDistances(cmd.description))
