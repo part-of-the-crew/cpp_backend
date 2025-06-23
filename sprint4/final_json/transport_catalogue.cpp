@@ -5,6 +5,7 @@
 #include "transport_catalogue.h"
 
 using namespace transport_catalogue;
+using namespace std::string_literals;
 
 void TransportCatalogue::AddStop(const Stop& stop) { 
     stops.push_back(std::move(stop));
@@ -25,8 +26,14 @@ void TransportCatalogue::AddBus(const std::string& bus, const std::vector<std::s
             auto it1 = routes.end() - 1;
             it1->stops.push_back(it->second);
         } else {
-            throw std::invalid_argument("Unknown stop name");
+            throw std::invalid_argument("Unknown stop name"s + std::string(stop_name) + std::to_string(stops_list.size()));
         }
+        std::cout << bus << " " << std::endl;
+        for (auto e: stops_list)
+        {
+            std::cout << e << " " << std::endl;
+        }
+        return;
 
         auto it2 = stopname_to_bus.find(stop_name);
         auto it3 = routes.end() - 1;
@@ -72,7 +79,9 @@ TransportCatalogue::GetRouteStatistics(std::string_view busName) const {
         distance += ComputeDistance(v[i]->coordinates, v[i + 1]->coordinates);
     }
     if (0 == distance){
-        throw std::invalid_argument("Division by 0");
+        throw std::invalid_argument("Division by 0 "s + std::to_string(p->stops.size()) + 
+            std::to_string(unique_stops.size()) + " " + std::to_string(stops.size())
+        + " " + std::to_string(routes.size()));
     }
     for (size_t i = 0; i < v.size() - 1; ++i){
         auto it = distances.find({&(*v[i]), &(*v[i + 1])});

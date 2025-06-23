@@ -7,6 +7,10 @@
 
 #include "json_reader.h"
 
+void some_tests(void){
+
+    ;
+}
 
 int main() {
     /*
@@ -17,11 +21,13 @@ int main() {
      * Выполнить запросы к справочнику, находящиеся в массива "stat_requests", построив JSON-массив
      * с ответами Вывести в stdout ответы в виде JSON
      */
-
+    some_tests();
     json::Document input_doc = json::Load(std::cin);
     json_reader::JsonReader jreader{input_doc};
     transport_catalogue::TransportCatalogue cat = jreader.CreateTransportCatalogue();
+    //std::cout << jreader.stops_.size() << jreader.buses_.begin()->name <<std::endl;
     auto requests{jreader.CalculateRequests(cat)};
+    std::cout << requests.size() << std::endl;
     json::Document output_doc = json_reader::TransformRequestsIntoJson(requests);
-    json::Print(output_doc, std::cout);
+    //json::Print(output_doc, std::cout);
 }

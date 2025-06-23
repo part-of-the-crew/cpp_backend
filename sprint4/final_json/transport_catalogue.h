@@ -55,7 +55,7 @@ class TransportCatalogue {
             return hasher(p.first) ^ (hasher(p.second) << 1); // simple hash combine
         }
     };
-
+public:
     std::deque<Stop> stops;
     std::unordered_map<std::string_view, std::deque<Stop>::const_iterator> stopname_to_stop;
     std::unordered_map<std::string_view, std::set<std::string_view>> stopname_to_bus;
