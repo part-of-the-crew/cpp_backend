@@ -5,25 +5,22 @@
  * а также код обработки запросов к базе и формирование массива ответов в формате JSON
  */
 
- using namespace json_reader;
+using namespace json_reader;
+using namespace std::string_literals;
 
  void JsonReader::WriteBuses (const Bus& bus){
     Bus bus_temp = bus;
-    for (const auto& stop : bus_temp.stops) {
-        bus_temp.stops_sv.push_back(stop); // Implicit conversion to string_view
-    }
     if (bus_temp.is_roundtrip){
         bus_temp.stops.push_back(bus.stops.front());
-        bus_temp.stops_sv.push_back(bus_temp.stops.back());
     } else {
         for (auto it = bus.stops.crbegin() + 1; it != bus.stops.crend(); ++it) {
             bus_temp.stops.push_back(*it);
-            bus_temp.stops_sv.push_back(bus_temp.stops.back());
         }
     }
-
+    for (const auto& stop : bus_temp.stops) {
+        bus_temp.stops_sv.push_back(stop); // safe: before insert
+    }
     buses_.emplace(std::move(bus_temp));
-    
 }
 
 void JsonReader::WriteStops (const Stop& stop){
@@ -84,7 +81,7 @@ void JsonReader::ReadFromJson(void){
                                 bus.is_roundtrip = request.second.AsBool();
                                 continue;
                             }
-                            //throw std::runtime_error ("Elements of Bus unknown!");
+                            //throw std::runtime_error ("Elements of Bus unknown!"s + request.first);
                         }
                         WriteBuses (std::move(bus));
                         continue;
@@ -92,7 +89,7 @@ void JsonReader::ReadFromJson(void){
                     throw std::runtime_error ("Wrong type:" + type);
                 }
                 continue;
-            } 
+            }
             
             if (p.first == "stat_requests"){
                 for (auto const& e: p.second.AsArray()){
@@ -101,6 +98,7 @@ void JsonReader::ReadFromJson(void){
                     }
                     Request request;
                     for (auto const& [f, s]: e.AsMap()){
+
                         if (f == "id"){
                             request.id = s.AsInt();
                             continue;
@@ -202,15 +200,15 @@ void ProcessRequests(const StopResponse &value, std::string &s){
         s += "\t\t\"error_message\": \"not found\"\n";
     } else {
         s += "\t\t\"buses\": [\n";
-        bool first = 0;
+        bool first = 1;
         for (auto const& e: *(value.pbuses)){
+            if (!first) {
+                s += ",";
+            }
             s += "\t\t\t\"";
             s += e;
             s += "\"";
-            if (first) {
-                s += ",";
-            }
-            first = 1;
+            first = 0;
         }
         s += "\n\t\t]\n";
     }

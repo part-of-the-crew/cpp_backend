@@ -2,6 +2,12 @@
   "base_requests": [
     {
       "type": "Bus",
+      "name": "114A",
+      "stops": ["Морской вокзал", "Ривьерский мост"],
+      "is_roundtrip": true
+    },
+    {
+      "type": "Bus",
       "name": "114",
       "stops": ["Морской вокзал", "Ривьерский мост"],
       "is_roundtrip": false
@@ -22,7 +28,7 @@
     }
   ],
   "stat_requests": [
-    { "id": 1, "type": "Stop", "name": "Ривьерский мост1" },
-    { "id": 2, "type": "Bus", "name": "A" }
+    { "id": 1, "type": "Stop", "name": "Ривьерский мост" },
+    { "id": 2, "type": "Bus", "name": "114" }
   ]
 }
