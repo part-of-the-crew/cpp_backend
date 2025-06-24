@@ -89,7 +89,7 @@ TransportCatalogue::GetRouteStatistics(std::string_view busName) const {
         if (it == distances.end()) {
             it = distances.find({&(*v[i + 1]), &(*v[i])});
             if (it == distances.end()){
-                throw std::invalid_argument ("Help");
+                throw std::invalid_argument ("Help with "s + v[i]->name + "<->"s + v[i + 1]->name);
             }
         }
         trajectory += it->second;

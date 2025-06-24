@@ -4,14 +4,18 @@
  * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
  * а также код обработки запросов к базе и формирование массива ответов в формате JSON
  */
-
+/**
+ * Для кольцевого маршрута (A>B>C>A) возвращает массив названий остановок [A,B,C,A]
+ * Для некольцевого маршрута (A-B-C-D) возвращает массив названий остановок [A,B,C,D,C,B,A]
+ */
 using namespace json_reader;
 using namespace std::string_literals;
 
  void JsonReader::WriteBuses (const Bus& bus){
     Bus bus_temp = bus;
     if (bus_temp.is_roundtrip){
-        bus_temp.stops.push_back(bus.stops.front());
+        ;
+        //bus_temp.stops.push_back(bus.stops.front());
     } else {
         for (auto it = bus.stops.crbegin() + 1; it != bus.stops.crend(); ++it) {
             bus_temp.stops.push_back(*it);
@@ -153,6 +157,7 @@ transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
     for (auto const& [pair, m]: distancesBtwStops){
         catalogue.AddDistanceBtwStops (pair, m);
     }
+
     return catalogue;
 }
 

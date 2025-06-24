@@ -1,6 +1,13 @@
 {
   "base_requests": [
     {
+      "type": "Stop",
+      "name": "AbCDStop",
+      "latitude": 43.587,
+      "longitude": 39.716,
+      "road_distances": {"Ривьерский мост": 1000, "Морской вокзал": 1850}
+    },
+    {
       "type": "Bus",
       "name": "114A",
       "stops": ["Морской вокзал", "Ривьерский мост"],
@@ -9,7 +16,7 @@
     {
       "type": "Bus",
       "name": "114",
-      "stops": ["Морской вокзал", "Ривьерский мост"],
+      "stops": ["Морской вокзал", "Ривьерский мост", "AbCDStop"],
       "is_roundtrip": false
     },
     {
