@@ -27,7 +27,7 @@ int main() {
     transport_catalogue::TransportCatalogue cat = jreader.CreateTransportCatalogue();
     //std::cout << jreader.stops_.size() << jreader.buses_.begin()->name <<std::endl;
     auto requests{jreader.CalculateRequests(cat)};
-    std::cout << requests.size() << std::endl;
+    //std::cout << requests.size() << " " << cat.stopname_to_bus.size() << std::endl;
     json::Document output_doc = json_reader::TransformRequestsIntoJson(requests);
-    //json::Print(output_doc, std::cout);
+    json::Print(output_doc, std::cout);
 }

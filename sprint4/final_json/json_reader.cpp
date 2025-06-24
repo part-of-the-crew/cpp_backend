@@ -35,7 +35,7 @@ void JsonReader::ReadFromJson(void){
     if (root.IsMap()){
         for (auto const& p: root.AsMap()){
             if (!p.second.IsArray()){
-                throw std::runtime_error ("Elements of root aren't arays!");
+                throw std::runtime_error ("Elements of root aren't arrays!");
             }
             //ParseJson (catalogue, p);
             if (p.first == "base_requests"){
@@ -147,8 +147,8 @@ transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
     }
 
     for (auto& cmd : buses_) {
-        for (auto e: cmd.stops_sv)
-            std::cerr << e << std::endl;
+        //for (auto e: cmd.stops_sv)
+        //    std::cerr << e << std::endl;
         catalogue.AddBus(cmd.name, cmd.stops_sv);
     }
 
@@ -196,49 +196,47 @@ JsonReader::CalculateRequests (const transport_catalogue::TransportCatalogue& ca
 ]*/
 void ProcessRequests(const StopResponse &value, std::string &s){
     s += "\t{\n";
-    s += "\t\t\"buses\": [\n";
-    bool first = 0;
-    for (auto const& e: *(value.pbuses)){
-        s += "\t\t\t\"";
-        s += e;
-        s += "\"";
-        if (first) {
-            s += ",\n";
+    s += "\t\t\"request_id\": " + std::to_string(value.id);
+    s += ",\n";
+    if (value.pbuses == nullptr){
+        s += "\t\t\"error_message\": \"not found\"\n";
+    } else {
+        s += "\t\t\"buses\": [\n";
+        bool first = 0;
+        for (auto const& e: *(value.pbuses)){
+            s += "\t\t\t\"";
+            s += e;
+            s += "\"";
+            if (first) {
+                s += ",";
+            }
+            first = 1;
         }
-        first = 1;
-        //s += "\n";
+        s += "\n\t\t]\n";
     }
-    s += "\t\t],\n";
-    s += "\t\t\"request_id\": " + value.id;
-    s += "\n";
     s += "\t}\n";
 }
 
 void ProcessRequests(const BusResponse &value, std::string &s){
-    if (!(value.stat.has_value())) {
-        return;
-    }
-    /*
-    std::string_view busName;
-    double trajectory;
-    double curvature;
-    int uniqueStops;
-    int totalStops;*/
-    auto const& stat_value = value.stat.value();
     s += "\t{\n";
-    s += "\"curvature\": ";
-    s += stat_value.curvature;
-    s += ";\n";
-    s += "\"request_id\": " + value.id;
-    s += ";\n";
-    s += "\"route_length\": ";
-    s += stat_value.trajectory;
-    s += ";\n";
-    s += "\"stop_count\": " + stat_value.totalStops;
-    s += ";\n";
-    s += "\"unique_stop_count\": " + stat_value.uniqueStops;
-    s += ";\n";
-    s += "}\n";
+    s += "\t\t\"request_id\": " + std::to_string(value.id);
+    s += ",\n";
+    if (!(value.stat.has_value())) {
+        s += "\t\t\"error_message\": \"not found\"\n";
+    } else {
+        auto const& stat_value = value.stat.value();
+        s += "\t\t\"curvature\": ";
+        s += std::to_string(stat_value.curvature);
+        s += ",\n";
+        s += "\t\t\"route_length\": ";
+        s += std::to_string(static_cast<int>(stat_value.trajectory));
+        s += ",\n";
+        s += "\t\t\"stop_count\": " + std::to_string(stat_value.totalStops);
+        s += ",\n";
+        s += "\t\t\"unique_stop_count\": " + std::to_string(stat_value.uniqueStops);
+        s += "\n";
+    }
+    s += "\t}\n";
 }
 
 std::string Process(std::variant<StopResponse, BusResponse> request) {
@@ -256,21 +254,21 @@ std::string make_json (const std::vector<std::variant<StopResponse, BusResponse>
     output += "[\n";
     bool first = 1;
     for (auto const& e: requests){
-        output += Process(e);
-        if (first) {
-            output += ",\n";
+        if (!first) {
+            output += "\t,\n";
         }
-        first = 1;
+        output += Process(e);
+        first = 0;
     }
     output += "]\n";
-    std::cerr << output;
+    //std::cerr << output;
     return output;
 }
 
 json::Document
 json_reader::TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse>>& requests){
     std::istringstream strm(make_json(requests));
-    std::istringstream strm1("42");
-    return json::Load(strm1);
+    //std::istringstream strm1("42");
+    return json::Load(strm);
 }
 
