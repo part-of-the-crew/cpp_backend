@@ -67,18 +67,30 @@ struct RequestPtrComparator {
 */
 class JsonReader {
 public:
-    JsonReader (const json::Document& doc): doc_{doc}{};
-    void ReadFromJson(void);
+    JsonReader (const json::Document& doc): root_{doc.GetRoot()}{
+        if (!root_.IsMap())
+            throw std::runtime_error ("Root is not an Maps!");
+        if (!root_.AsMap().begin()->second.IsArray()){
+            throw std::runtime_error ("Elements of root aren't arrays!");
+        }
+    };
+
     transport_catalogue::TransportCatalogue CreateTransportCatalogue(void);
     std::vector<std::variant<StopResponse, BusResponse>>
     CalculateRequests (const transport_catalogue::TransportCatalogue& cat);
-//private:
-    const json::Document& doc_;
-    void WriteBuses (const Bus& bus);
-    void WriteStops (const Stop& bus);
+private:
+    const json::Node& root_;
     std::set <Bus> buses_;
     std::set <Stop> stops_;
     std::vector <Request> requests_;
+
+    void ReadForBaseRequests(void);
+    void ReadForStatRequests(void);
+    void ReadForMapRenderer(void);
+
+    const json::Node& FindInJson(const std::string &s);
+    void WriteBuses (const Bus& bus);
+    void WriteStops (const Stop& bus);
 };
 
 json::Document

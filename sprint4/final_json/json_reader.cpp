@@ -31,114 +31,113 @@ void JsonReader::WriteStops (const Stop& stop){
     stops_.emplace(stop);
 }
 
-void JsonReader::ReadFromJson(void){
-    auto const& root = doc_.GetRoot();
-    if (root.IsMap()){
-        for (auto const& p: root.AsMap()){
-            if (!p.second.IsArray()){
-                throw std::runtime_error ("Elements of root aren't arrays!");
-            }
-            //ParseJson (catalogue, p);
-            if (p.first == "base_requests"){
-                for (auto const& e: p.second.AsArray()){
-                    std::string type = e.AsMap().at("type").AsString();
-                    if (type == "Stop"){
-                        Stop stop;
-                        for (auto const& request: e.AsMap()){
-                            if ( request.first == "name"){
-                                stop.name = request.second.AsString();
-                                continue;
-                            }
-                            if ( request.first == "latitude"){
-                                stop.coord.lat = request.second.AsDouble();
-                                continue;
-                            }
-                            if ( request.first == "longitude"){
-                                stop.coord.lng = request.second.AsDouble();
-                                continue;
-                            }
-                            if ( request.first == "road_distances"){
-                                for (auto it = request.second.AsMap().begin(); it != request.second.AsMap().end(); it++) {
-                                    stop.road_distances.emplace(it->first, it->second.AsInt());
-                                }
-                                continue;
-                            }
-                            //throw std::runtime_error ("Elements of Stop unknown!");
-                        }
-                        WriteStops (std::move(stop));
-                        continue;
-                    }
-                    if (type == "Bus"){
-                        Bus bus;
-                        for (auto const& request: e.AsMap()){
-                            if (request.first == "name"){
-                                bus.name = request.second.AsString();
-                                continue;
-                            }
-                            if (request.first == "stops"){
-                                for (auto stop: request.second.AsArray()) {
-                                    bus.stops.emplace_back(stop.AsString());
-                                }
-                                continue;
-                            }
-                            if (request.first == "is_roundtrip"){
-                                bus.is_roundtrip = request.second.AsBool();
-                                continue;
-                            }
-                            //throw std::runtime_error ("Elements of Bus unknown!"s + request.first);
-                        }
-                        WriteBuses (std::move(bus));
-                        continue;
-                    }
-                    throw std::runtime_error ("Wrong type:" + type);
-                }
-                continue;
-            }
-            
-            if (p.first == "stat_requests"){
-                for (auto const& e: p.second.AsArray()){
-                    if (!e.IsMap()) {
-                        throw std::runtime_error ("Elements array of stat_requests aren't maps!");
-                    }
-                    Request request;
-                    for (auto const& [f, s]: e.AsMap()){
+const json::Node& JsonReader::FindInJson(const std::string &s){
+    auto p = root_.AsMap().find(s);
+    if (p == root_.AsMap().end()){
+        throw std::runtime_error ("Cannot find " + s + " in root map!");
+    }
+    if (!p->second.IsArray()){
+        throw std::runtime_error ("There are no arrays in the root's map");
+    }
+    return p->second;
+}
 
-                        if (f == "id"){
-                            request.id = s.AsInt();
-                            continue;
-                        }
-                        if (f == "type"){
-                            if (s.AsString() == "Stop"){
-                                request.type = "Stop";
-                                continue;
-                            }
-                            if (s.AsString() == "Bus"){
-                                request.type = "Bus";
-                                continue;
-                            }
-                        }
-                        if (f == "name"){
-                            request.name = s.AsString();
-                            continue;
-                        }
-                        throw std::runtime_error ("Unknown type in stat_requests!");
-                    }
-                    requests_.emplace_back(request);
-
+void JsonReader::ReadForBaseRequests(void){
+    for (auto const& e: FindInJson("base_requests").AsArray()){
+        std::string type = e.AsMap().at("type").AsString();
+        if (type == "Stop"){
+            Stop stop;
+            for (auto const& request: e.AsMap()){
+                if ( request.first == "name"){
+                    stop.name = request.second.AsString();
+                    continue;
                 }
-                continue;
+                if ( request.first == "latitude"){
+                    stop.coord.lat = request.second.AsDouble();
+                    continue;
+                }
+                if ( request.first == "longitude"){
+                    stop.coord.lng = request.second.AsDouble();
+                    continue;
+                }
+                if ( request.first == "road_distances"){
+                    for (auto it = request.second.AsMap().begin(); it != request.second.AsMap().end(); it++) {
+                        stop.road_distances.emplace(it->first, it->second.AsInt());
+                    }
+                    continue;
+                }
+                //throw std::runtime_error ("Elements of Stop unknown!");
             }
-            throw std::runtime_error ("Unknown request!");
+            WriteStops (std::move(stop));
+            continue;
         }
-    } else {
-        throw std::runtime_error ("Root is not an Array!");
+        if (type == "Bus"){
+            Bus bus;
+            for (auto const& request: e.AsMap()){
+                if (request.first == "name"){
+                    bus.name = request.second.AsString();
+                    continue;
+                }
+                if (request.first == "stops"){
+                    for (auto stop: request.second.AsArray()) {
+                        bus.stops.emplace_back(stop.AsString());
+                    }
+                    continue;
+                }
+                if (request.first == "is_roundtrip"){
+                    bus.is_roundtrip = request.second.AsBool();
+                    continue;
+                }
+                //throw std::runtime_error ("Elements of Bus unknown!"s + request.first);
+            }
+            WriteBuses (std::move(bus));
+            continue;
+        }
+        throw std::runtime_error ("Wrong type:" + type);
+    }
+}
+
+void JsonReader::ReadForStatRequests(void) {
+    for (auto const& e: FindInJson("stat_requests").AsArray()){
+        if (!e.IsMap()) {
+            throw std::runtime_error ("Elements array of stat_requests aren't maps!");
+        }
+        Request request;
+        for (auto const& [f, s]: e.AsMap()){
+            if (f == "id"){
+                request.id = s.AsInt();
+                continue;
+            }
+            if (f == "type"){
+                if (s.AsString() == "Stop"){
+                    request.type = "Stop";
+                    continue;
+                }
+                if (s.AsString() == "Bus"){
+                    request.type = "Bus";
+                    continue;
+                }
+            }
+            if (f == "name"){
+                request.name = s.AsString();
+                continue;
+            }
+            throw std::runtime_error ("Unknown type in stat_requests!");
+        }
+        requests_.emplace_back(request);
+    }
+}
+
+void JsonReader::ReadForMapRenderer(void){
+    for (auto const& e: FindInJson("render_settings").AsArray()){
+        (void)e;
     }
 }
 
 transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
     transport_catalogue::TransportCatalogue catalogue;
     transport_catalogue::TransportCatalogue::distanceBtwStops_t distancesBtwStops;
-    ReadFromJson();
+    ReadForBaseRequests();
     for (auto& cmd : stops_) {
         transport_catalogue::Stop stop {cmd.name, cmd.coord};
 
@@ -164,7 +163,7 @@ transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
 std::vector<std::variant<StopResponse, BusResponse>> 
 JsonReader::CalculateRequests (const transport_catalogue::TransportCatalogue& cat){
     std::vector<std::variant<StopResponse, BusResponse>> responses;
-
+    ReadForStatRequests();
     for (auto const& e: requests_){
         if (e.type == "Stop"){
             //StopResponse resp{e.id, cat.GetBusesForStop(e.name)};
