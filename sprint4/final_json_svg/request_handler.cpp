@@ -7,3 +7,8 @@
  * Если вы затрудняетесь выбрать, что можно было бы поместить в этот файл,
  * можете оставить его пустым.
  */
+
+std::vector<svg::Polyline> request_handler::CreatePolygons(void)
+{
+    return std::vector<svg::Polyline>();
+}

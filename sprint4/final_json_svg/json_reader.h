@@ -76,6 +76,8 @@ public:
     transport_catalogue::TransportCatalogue CreateTransportCatalogue(void);
     std::vector<std::variant<StopResponse, BusResponse>>
     CalculateRequests (const transport_catalogue::TransportCatalogue& cat);
+
+    map_renderer::RenderSettings ReadForMapRenderer(void);
 private:
     const json::Node& root_;
     std::set <Bus> buses_;
@@ -84,7 +86,6 @@ private:
 
     void ReadForBaseRequests(void);
     void ReadForStatRequests(void);
-    map_renderer::RenderSettings ReadForMapRenderer(void);
     svg::Color GetColor(const json::Node &node);
     const json::Node& FindInJson(const std::string &s);
     void WriteBuses (const Bus& bus);

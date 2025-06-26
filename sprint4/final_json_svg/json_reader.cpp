@@ -316,7 +316,7 @@ std::string Process(std::variant<StopResponse, BusResponse> request) {
     return s;
 }
 
-std::string make_json (const std::vector<std::variant<StopResponse, BusResponse>>& requests){
+std::string MakeJsonString (const std::vector<std::variant<StopResponse, BusResponse>>& requests){
     std::string output;
     output += "[\n";
     bool first = 1;
@@ -332,9 +332,13 @@ std::string make_json (const std::vector<std::variant<StopResponse, BusResponse>
     return output;
 }
 
+std::vector<svg::Polyline> CreatePolygons(){
+    
+}
+
 json::Document
 json_reader::TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse>>& requests){
-    std::istringstream strm(make_json(requests));
+    std::istringstream strm(MakeJsonString(requests));
     //std::istringstream strm1("42");
     return json::Load(strm);
 }

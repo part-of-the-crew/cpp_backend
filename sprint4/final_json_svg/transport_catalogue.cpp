@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <unordered_set>
+#include <algorithm>
 
 #include "transport_catalogue.h"
 
@@ -96,4 +97,18 @@ TransportCatalogue::GetRouteStatistics(std::string_view busName) const {
     }
     return RouteStatistics{busName, trajectory, trajectory/distance, 
             static_cast<int>(unique_stops.size()), static_cast<int>(v.size())};
+}
+
+std::vector<const Bus *>
+transport_catalogue::TransportCatalogue::GetStopsForAllBuses(void) const
+{
+    std::vector<const Bus *> vBuses;
+    for (auto [f, s] : busname_to_route){
+        vBuses.push_back(&(*s));
+    }
+    std::sort(vBuses.begin(), vBuses.end(), [](const auto& a, const auto& b)
+                                            {
+                                            return *a < *b;
+                                            });  
+    return vBuses;
 }

@@ -79,25 +79,7 @@ inline std::ostream& operator<<(std::ostream& out, const Color& color) {
     std::visit(OstreamSolutionPrinter{out}, color);
     return out;
 };
-/*
-    ostringstream strm;
-    // Выводим в поток strm
-    visit(OstreamSolutionPrinter{strm}, solution);
-    cout << strm.str();
 
-
-    inline std::ostream& operator<<(std::ostream& out, const Color& color) {
-    std::visit([&out](const auto& value) {
-        using T = std::decay_t<decltype(value)>;
-        if constexpr (std::is_same_v<T, std::monostate>) {
-            out << "none";
-        } else {
-            out << value;
-        }
-    }, color);
-    return out;
-}
-*/
 enum class StrokeLineCap {
     BUTT,
     ROUND,

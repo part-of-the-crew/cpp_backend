@@ -23,6 +23,13 @@ struct Stop {
 struct Bus {
     std::string name;
     std::vector<std::deque<Stop>::const_iterator> stops;
+
+    bool operator<(const Bus& rhs) {
+        return name < rhs.name;
+    }
+    bool operator<(const Bus& rhs) const {
+        return name < rhs.name;
+    }
 };
 
 struct RouteStatistics {
@@ -55,7 +62,7 @@ class TransportCatalogue {
             return hasher(p.first) ^ (hasher(p.second) << 1); // simple hash combine
         }
     };
-public:
+private:
     std::deque<Stop> stops;
     std::unordered_map<std::string_view, std::deque<Stop>::const_iterator> stopname_to_stop;
     std::unordered_map<std::string_view, std::set<std::string_view>> stopname_to_bus;
@@ -72,6 +79,7 @@ public:
 
     void AddBus(const std::string& name, const std::vector<std::string_view>& stops_list);
     const Bus* GetStopsForBus(std::string_view busname) const;
+    std::vector<const Bus*> GetStopsForAllBuses(void) const;
     const std::set<std::string_view>* GetBusesForStop(std::string_view stopName) const;
     std::optional<RouteStatistics> GetRouteStatistics(std::string_view busName) const;
     void AddDistanceBtwStops (const std::pair<std::string, std::string>& p, int m);
