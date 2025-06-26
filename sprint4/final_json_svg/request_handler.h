@@ -4,6 +4,9 @@
 #include <vector>
 
 #include "svg.h"
+#include "transport_catalogue.h"
+#include "map_renderer.h"
+
 
 namespace request_handler {
 
@@ -22,7 +25,8 @@ namespace request_handler {
 // с другими подсистемами приложения.
 // См. паттерн проектирования Фасад: https://ru.wikipedia.org/wiki/Фасад_(шаблон_проектирования)
 
-std::vector<svg::Polyline> CreatePolygons(void);
+std::vector<svg::Polyline> CreatePolygons(const transport_catalogue::TransportCatalogue&,
+                                          const map_renderer::RenderSettings&);
 
 /*
 class RequestHandler {

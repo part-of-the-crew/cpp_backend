@@ -164,7 +164,7 @@ protected:
             out << "stroke-linecap=\""sv << *strokeLineCap_ << "\" "sv;
         }
         if (strokeLineJoin_) {
-            out << "stroke-linejoin=\""sv << *strokeLineJoin_ << "\" "sv;
+            out << "stroke-linejoin=\""sv << *strokeLineJoin_ << "\""sv;
         }
     }
 

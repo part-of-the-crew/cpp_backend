@@ -162,7 +162,7 @@ JsonReader::ReadForMapRenderer(void){
             continue;
         }
         if (f == "padding"){
-            settings.height = s.AsDouble();
+            settings.padding = s.AsDouble();
             continue;
         }
         if (f == "height"){
@@ -330,10 +330,6 @@ std::string MakeJsonString (const std::vector<std::variant<StopResponse, BusResp
     output += "]\n";
     //std::cerr << output;
     return output;
-}
-
-std::vector<svg::Polyline> CreatePolygons(){
-    
 }
 
 json::Document
