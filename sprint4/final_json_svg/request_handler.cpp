@@ -9,15 +9,24 @@
  */
 using namespace std::string_literals;
 using namespace std::literals;
+using namespace request_handler;
 
-std::vector<svg::Polyline> 
-request_handler::CreatePolygons(const transport_catalogue::TransportCatalogue &cat,
-                                const map_renderer::RenderSettings& settings)
+svg::Document RequestHandler::RenderMap()
+{
+    GetTransformedRoutes();
+    svg::Document output_doc;
+    for (auto const &e: CreatePolygons()){
+        output_doc.Add(e);
+    }
+    return output_doc;
+}
+
+void RequestHandler::GetTransformedRoutes(void)
 {
     std::vector<std::vector<geo::Coordinates>> vec;
     std::vector<geo::Coordinates> v_for_projector;
-    std::vector<svg::Polyline> poly_vec;
-    for (auto const& e: cat.GetStopsForAllBuses()){
+
+    for (auto const& e: cat_.GetStopsForAllBuses()){
         std::vector<geo::Coordinates> v;
         for (auto const& stop: e->stops){
             v.push_back(stop->coordinates);
@@ -27,31 +36,36 @@ request_handler::CreatePolygons(const transport_catalogue::TransportCatalogue &c
     }
 
     const map_renderer::SphereProjector proj{
-        v_for_projector.begin(), v_for_projector.end(), settings.width, settings.height, settings.padding
+        v_for_projector.begin(), v_for_projector.end(), 
+        settings_.width, settings_.height, settings_.padding
     };
-/*
-    for (const auto &geo_coord: v_for_projector) {
-        const svg::Point screen_coord = proj(geo_coord);
-        std::cout << '(' << geo_coord.lat << ", "sv << geo_coord.lng << ") -> "sv;
-        std::cout << '(' << screen_coord.x << ", "sv << screen_coord.y << ')' << std::endl;
+
+    for (auto const& e: vec){
+        std::vector<svg::Point> v;
+        for (auto const& stop: e){
+            v.push_back(proj(stop));
+        }
+        routes_.emplace_back(v);
     }
-*/
-    //std::cerr << settings.padding << std::endl;
+}
+
+std::vector<svg::Polyline> RequestHandler::CreatePolygons(void)
+{
+    std::vector<svg::Polyline> poly_vec;
     std::size_t icolor = 0;
-    for (auto const& el: vec){
+    for (auto const& el: routes_){
         svg::Polyline poly;
         for (auto const& coordinates: el){
-
-            poly.AddPoint(proj(coordinates))
-                .SetStrokeColor(settings.color_palette[icolor])
-                .SetStrokeWidth(settings.line_width)
+            poly.AddPoint(coordinates)
+                .SetStrokeColor(settings_.color_palette[icolor])
+                .SetStrokeWidth(settings_.line_width)
                 .SetStrokeLineCap(svg::StrokeLineCap::ROUND)
                 .SetFillColor(svg::NoneColor)
                 .SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
         }
         poly_vec.emplace_back(std::move(poly));
         icolor++;
-        if (icolor == settings.color_palette.size())
+        if (icolor == settings_.color_palette.size())
             icolor = 0;
     }
 

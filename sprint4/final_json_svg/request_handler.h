@@ -25,28 +25,31 @@ namespace request_handler {
 // с другими подсистемами приложения.
 // См. паттерн проектирования Фасад: https://ru.wikipedia.org/wiki/Фасад_(шаблон_проектирования)
 
-std::vector<svg::Polyline> CreatePolygons(const transport_catalogue::TransportCatalogue&,
-                                          const map_renderer::RenderSettings&);
 
-/*
 class RequestHandler {
 public:
-    // MapRenderer понадобится в следующей части итогового проекта
-    RequestHandler(const TransportCatalogue& db, const renderer::MapRenderer& renderer);
+    using Catalogue = transport_catalogue::TransportCatalogue;
 
+    RequestHandler(const Catalogue& cat, const map_renderer::RenderSettings& settings)
+                    : cat_{cat}
+                    , settings_{settings}
+                    {}
     // Возвращает информацию о маршруте (запрос Bus)
-    std::optional<BusStat> GetBusStat(const std::string_view& bus_name) const;
+   // std::optional<BusStat> GetBusStat(const std::string_view& bus_name) const;
 
     // Возвращает маршруты, проходящие через
-    const std::unordered_set<BusPtr>* GetBusesByStop(const std::string_view& stop_name) const;
+    //const std::unordered_set<BusPtr>* GetBusesByStop(const std::string_view& stop_name) const;
 
     // Этот метод будет нужен в следующей части итогового проекта
-    svg::Document RenderMap() const;
+    svg::Document RenderMap(void);
+    void GetTransformedRoutes(void);
 
 private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
-    const TransportCatalogue& db_;
-    const renderer::MapRenderer& renderer_;
+    const Catalogue& cat_;
+    const map_renderer::RenderSettings& settings_;
+    std::vector<std::vector<svg::Point>> routes_;
+    std::vector<svg::Polyline> CreatePolygons();
 };
-*/
+
 } //namespace request_handler
