@@ -3,358 +3,310 @@
 #include <cstdint>
 #include <iostream>
 #include <memory>
-#include <string>
-#include <vector>
 #include <optional>
+#include <string>
+#include <string_view>
 #include <variant>
+#include <vector>
 
 namespace svg {
 
-struct Rgb {
-    Rgb() = default;
-    Rgb(uint8_t r, uint8_t g, uint8_t b)
-            : red(r)
-            , green(g)
-            , blue(b) {
-    }
-    uint8_t red = 0;
-    uint8_t green = 0;
-    uint8_t blue = 0;
-};
+    namespace detail {
 
-struct Rgba {
-    Rgba() = default;
-    Rgba(uint8_t r, uint8_t g, uint8_t b, double a)
-            : red(r)
-            , green(g)
-            , blue(b)
-            , opacity(a) {
-    }
-    uint8_t red = 0;
-    uint8_t green = 0;
-    uint8_t blue = 0;
-    double opacity = 1.0;
-};
-
-//using NoneColor = std::monostate;
-using Color = std::variant<std::monostate, std::string, Rgb, Rgba>;
-inline const Color NoneColor{};
-
-// Overload for Rgb
-inline std::ostream& operator<<(std::ostream& out, const Rgb& color) {
-    return out << "rgb(" << static_cast<int>(color.red)
-               << "," << static_cast<int>(color.green)
-               << "," << static_cast<int>(color.blue) << ")";
-}
-
-// Overload for Rgba
-inline std::ostream& operator<<(std::ostream& out, const Rgba& color) {
-    return out << "rgba(" << static_cast<int>(color.red)
-               << "," << static_cast<int>(color.green)
-               << "," << static_cast<int>(color.blue)
-               << "," << color.opacity << ")";
-}
-
-struct OstreamSolutionPrinter {
-
-    std::ostream& out;
-
-    void operator()(std::monostate) const {
-        out << "none";
-    }
-    void operator()(std::string s) const {
-        out << s;
-    }
-    void operator()(svg::Rgb rgb) const {
-        out << rgb;
-    }
-    void operator()(svg::Rgba rgba) const {
-        out << rgba;
-    }
-};
-
-// Overload for Color (std::variant)
-
-inline std::ostream& operator<<(std::ostream& out, const Color& color) {
-    std::visit(OstreamSolutionPrinter{out}, color);
-    return out;
-};
-
-enum class StrokeLineCap {
-    BUTT,
-    ROUND,
-    SQUARE,
-};
-
-enum class StrokeLineJoin {
-    ARCS,
-    BEVEL,
-    MITER,
-    MITER_CLIP,
-    ROUND,
-};
-
-
-// Overload operator<< for StrokeLineCap
-inline std::ostream& operator<<(std::ostream& os, StrokeLineCap cap) {
-    switch (cap) {
-        case StrokeLineCap::BUTT:    return os << "butt";
-        case StrokeLineCap::ROUND:   return os << "round";
-        case StrokeLineCap::SQUARE:  return os << "square";
-        default:                     return os << "unknown";
-    }
-}
-
-// Overload operator<< for StrokeLineJoin
-inline std::ostream& operator<<(std::ostream& os, StrokeLineJoin join) {
-    switch (join) {
-        case StrokeLineJoin::ARCS:        return os << "arcs";
-        case StrokeLineJoin::BEVEL:       return os << "bevel";
-        case StrokeLineJoin::MITER:       return os << "miter";
-        case StrokeLineJoin::MITER_CLIP:  return os << "miter-clip";
-        case StrokeLineJoin::ROUND:       return os << "round";
-        default:                          return os << "unknown";
-    }
-}
-
-template <typename Owner>
-class PathProps {
-public:
-    Owner& SetFillColor(Color color) {
-        fill_color_ = std::move(color);
-        return AsOwner();
-    }
-    Owner& SetStrokeColor(Color color) {
-        stroke_color_ = std::move(color);
-        return AsOwner();
-    }
-    Owner& SetStrokeWidth(double width) {
-        stroke_width_ = width;
-        return AsOwner();
-    }
-    Owner& SetStrokeWidth(Color color) {
-        stroke_color_ = std::move(color);
-        return AsOwner();
-    }
-    Owner& SetStrokeLineCap(StrokeLineCap line_cap) {
-        strokeLineCap_ = line_cap;
-        return AsOwner();
-    }
-    Owner& SetStrokeLineJoin(StrokeLineJoin line_join) {
-        strokeLineJoin_ = line_join;
-        return AsOwner();
-    }
-protected:
-    ~PathProps() = default;
-
-    // Метод RenderAttrs выводит в поток общие для всех путей атрибуты fill и stroke
-    void RenderAttrs(std::ostream& out) const {
-        using namespace std::literals;
-
-        if (fill_color_) {
-            out << "fill=\""sv << *fill_color_ << "\" "sv;
+        template <typename T>
+        inline void RenderValue(std::ostream& out, const T& value) {
+            out << value;
         }
-        if (stroke_color_) {
-            out << "stroke=\""sv << *stroke_color_ << "\" "sv;
+
+        void HtmlEncodeString(std::ostream& out, std::string_view sv);
+
+        template <>
+        inline void RenderValue<std::string>(std::ostream& out, const std::string& s) {
+            HtmlEncodeString(out, s);
         }
-        if (stroke_width_) {
-            out << "stroke-width=\""sv << *stroke_width_ << "\" "sv;
+
+        template <typename AttrType>
+        inline void RenderAttr(std::ostream& out, std::string_view name, const AttrType& value) {
+            using namespace std::literals;
+            out << name << "=\""sv;
+            RenderValue(out, value);
+            out.put('"');
         }
-        if (strokeLineCap_) {
-            out << "stroke-linecap=\""sv << *strokeLineCap_ << "\" "sv;
+
+        template <typename AttrType>
+        inline void RenderOptionalAttr(std::ostream& out, std::string_view name,
+                                       const std::optional<AttrType>& value) {
+            if (value) {
+                RenderAttr(out, name, *value);
+            }
         }
-        if (strokeLineJoin_) {
-            out << "stroke-linejoin=\""sv << *strokeLineJoin_ << "\""sv;
+
+    }  // namespace detail
+
+    struct Point {
+        Point() = default;
+        Point(double x, double y)
+                : x(x)
+                , y(y) {
         }
-    }
+        double x = 0;
+        double y = 0;
+    };
 
-private:
-    Owner& AsOwner() {
-        // static_cast безопасно преобразует *this к Owner&,
-        // если класс Owner — наследник PathProps
-        return static_cast<Owner&>(*this);
-    }
+    struct Rgb {
+        Rgb() = default;
+        Rgb(uint8_t r, uint8_t g, uint8_t b)
+                : red(r)
+                , green(g)
+                , blue(b) {
+        }
+        uint8_t red = 0;
+        uint8_t green = 0;
+        uint8_t blue = 0;
+    };
 
-    std::optional<Color> fill_color_;
-    std::optional<Color> stroke_color_;
-    std::optional<double> stroke_width_;
-    std::optional<StrokeLineCap> strokeLineCap_;
-    std::optional<StrokeLineJoin> strokeLineJoin_;
-};
+    struct Rgba {
+        Rgba() = default;
+        Rgba(uint8_t r, uint8_t g, uint8_t b, double a)
+                : red(r)
+                , green(g)
+                , blue(b)
+                , opacity(a) {
+        }
 
+        uint8_t red = 0;
+        uint8_t green = 0;
+        uint8_t blue = 0;
+        double opacity = 1.0;
+    };
 
-struct Point {
-    Point() = default;
-    Point(double x, double y)
-        : x(x)
-        , y(y) {
-    }
-    double x = 0;
-    double y = 0;
-};
+    using Color = std::variant<std::monostate, std::string, Rgb, Rgba>;
+    inline const Color NoneColor{};
 
-class Object;
-
-class ObjectContainer {
-public:
-    template <typename Obj>
-    void Add(Obj obj) {
-        AddPtr(std::make_unique<Obj>(std::move(obj)));
-    }
-    // Добавляет в svg-документ объект-наследник svg::Object
-    virtual void AddPtr(std::unique_ptr<Object>&& obj) = 0;
-
-    virtual ~ObjectContainer() = default;
-};
-
-// Интерфейс Drawable задаёт объекты, которые можно нарисовать с помощью ObjectContainer
-class Drawable {
-public:
-    virtual void Draw(ObjectContainer& oc) const = 0;
-    virtual ~Drawable() = default;
-};
-
-
+    std::ostream& operator<<(std::ostream& out, const Color& color);
 
 /*
  * Вспомогательная структура, хранящая контекст для вывода SVG-документа с отступами.
  * Хранит ссылку на поток вывода, текущее значение и шаг отступа при выводе элемента
  */
-struct RenderContext {
-    RenderContext(std::ostream& out)
-        : out(out) {
-    }
-
-    RenderContext(std::ostream& out, int indent_step, int indent = 0)
-        : out(out)
-        , indent_step(indent_step)
-        , indent(indent) {
-    }
-
-    RenderContext Indented() const {
-        return {out, indent_step, indent + indent_step};
-    }
-
-    void RenderIndent() const {
-        for (int i = 0; i < indent; ++i) {
-            out.put(' ');
+    struct RenderContext {
+        RenderContext(std::ostream& out)
+                : out(out) {
         }
-    }
 
-    std::ostream& out;
-    int indent_step = 0;
-    int indent = 0;
-};
+        RenderContext(std::ostream& out, int indent_step, int indent = 0)
+                : out(out)
+                , indent_step(indent_step)
+                , indent(indent) {
+        }
+
+        RenderContext Indented() const {
+            return {out, indent_step, indent + indent_step};
+        }
+
+        void RenderIndent() const {
+            for (int i = 0; i < indent; ++i) {
+                out.put(' ');
+            }
+        }
+
+        std::ostream& out;
+        int indent_step = 0;
+        int indent = 0;
+    };
 
 /*
  * Абстрактный базовый класс Object служит для унифицированного хранения
- * конкретных тегов SVG-документа
- * Реализует паттерн "Шаблонный метод" для вывода содержимого тега
+ * конкретных тэгов SVG-документа
+ * Реализует паттерн "Шаблонный метод" для вывода содержимого тэга
  */
-class Object {
-public:
-    virtual void Render(const RenderContext& context) const;
+    class Object {
+    public:
+        void Render(const RenderContext& context) const;
 
-    virtual ~Object() = default;
+        virtual ~Object() = default;
 
-private:
-    virtual void RenderObject(const RenderContext& context) const = 0;
-};
+    private:
+        virtual void RenderObject(const RenderContext& context) const = 0;
+    };
+
+    enum class StrokeLineCap {
+        BUTT,
+        ROUND,
+        SQUARE,
+    };
+
+    std::ostream& operator<<(std::ostream& out, StrokeLineCap value);
+
+    enum class StrokeLineJoin {
+        ARCS,
+        BEVEL,
+        MITER,
+        MITER_CLIP,
+        ROUND,
+    };
+
+    std::ostream& operator<<(std::ostream& out, StrokeLineJoin value);
+
+    template <typename Owner>
+    class PathProps {
+    public:
+        Owner& SetFillColor(Color color) {
+            fill_color_ = std::move(color);
+            return AsOwner();
+        }
+        Owner& SetStrokeColor(Color color) {
+            stroke_color_ = std::move(color);
+            return AsOwner();
+        }
+        Owner& SetStrokeWidth(double width) {
+            stroke_width_ = width;
+            return AsOwner();
+        }
+        Owner& SetStrokeLineCap(StrokeLineCap line_cap) {
+            stroke_line_cap_ = line_cap;
+            return AsOwner();
+        }
+        Owner& SetStrokeLineJoin(StrokeLineJoin line_join) {
+            stroke_line_join_ = line_join;
+            return AsOwner();
+        }
+
+    protected:
+        ~PathProps() = default;
+
+        void RenderAttrs(std::ostream& out) const {
+            using detail::RenderOptionalAttr;
+            using namespace std::literals;
+            RenderOptionalAttr(out, "fill"sv, fill_color_);
+            RenderOptionalAttr(out, " stroke"sv, stroke_color_);
+            RenderOptionalAttr(out, " stroke-width"sv, stroke_width_);
+            RenderOptionalAttr(out, " stroke-linecap"sv, stroke_line_cap_);
+            RenderOptionalAttr(out, " stroke-linejoin"sv, stroke_line_join_);
+        }
+
+    private:
+        Owner& AsOwner() {
+            // static_cast безопасно преобразует *this к Owner&,
+            // если класс Owner - наследник PathProps
+            return static_cast<Owner&>(*this);
+        }
+
+        std::optional<Color> fill_color_;
+        std::optional<Color> stroke_color_;
+        std::optional<double> stroke_width_;
+        std::optional<StrokeLineCap> stroke_line_cap_;
+        std::optional<StrokeLineJoin> stroke_line_join_;
+    };
 
 /*
  * Класс Circle моделирует элемент <circle> для отображения круга
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle
+ * Унаследовавшись от PathProps<Circle>, мы "сообщаем" родителю,
+ * что владельцем свойств является класс Circle
  */
-class Circle final : public Object, public PathProps<Circle> {
-public:
-    Circle& SetCenter(Point center);
-    Circle& SetRadius(double radius);
-    Circle (Point center, double radius) :
-        center_{center},
-        radius_{radius}
-    {}
-    Circle () = default;
-private:
-    void RenderObject(const RenderContext& context) const override;
+    class Circle : public Object, public PathProps<Circle> {
+    public:
+        Circle& SetCenter(Point center);
+        Circle& SetRadius(double radius);
 
-    Point center_;
-    double radius_ = 1.0;
-};
+    private:
+        void RenderObject(const RenderContext& context) const override;
+
+        Point center_;
+        double radius_ = 1.0;
+    };
 
 /*
  * Класс Polyline моделирует элемент <polyline> для отображения ломаных линий
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline
  */
-class Polyline final : public Object, public PathProps<Polyline> {
-public:
-    // Добавляет очередную вершину к ломаной линии
-    Polyline& AddPoint(Point point);
+    class Polyline : public Object, public PathProps<Polyline> {
+    public:
+        // Добавляет очередную вершину к ломаной линии
+        Polyline& AddPoint(Point point);
 
     private:
-    void RenderObject(const RenderContext& context) const override;
-
-    std::vector<Point> points;
-};
+        void RenderObject(const RenderContext& context) const override;
+        std::vector<Point> points_;
+    };
 
 /*
  * Класс Text моделирует элемент <text> для отображения текста
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text
  */
-class Text final : public Object, public PathProps<Text> {
-public:
-    // Задаёт координаты опорной точки (атрибуты x и y)
-    Text& SetPosition(Point pos);
+    class Text : public Object, public PathProps<Text> {
+    public:
+        // Задаёт координаты опорной точки (атрибуты x и y)
+        Text& SetPosition(Point pos);
 
-    // Задаёт смещение относительно опорной точки (атрибуты dx, dy)
-    Text& SetOffset(Point offset);
+        // Задаёт смещение относительно опорной точки (атрибуты dx, dy)
+        Text& SetOffset(Point offset);
 
-    // Задаёт размеры шрифта (атрибут font-size)
-    Text& SetFontSize(uint32_t size);
+        // Задаёт размеры шрифта (атрибут font-size)
+        Text& SetFontSize(uint32_t size);
 
-    // Задаёт название шрифта (атрибут font-family)
-    Text& SetFontFamily(std::string font_family);
+        // Задаёт название шрифта (атрибут font-family)
+        Text& SetFontFamily(std::string font_family);
 
-    // Задаёт толщину шрифта (атрибут font-weight)
-    Text& SetFontWeight(std::string font_weight);
+        // Задаёт толщину шрифта (атрибут font-weight)
+        Text& SetFontWeight(std::string font_weight);
 
-    // Задаёт текстовое содержимое объекта (отображается внутри тега text)
-    Text& SetData(std::string data);
+        // Задаёт текстовое содержимое объекта (отображается внутри тэга text)
+        Text& SetData(std::string data);
 
-private:
+    private:
+        void RenderObject(const RenderContext& context) const override;
+        Point position_;
+        Point offset_;
+        uint32_t font_size_ = 1;
+        std::string font_family_;
+        std::string font_weight_;
+        std::string data_;
+    };
 
-    // Задаёт координаты опорной точки (атрибуты x и y)
-    Point pos_ = {0.0, 0.0};
+/*
+ * Интерфейс, представляющий контейнер SVG объектов.
+ */
+    class ObjectContainer {
+    public:
+        template <typename ObjectType>
+        void Add(ObjectType object) {
+            AddPtr(std::make_unique<ObjectType>(std::move(object)));
+        }
 
-    // Задаёт смещение относительно опорной точки (атрибуты dx, dy)
-    Point offset_ = {0.0, 0.0};
+        // Добавляет в svg-документ объект-наследник svg::Object
+        virtual void AddPtr(std::unique_ptr<Object>&& obj) = 0;
 
-    // Задаёт размеры шрифта (атрибут font-size)
-    uint32_t size_ = 1;
+    protected:
+        // Интерфейс не предполагает полиморфное удаление
+        // Поэтому деструктор объявлен защищённым невиртуальным
+        ~ObjectContainer() = default;
+    };
 
-    // Задаёт название шрифта (атрибут font-family)
-    std::string font_family_;
+/*
+ * Интерфейс объектов, которые могут быть нарисованы на любом объекте,
+ * реализующем интерфейс ObjectContainer
+ */
+    class Drawable {
+    public:
+        virtual void Draw(ObjectContainer& container) const = 0;
 
-    // Задаёт толщину шрифта (атрибут font-weight)
-    std::string font_weight_;
+        // Объекты Drawable могут удаляться полиморфно. Поэтому деструктор объявляем публичным
+        // виртуальным
+        virtual ~Drawable() = default;
+    };
 
-    // Задаёт текстовое содержимое объекта (отображается внутри тега text)
-    std::string data_;
+    class Document : public ObjectContainer {
+    public:
+        // Добавляет в svg-документ объект-наследник svg::Object
+        void AddPtr(std::unique_ptr<Object>&& obj) override;
 
-    void RenderObject(const RenderContext& context) const override;
-    void Replace (std::string from, std::string to);
-};
+        // Выводит в ostream svg-представление документа
+        void Render(std::ostream& out) const;
 
-class Document : public ObjectContainer {
-public:
-
-    void AddPtr(std::unique_ptr<Object>&& obj) override;
-
-    // Выводит в ostream svg-представление документа
-    void Render(std::ostream& out) const;
-
-private:
-
-    std::vector <std::unique_ptr<Object>> objects;
-};
+    private:
+        std::vector<std::unique_ptr<Object>> objects_;
+    };
 
 }  // namespace svg

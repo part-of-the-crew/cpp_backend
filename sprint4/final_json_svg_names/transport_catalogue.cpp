@@ -61,6 +61,9 @@ TransportCatalogue::GetBusesForStop(std::string_view stopName) const {
     if (it == stopname_to_bus.cend()) {
         return nullptr;  // Indicate absence
     }
+    if (it->second.empty()) {
+        return nullptr;  // Indicate absence
+    }
     return &it->second;  // Return pointer to set
 }
 

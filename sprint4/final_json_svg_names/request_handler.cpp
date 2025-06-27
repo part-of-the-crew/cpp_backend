@@ -53,6 +53,8 @@ std::vector<svg::Polyline> RequestHandler::CreateRoutes(void){
     std::size_t icolor = 0;
     for (auto const& el: AllBusNames){
         auto bus = cat_.GetStopsForBus(el);
+        if (nullptr == bus)
+            continue;
         svg::Polyline poly;
         for (auto const& stop: bus->stops){
             poly.AddPoint((*proj_)({stop->coordinates.lat, stop->coordinates.lng}))
@@ -72,52 +74,69 @@ std::vector<svg::Polyline> RequestHandler::CreateRoutes(void){
 }
 
 std::vector<svg::Text> request_handler::RequestHandler::CreateBusNames(){
-    std::vector<svg::Text> text_vec;
+    std::vector<svg::Text> vec;
     std::size_t icolor = 0;
     for (auto const& el: AllBusNames){
         auto bus = cat_.GetStopsForBus(el);
-        auto stop = *(bus->stops.front());
+        if (nullptr == bus)
+            continue;
+        auto stop1 = *(bus->stops.front());
         svg::Text text1, text2;
+        svg::Text undertext1, undertext2;
+        auto point = (*proj_)({stop1.coordinates.lat, stop1.coordinates.lng});
         text1.SetData(bus->name)
-            .SetPosition((*proj_)({stop.coordinates.lat, stop.coordinates.lng}))
+            .SetPosition(point)
             .SetOffset({settings_.bus_label_offset.first, settings_.bus_label_offset.second})
             .SetFontSize(settings_.bus_label_font_size)
-            .SetStrokeWidth(settings_.line_width)
             .SetFontFamily("Verdana")
             .SetFontWeight("bold")
-            .SetStrokeColor(settings_.color_palette[icolor])
+            .SetFillColor(settings_.color_palette[icolor]);
+        undertext1 = text1;
+        undertext1
+            .SetFillColor(settings_.underlayer_color)
+            .SetStrokeColor(settings_.underlayer_color)  
+            .SetStrokeWidth(settings_.underlayer_width)
             .SetStrokeLineCap(svg::StrokeLineCap::ROUND)
-            .SetFillColor(settings_.color_palette[icolor])
             .SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
         text2 = text1;
-        text_vec.emplace_back(std::move(text1));
+        undertext2 = undertext1;
+        vec.emplace_back(std::move(undertext1));
+        vec.emplace_back(std::move(text1));
 
         if (!bus->is_roundtrip){
-            text2
-                .SetPosition((*proj_)({stop.coordinates.lat, stop.coordinates.lng}));
-            auto stop = *(bus->stops.back());
-            text_vec.emplace_back(std::move(text2));
+            auto it = bus->stops.rbegin() + bus->stops.size()/2;
+            if (it != bus->stops.rend()){
+                auto stop2 = *(it);
+                if (stop1.name != stop2->name){
+                    text2
+                        .SetPosition((*proj_)({stop2->coordinates.lat, stop2->coordinates.lng}));
+                    undertext2
+                        .SetPosition((*proj_)({stop2->coordinates.lat, stop2->coordinates.lng}));
+                    vec.emplace_back(std::move(undertext2));
+                    vec.emplace_back(std::move(text2));
+                }
+            }
         }
         
         icolor++;
         if (icolor == settings_.color_palette.size())
             icolor = 0;
     }
-    return text_vec;
+    return vec;
 }
 
 std::vector<svg::Circle> request_handler::RequestHandler::CreateStops(){
     std::vector<svg::Circle> vec;
-    for (auto const& el: AllBusNames){
-        auto bus = cat_.GetStopsForBus(el);
+    for (auto const& el: AllStopNames){
+        const auto bus = cat_.GetBusesForStop(el);
+        if (nullptr == bus)
+            continue;
+        const auto stop = cat_.GetStop(el);
         svg::Circle c;
-        for (auto const& stop: bus->stops){
-            c.SetCenter((*proj_)({stop->coordinates.lat, stop->coordinates.lng}))
-                .SetRadius(settings_.stop_radius)
-                .SetFillColor("white");
-        }
+        c.SetCenter((*proj_)({stop->coordinates.lat, stop->coordinates.lng}))
+            .SetRadius(settings_.stop_radius)
+            .SetFillColor("white");
         vec.emplace_back(std::move(c));
-
     }
     return vec;
 }
@@ -130,16 +149,21 @@ std::vector<svg::Text> request_handler::RequestHandler::CreateStopsNames(){
             continue;
         auto pstop = cat_.GetStop(el);
         svg::Text text;
+        svg::Text undertext;
         text.SetData(pstop->name)
             .SetPosition((*proj_)({pstop->coordinates.lat, pstop->coordinates.lng}))
             .SetOffset({settings_.stop_label_offset.first, settings_.stop_label_offset.second})
             .SetFontSize(settings_.stop_label_font_size)
-            .SetStrokeWidth(settings_.underlayer_width)
             .SetFontFamily("Verdana")
-            .SetStrokeColor(settings_.underlayer_color)
-            .SetStrokeLineCap(svg::StrokeLineCap::ROUND)
+            .SetFillColor("black");
+        undertext = text;
+        undertext
             .SetFillColor(settings_.underlayer_color)
+            .SetStrokeColor(settings_.underlayer_color)  
+            .SetStrokeWidth(settings_.underlayer_width)
+            .SetStrokeLineCap(svg::StrokeLineCap::ROUND)
             .SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
+        vec.emplace_back(std::move(undertext));
         vec.emplace_back(std::move(text));
 
     }
