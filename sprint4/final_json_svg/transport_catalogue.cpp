@@ -19,8 +19,10 @@ void TransportCatalogue::AddDistanceBtwStops (const std::pair<std::string, std::
     distances.insert({{ptr1, ptr2 }, m});
 }
 
-void TransportCatalogue::AddBus(const std::string& bus, const std::vector<std::string_view>& stops_list){
-    routes.push_back({ std::move(bus), {}});
+void TransportCatalogue::AddBus(const std::string& bus, 
+                                const std::vector<std::string_view>& stops_list,
+                                bool is_roundtrip){
+    routes.push_back({ std::move(bus), {}, is_roundtrip});
     for ( auto const& stop_name: stops_list){
         const auto it = stopname_to_stop.find(stop_name);
         if (it != stopname_to_stop.end()){
@@ -111,4 +113,23 @@ transport_catalogue::TransportCatalogue::GetStopsForAllBuses(void) const
                                             return *a < *b;
                                             });  
     return vBuses;
+}
+
+std::set<std::string_view> 
+transport_catalogue::TransportCatalogue::GetAllStopNames(void) const
+{
+    std::set<std::string_view> index;
+    for (auto [f, s]: stopname_to_stop){
+        index.insert(f);
+    }
+    return index;
+}
+std::set<std::string_view> 
+transport_catalogue::TransportCatalogue::GetAllBusNames(void) const
+{
+    std::set<std::string_view> index;
+    for (auto [f, s]: busname_to_route){
+        index.insert(f);
+    }
+    return index;
 }

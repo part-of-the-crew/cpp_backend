@@ -18,12 +18,18 @@ struct Stop {
     bool operator==(const Stop& other) const {
         return (other.name == name) && (other.coordinates == coordinates);
     }
+    bool operator<(const Stop& rhs) {
+        return name < rhs.name;
+    }
+    bool operator<(const Stop& rhs) const {
+        return name < rhs.name;
+    }
 };
 
 struct Bus {
     std::string name;
     std::vector<std::deque<Stop>::const_iterator> stops;
-
+    bool is_roundtrip;
     bool operator<(const Bus& rhs) {
         return name < rhs.name;
     }
@@ -77,9 +83,14 @@ public:
     using distanceBtwStops_t = std::unordered_map<std::pair<std::string, std::string>, int, StrStrHasher>;
     void AddStop(const Stop& stop);
 
-    void AddBus(const std::string& name, const std::vector<std::string_view>& stops_list);
+    void AddBus(const std::string& name, const std::vector<std::string_view>& stops_list, bool is_roundtrip);
     const Bus* GetStopsForBus(std::string_view busname) const;
+
+    
     std::vector<const Bus*> GetStopsForAllBuses(void) const;
+    std::set<std::string_view> GetAllStopNames(void) const;
+    std::set<std::string_view> GetAllBusNames(void) const;
+
     const std::set<std::string_view>* GetBusesForStop(std::string_view stopName) const;
     std::optional<RouteStatistics> GetRouteStatistics(std::string_view busName) const;
     void AddDistanceBtwStops (const std::pair<std::string, std::string>& p, int m);

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "svg.h"
 #include "transport_catalogue.h"
@@ -49,7 +50,11 @@ private:
     const Catalogue& cat_;
     const map_renderer::RenderSettings& settings_;
     std::vector<std::vector<svg::Point>> routes_;
-    std::vector<svg::Polyline> CreatePolygons();
+    std::vector<svg::Polyline> CreateRoutes();
+    std::vector<svg::Text> CreateBusNames();
+    std::unique_ptr<map_renderer::SphereProjector> proj_;
+    std::set<std::string_view> AllStopNames;
+    std::set<std::string_view> AllBusNames;
 };
 
 } //namespace request_handler

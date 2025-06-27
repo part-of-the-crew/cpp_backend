@@ -230,7 +230,7 @@ transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
     for (auto& cmd : buses_) {
         //for (auto e: cmd.stops_sv)
         //    std::cerr << e << std::endl;
-        catalogue.AddBus(cmd.name, cmd.stops_sv);
+        catalogue.AddBus(cmd.name, cmd.stops_sv, cmd.is_roundtrip);
     }
 
     for (auto const& [pair, m]: distancesBtwStops){
