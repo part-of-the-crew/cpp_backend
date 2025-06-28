@@ -4,7 +4,7 @@
 
 namespace json {
 
-namespace {
+
 using namespace std::literals;
 
 Node LoadNode(std::istream& input);
@@ -342,7 +342,6 @@ void PrintNode(const Node& node, const PrintContext& ctx) {
         node.GetValue());
 }
 
-}  // namespace
 
 Document Load(std::istream& input) {
     return Document{LoadNode(input)};

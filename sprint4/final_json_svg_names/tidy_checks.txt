@@ -1,0 +1,1408 @@
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/domain.cpp:1:1: warning: included header domain.h is not used directly [misc-include-cleaner]
+    1 | #include "domain.h"
+      | ^~~~~~~~~~~~~~~~~~~
+    2 | 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:10:20: warning: no header providing "std::istream" is directly included [misc-include-cleaner]
+    3 | #include <iterator>
+    4 | 
+    5 | namespace json {
+    6 | 
+    7 | namespace {
+    8 | using namespace std::literals;
+    9 | 
+   10 | Node LoadNode(std::istream& input);
+      |                    ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:13:6: warning: no header providing "std::string" is directly included [misc-include-cleaner]
+    4 | 
+    5 | namespace json {
+    6 | 
+    7 | namespace {
+    8 | using namespace std::literals;
+    9 | 
+   10 | Node LoadNode(std::istream& input);
+   11 | Node LoadString(std::istream& input);
+   12 | 
+   13 | std::string LoadLiteral(std::istream& input) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:14:17: warning: variable name 's' is too short, expected at least 3 characters [readability-identifier-length]
+   14 |     std::string s;
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:15:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   15 |     while (std::isalpha(input.peek())) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:15:12: warning: implicit conversion 'int' -> 'bool' [readability-implicit-bool-conversion]
+   15 |     while (std::isalpha(input.peek())) {
+      |            ^                         
+      |                                       != 0
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:15:17: warning: no header providing "std::isalpha" is directly included [misc-include-cleaner]
+    3 | #include <iterator>
+    4 | 
+    5 | namespace json {
+    6 | 
+    7 | namespace {
+    8 | using namespace std::literals;
+    9 | 
+   10 | Node LoadNode(std::istream& input);
+   11 | Node LoadString(std::istream& input);
+   12 | 
+   13 | std::string LoadLiteral(std::istream& input) {
+   14 |     std::string s;
+   15 |     while (std::isalpha(input.peek())) {
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:21:6: warning: function 'LoadArray' is within a recursive call chain [misc-no-recursion]
+   21 | Node LoadArray(std::istream& input) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:193:6: note: example recursive call chain, starting from function 'LoadNode'
+  193 | Node LoadNode(std::istream& input) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:200:20: note: Frame #1: function 'LoadNode' calls function 'LoadArray' here:
+  200 |             return LoadArray(input);
+      |                    ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:28:26: note: Frame #2: function 'LoadArray' calls function 'LoadNode' here:
+   28 |         result.push_back(LoadNode(input));
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:28:26: note: ... which was the starting point of the recursive call chain; there may be other cycles
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:22:10: warning: no header providing "std::vector" is directly included [misc-include-cleaner]
+    4 |     std::vector<Node> result;
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:24:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   24 |     for (char c; input >> c && c != ']';) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:24:15: warning: variable 'c' is not initialized [cppcoreguidelines-init-variables]
+   24 |     for (char c; input >> c && c != ']';) {
+      |               ^
+      |                 = 0
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:24:15: warning: loop variable name 'c' is too short, expected at least 2 characters [readability-identifier-length]
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:31:49: warning: no header providing "std::operator""s" is directly included [misc-include-cleaner]
+    3 |         throw ParsingError("Array parsing error"s);
+      |                                                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:33:12: warning: avoid repeating the return type from the declaration; use a braced initializer list instead [modernize-return-braced-init-list]
+   33 |     return Node(std::move(result));
+      |            ^~~~~                 ~
+      |            {                     }
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:33:22: warning: no header providing "std::move" is directly included [misc-include-cleaner]
+    4 |     return Node(std::move(result));
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:36:6: warning: function 'LoadDict' is within a recursive call chain [misc-no-recursion]
+   36 | Node LoadDict(std::istream& input) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:39:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   39 |     for (char c; input >> c && c != '}';) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:39:15: warning: variable 'c' is not initialized [cppcoreguidelines-init-variables]
+   39 |     for (char c; input >> c && c != '}';) {
+      |               ^
+      |                 = 0
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:39:15: warning: loop variable name 'c' is too short, expected at least 2 characters [readability-identifier-length]
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:57:12: warning: avoid repeating the return type from the declaration; use a braced initializer list instead [modernize-return-braced-init-list]
+   57 |     return Node(std::move(dict));
+      |            ^~~~~               ~
+      |            {                   }
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:61:10: warning: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length]
+   61 |     auto it = std::istreambuf_iterator<char>(input);
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:63:17: warning: variable name 's' is too short, expected at least 3 characters [readability-identifier-length]
+   63 |     std::string s;
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:64:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   64 |     while (true) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:68:20: warning: variable name 'ch' is too short, expected at least 3 characters [readability-identifier-length]
+   68 |         const char ch = *it;
+      |                    ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:72:11: warning: do not use 'else' after 'break' [readability-else-after-return]
+   72 |         } else if (ch == '\\') {
+      |           ^~~~~~~~~~~~~~~~~~~~~~
+   73 |             ++it;
+      |             ~~~~~
+   74 |             if (it == end) {
+      |             ~~~~~~~~~~~~~~~~
+   75 |                 throw ParsingError("String parsing error");
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   76 |             }
+      |             ~
+   77 |             const char escaped_char = *(it);
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   78 |             switch (escaped_char) {
+      |             ~~~~~~~~~~~~~~~~~~~~~~~
+   79 |                 case 'n':
+      |                 ~~~~~~~~~
+   80 |                     s.push_back('\n');
+      |                     ~~~~~~~~~~~~~~~~~~
+   81 |                     break;
+      |                     ~~~~~~
+   82 |                 case 't':
+      |                 ~~~~~~~~~
+   83 |                     s.push_back('\t');
+      |                     ~~~~~~~~~~~~~~~~~~
+   84 |                     break;
+      |                     ~~~~~~
+   85 |                 case 'r':
+      |                 ~~~~~~~~~
+   86 |                     s.push_back('\r');
+      |                     ~~~~~~~~~~~~~~~~~~
+   87 |                     break;
+      |                     ~~~~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:105:12: warning: avoid repeating the return type from the declaration; use a braced initializer list instead [modernize-return-braced-init-list]
+  105 |     return Node(std::move(s));
+      |            ^~~~~            ~
+      |            {                }
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:109:16: warning: variable name 's' is too short, expected at least 3 characters [readability-identifier-length]
+  109 |     const auto s = LoadLiteral(input);
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:110:20: warning: no header providing "std::operator""sv" is directly included [misc-include-cleaner]
+    4 |     if (s == "true"sv) {
+      |                    ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:112:7: warning: do not use 'else' after 'return' [readability-else-after-return]
+  112 |     } else if (s == "false"sv) {
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+  113 |         return Node{false};
+      |         ~~~~~~~~~~~~~~~~~~~
+  114 |     } else {
+      |     ~~~~~~~~
+  115 |         throw ParsingError("Failed to parse '"s + s + "' as bool"s);
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  116 |     }
+      |     ~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:122:7: warning: do not use 'else' after 'return' [readability-else-after-return]
+  120 |     if (auto literal = LoadLiteral(input); literal == "null"sv) {
+      |     ~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  121 |         return Node{nullptr};
+  122 |     } else {
+      |       ^~~~~~
+  123 |         throw ParsingError("Failed to parse '"s + literal + "' as null"s);
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  124 |     }
+      |     ~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:140:14: warning: implicit conversion 'int' -> 'bool' [readability-implicit-bool-conversion]
+  140 |         if (!std::isdigit(input.peek())) {
+      |             ~^                         
+      |                                         == 0
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:140:19: warning: no header providing "std::isdigit" is directly included [misc-include-cleaner]
+  140 |         if (!std::isdigit(input.peek())) {
+      |                   ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:143:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  143 |         while (std::isdigit(input.peek())) {
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:143:16: warning: implicit conversion 'int' -> 'bool' [readability-implicit-bool-conversion]
+  143 |         while (std::isdigit(input.peek())) {
+      |                ^                         
+      |                                           != 0
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:168:13: warning: variable name 'ch' is too short, expected at least 3 characters [readability-identifier-length]
+  168 |     if (int ch = input.peek(); ch == 'e' || ch == 'E') {
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:181:24: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  181 |                 return std::stoi(parsed_num);
+      |                        ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:4120:29: note: default parameter was declared here
+ 4120 |   stoi(const string& __str, size_t* __idx = 0, int __base = 10)
+      |                             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:181:29: warning: no header providing "std::stoi" is directly included [misc-include-cleaner]
+  181 |                 return std::stoi(parsed_num);
+      |                             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:182:15: warning: empty catch statements hide issues; to handle exceptions appropriately, consider re-throwing, handling, or avoiding catch altogether [bugprone-empty-catch]
+  182 |             } catch (...) {
+      |               ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:187:16: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  187 |         return std::stod(parsed_num);
+      |                ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:4150:29: note: default parameter was declared here
+ 4150 |   stod(const string& __str, size_t* __idx = 0)
+      |                             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:187:21: warning: no header providing "std::stod" is directly included [misc-include-cleaner]
+  187 |         return std::stod(parsed_num);
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:193:6: warning: function 'LoadNode' is within a recursive call chain [misc-no-recursion]
+  193 | Node LoadNode(std::istream& input) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:194:10: warning: variable 'c' is not initialized [cppcoreguidelines-init-variables]
+  194 |     char c;
+      |          ^
+      |            = 0
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:194:10: warning: variable name 'c' is too short, expected at least 3 characters [readability-identifier-length]
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:226:8: warning: accessing fields in struct 'PrintContext' is inefficient due to poor alignment; currently aligned to 8 bytes, but recommended alignment is 16 bytes [altera-struct-pack-align]
+  226 | struct PrintContext {
+      |        ^
+  227 |     std::ostream& out;
+  228 |     int indent_step = 4;
+  229 |     int indent = 0;
+  230 | 
+  231 |     void PrintIndent() const {
+  232 |         for (int i = 0; i < indent; ++i) {
+  233 |             out.put(' ');
+  234 |         }
+  235 |     }
+  236 | 
+  237 |     PrintContext Indented() const {
+  238 |         return {out, indent_step, indent_step + indent};
+  239 |     }
+  240 | };
+      |  
+      |   __attribute__((aligned(16)))
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:226:8: note: use "__attribute__((aligned(16)))" to align struct 'PrintContext' to 16 bytes
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:227:10: warning: no header providing "std::ostream" is directly included [misc-include-cleaner]
+    4 |     std::ostream& out;
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:227:19: warning: member 'out' of type 'std::ostream &' (aka 'basic_ostream<char> &') is a reference [cppcoreguidelines-avoid-const-or-ref-data-members]
+  227 |     std::ostream& out;
+      |                   ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:227:19: warning: member variable 'out' has public visibility [misc-non-private-member-variables-in-classes]
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:228:9: warning: member variable 'indent_step' has public visibility [misc-non-private-member-variables-in-classes]
+  228 |     int indent_step = 4;
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:229:9: warning: member variable 'indent' has public visibility [misc-non-private-member-variables-in-classes]
+  229 |     int indent = 0;
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:232:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  232 |         for (int i = 0; i < indent; ++i) {
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:237:5: warning: function 'Indented' should be marked [[nodiscard]] [modernize-use-nodiscard]
+  237 |     PrintContext Indented() const {
+      |     ^
+      |     [[nodiscard]] 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:242:6: warning: function 'json::(anonymous namespace)::PrintNode' has a definition with different parameter names [readability-inconsistent-declaration-parameter-name]
+  242 | void PrintNode(const Node& value, const PrintContext& ctx);
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:337:6: note: the definition seen here
+  337 | void PrintNode(const Node& node, const PrintContext& ctx) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:242:6: note: differing parameters are named here: ('value'), in definition: ('node')
+  242 | void PrintNode(const Node& value, const PrintContext& ctx);
+      |      ^                     ~~~~~
+      |                            node
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:251:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  251 |     for (const char c : value) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:251:21: warning: variable name 'c' is too short, expected at least 3 characters [readability-identifier-length]
+  251 |     for (const char c : value) {
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:254:24: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  254 |                 out << "\\r"sv;
+      |                        ^~~~~~~
+      |                        R"(\r)"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:257:24: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  257 |                 out << "\\n"sv;
+      |                        ^~~~~~~
+      |                        R"(\n)"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:260:24: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  260 |                 out << "\\t"sv;
+      |                        ^~~~~~~
+      |                        R"(\t)"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:282:22: warning: no header providing "std::nullptr_t" is directly included [misc-include-cleaner]
+    3 | void PrintValue<std::nullptr_t>(const std::nullptr_t&, const PrintContext& ctx) {
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:282:54: warning: all parameters should be named in a function [hicpp-named-parameter,readability-named-parameter]
+  282 | void PrintValue<std::nullptr_t>(const std::nullptr_t&, const PrintContext& ctx) {
+      |                                                      ^
+      |                                                       /*unused*/
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:296:6: warning: function 'PrintValue<std::vector<json::Node>>' is within a recursive call chain [misc-no-recursion]
+  296 | void PrintValue<Array>(const Array& nodes, const PrintContext& ctx) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:296:6: warning: function template specialization 'json::(anonymous namespace)::PrintValue<std::vector<json::Node>>' has a primary template declaration with different parameter names [readability-inconsistent-declaration-parameter-name]
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:245:6: note: the primary template declaration seen here
+  245 | void PrintValue(const Value& value, const PrintContext& ctx) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:296:6: note: differing parameters are named here: ('nodes'), in primary template declaration: ('value')
+  296 | void PrintValue<Array>(const Array& nodes, const PrintContext& ctx) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:301:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  301 |     for (const Node& node : nodes) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:316:6: warning: function 'PrintValue<std::map<std::basic_string<char>, json::Node>>' is within a recursive call chain [misc-no-recursion]
+  316 | void PrintValue<Dict>(const Dict& nodes, const PrintContext& ctx) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:316:6: warning: function template specialization 'json::(anonymous namespace)::PrintValue<std::map<std::basic_string<char>, json::Node>>' has a primary template declaration with different parameter names [readability-inconsistent-declaration-parameter-name]
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:245:6: note: the primary template declaration seen here
+  245 | void PrintValue(const Value& value, const PrintContext& ctx) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:316:6: note: differing parameters are named here: ('nodes'), in primary template declaration: ('value')
+  316 | void PrintValue<Dict>(const Dict& nodes, const PrintContext& ctx) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:321:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  321 |     for (const auto& [key, node] : nodes) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:337:6: warning: function 'PrintNode' is within a recursive call chain [misc-no-recursion]
+  337 | void PrintNode(const Node& node, const PrintContext& ctx) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:338:10: warning: no header providing "std::visit" is directly included [misc-include-cleaner]
+    4 |     std::visit(
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:339:9: warning: function 'operator()<std::map<std::basic_string<char>, json::Node>>' is within a recursive call chain [misc-no-recursion]
+  339 |         [&ctx](const auto& value) {
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:339:9: warning: function 'operator()<std::vector<json::Node>>' is within a recursive call chain [misc-no-recursion]
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:337:6: note: example recursive call chain, starting from function 'PrintNode'
+  337 | void PrintNode(const Node& node, const PrintContext& ctx) {
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:338:5: note: Frame #1: function 'PrintNode' calls function 'visit<(lambda at /home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:339:9), const std::variant<std::nullptr_t, std::vector<json::Node>, std::map<std::basic_string<char>, json::Node>, bool, int, double, std::basic_string<char>> &>' here:
+  338 |     std::visit(
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/variant:1878:13: note: Frame #2: function 'visit<(lambda at /home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:339:9), const std::variant<std::nullptr_t, std::vector<json::Node>, std::map<std::basic_string<char>, json::Node>, bool, int, double, std::basic_string<char>> &>' calls function '__do_visit<std::__detail::__variant::__deduce_visit_result<void>, (lambda at /home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:339:9), const std::variant<std::nullptr_t, std::vector<json::Node>, std::map<std::basic_string<char>, json::Node>, bool, int, double, std::basic_string<char>> &>' here:
+ 1878 |             return std::__do_visit<_Tag>(
+      |                    ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/variant:1816:5: note: Frame #3: function '__do_visit<std::__detail::__variant::__deduce_visit_result<void>, (lambda at /home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:339:9), const std::variant<std::nullptr_t, std::vector<json::Node>, std::map<std::basic_string<char>, json::Node>, bool, int, double, std::basic_string<char>> &>' calls function '__visit_invoke' here:
+ 1816 |                   _GLIBCXX_VISIT_CASE(1)
+      |                   ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/variant:1806:9: note: expanded from macro '_GLIBCXX_VISIT_CASE'
+ 1806 |         return __gen_vtable_impl<_Ma, index_sequence<N>>::              \
+      |                ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/variant:1060:11: note: Frame #4: function '__visit_invoke' calls function '__invoke<(lambda at /home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:339:9), const std::vector<json::Node> &>' here:
+ 1060 |           return std::__invoke(std::forward<_Visitor>(__visitor),
+      |                  ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/invoke.h:96:14: note: Frame #5: function '__invoke<(lambda at /home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:339:9), const std::vector<json::Node> &>' calls function '__invoke_impl<void, (lambda at /home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:339:9), const std::vector<json::Node> &>' here:
+   96 |       return std::__invoke_impl<__type>(__tag{}, std::forward<_Callable>(__fn),
+      |              ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/invoke.h:61:14: note: Frame #6: function '__invoke_impl<void, (lambda at /home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:339:9), const std::vector<json::Node> &>' calls function 'operator()<std::vector<json::Node>>' here:
+   61 |     { return std::forward<_Fn>(__f)(std::forward<_Args>(__args)...); }
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:340:13: note: Frame #7: function 'operator()<std::vector<json::Node>>' calls function 'PrintValue<std::vector<json::Node>>' here:
+  340 |             PrintValue(value, ctx);
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:308:9: note: Frame #8: function 'PrintValue<std::vector<json::Node>>' calls function 'PrintNode' here:
+  308 |         PrintNode(node, inner_ctx);
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json.cpp:308:9: note: ... which was the starting point of the recursive call chain; there may be other cycles
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:19:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   19 |         for (auto it = bus.stops.crbegin() + 1; it != bus.stops.crend(); ++it) {
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:19:49: warning: backward branch (for loop) is ID-dependent due to variable reference to 'it' and may cause performance degradation [altera-id-dependent-backward-branch]
+   19 |         for (auto it = bus.stops.crbegin() + 1; it != bus.stops.crend(); ++it) {
+      |                                                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:19:14: note: inferred assignment of ID-dependent value from ID-dependent 
+   19 |         for (auto it = bus.stops.crbegin() + 1; it != bus.stops.crend(); ++it) {
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:23:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   23 |     for (const auto& stop : bus_temp.stops) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:26:25: warning: no header providing "std::move" is directly included [misc-include-cleaner]
+    3 |     buses_.emplace(std::move(bus_temp));
+      |                         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:33:13: warning: no header providing "json::Node" is directly included [misc-include-cleaner]
+    2 | const json::Node& JsonReader::FindInJson(const std::string &s){
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:33:53: warning: no header providing "std::string" is directly included [misc-include-cleaner]
+    3 | const json::Node& JsonReader::FindInJson(const std::string &s){
+      |                                                     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:33:61: warning: parameter name 's' is too short, expected at least 3 characters [readability-identifier-length]
+   33 | const json::Node& JsonReader::FindInJson(const std::string &s){
+      |                                                             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:34:10: warning: variable name 'p' is too short, expected at least 3 characters [readability-identifier-length]
+   34 |     auto p = root_.AsMap().find(s);
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:36:20: warning: no header providing "std::runtime_error" is directly included [misc-include-cleaner]
+    3 |         throw std::runtime_error ("Cannot find " + s + " in root map!");
+      |                    ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:41:18: warning: function 'ReadForBaseRequests' has cognitive complexity of 49 (threshold 25) [readability-function-cognitive-complexity]
+   41 | void JsonReader::ReadForBaseRequests(void){
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:42:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+   42 |     for (auto const& e: FindInJson("base_requests").AsArray()){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:44:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+   44 |         if (type == "Stop"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:46:13: note: +3, including nesting penalty of 2, nesting level increased to 3
+   46 |             for (auto const& request: e.AsMap()){
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:47:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+   47 |                 if ( request.first == "name"){
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:51:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+   51 |                 if ( request.first == "latitude"){
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:55:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+   55 |                 if ( request.first == "longitude"){
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:59:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+   59 |                 if ( request.first == "road_distances"){
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:60:21: note: +5, including nesting penalty of 4, nesting level increased to 5
+   60 |                     for (auto it = request.second.AsMap().begin(); it != request.second.AsMap().end(); it++) {
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:70:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+   70 |         if (type == "Bus"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:72:13: note: +3, including nesting penalty of 2, nesting level increased to 3
+   72 |             for (auto const& request: e.AsMap()){
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:73:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+   73 |                 if (request.first == "name"){
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:77:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+   77 |                 if (request.first == "stops"){
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:78:21: note: +5, including nesting penalty of 4, nesting level increased to 5
+   78 |                     for (auto stop: request.second.AsArray()) {
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:83:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+   83 |                 if (request.first == "is_roundtrip"){
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:41:38: warning: redundant void argument list in function definition [modernize-redundant-void-arg]
+   41 | void JsonReader::ReadForBaseRequests(void){
+      |                                      ^~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:42:22: warning: variable name 'e' is too short, expected at least 3 characters [readability-identifier-length]
+   42 |     for (auto const& e: FindInJson("base_requests").AsArray()){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:42:36: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   42 |     for (auto const& e: FindInJson("base_requests").AsArray()){
+      |                                    ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:43:9: warning: variable 'type' of type 'std::string' (aka 'basic_string<char>') can be declared 'const' [misc-const-correctness]
+   43 |         std::string type = e.AsMap().at("type").AsString();
+      |         ^
+      |                     const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:43:41: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   43 |         std::string type = e.AsMap().at("type").AsString();
+      |                                         ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:60:21: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   60 |                     for (auto it = request.second.AsMap().begin(); it != request.second.AsMap().end(); it++) {
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:60:21: warning: use range-based for loop instead [modernize-loop-convert]
+   60 |                     for (auto it = request.second.AsMap().begin(); it != request.second.AsMap().end(); it++) {
+      |                     ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         (const auto & it : request.second.AsMap())
+   61 |                         stop.road_distances.emplace(it->first, it->second.AsInt());
+      |                                                     ~~~~       ~~~~
+      |                                                     it.        it.
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:60:68: warning: backward branch (for loop) is ID-dependent due to variable reference to 'it' and may cause performance degradation [altera-id-dependent-backward-branch]
+   60 |                     for (auto it = request.second.AsMap().begin(); it != request.second.AsMap().end(); it++) {
+      |                                                                    ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:60:26: note: inferred assignment of ID-dependent value from ID-dependent 
+   60 |                     for (auto it = request.second.AsMap().begin(); it != request.second.AsMap().end(); it++) {
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:67:25: warning: passing result of std::move() as a const reference argument; no move will actually happen [hicpp-move-const-arg,performance-move-const-arg]
+   67 |             WriteStops (std::move(stop));
+      |                         ^~~~~~~~~~    ~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:78:21: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   78 |                     for (auto stop: request.second.AsArray()) {
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:78:31: warning: loop variable is copied but only used as const reference; consider making it a const reference [performance-for-range-copy]
+   78 |                     for (auto stop: request.second.AsArray()) {
+      |                               ^
+      |                          const  &
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:89:25: warning: passing result of std::move() as a const reference argument; no move will actually happen [hicpp-move-const-arg,performance-move-const-arg]
+   89 |             WriteBuses (std::move(bus));
+      |                         ^~~~~~~~~~   ~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:96:18: warning: function 'ReadForStatRequests' has cognitive complexity of 26 (threshold 25) [readability-function-cognitive-complexity]
+   96 | void JsonReader::ReadForStatRequests(void) {
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:97:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+   97 |     for (auto const& e: FindInJson("stat_requests").AsArray()){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:98:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+   98 |         if (!e.IsMap()) {
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:102:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  102 |         for (auto const& [f, s]: e.AsMap()){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:103:13: note: +3, including nesting penalty of 2, nesting level increased to 3
+  103 |             if (f == "id"){
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:107:13: note: +3, including nesting penalty of 2, nesting level increased to 3
+  107 |             if (f == "type"){
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:108:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+  108 |                 if (s.AsString() == "Stop"){
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:112:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+  112 |                 if (s.AsString() == "Bus"){
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:116:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+  116 |                 if (s.AsString() == "Map"){
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:121:13: note: +3, including nesting penalty of 2, nesting level increased to 3
+  121 |             if (f == "name"){
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:96:38: warning: redundant void argument list in function definition [modernize-redundant-void-arg]
+   96 | void JsonReader::ReadForStatRequests(void) {
+      |                                      ^~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:97:22: warning: variable name 'e' is too short, expected at least 3 characters [readability-identifier-length]
+   97 |     for (auto const& e: FindInJson("stat_requests").AsArray()){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:97:36: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   97 |     for (auto const& e: FindInJson("stat_requests").AsArray()){
+      |                                    ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:102:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  102 |         for (auto const& [f, s]: e.AsMap()){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:131:6: warning: no header providing "svg::Color" is directly included [misc-include-cleaner]
+    3 | svg::Color JsonReader::GetColor(const json::Node &node){
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:131:24: warning: method 'GetColor' can be made static [readability-convert-member-functions-to-static]
+  131 | svg::Color JsonReader::GetColor(const json::Node &node){
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:134:21: warning: variable name 'ar' is too short, expected at least 3 characters [readability-identifier-length]
+  134 |         const auto& ar = node.AsArray();
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:136:18: warning: no header providing "svg::Rgb" is directly included [misc-include-cleaner]
+  136 |             svg::Rgb rgb;
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:143:18: warning: no header providing "svg::Rgba" is directly included [misc-include-cleaner]
+  143 |             svg::Rgba rgba;
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:158:15: warning: no header providing "map_renderer::RenderSettings" is directly included [misc-include-cleaner]
+    2 | map_renderer::RenderSettings
+      |               ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:159:13: warning: function 'ReadForMapRenderer' has cognitive complexity of 28 (threshold 25) [readability-function-cognitive-complexity]
+  159 | JsonReader::ReadForMapRenderer(void){
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:162:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+  162 |     for (auto const& [f, s]: FindInJson("render_settings").AsMap()){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:163:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  163 |         if (f == "width"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:167:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  167 |         if (f == "padding"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:171:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  171 |         if (f == "height"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:175:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  175 |         if (f == "line_width"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:179:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  179 |         if (f == "stop_radius"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:183:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  183 |         if (f == "bus_label_font_size"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:187:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  187 |         if (f == "bus_label_offset"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:192:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  192 |         if (f == "stop_label_font_size"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:196:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  196 |         if (f == "stop_label_offset"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:201:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  201 |         if (f == "underlayer_color"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:205:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  205 |         if (f == "color_palette"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:206:13: note: +3, including nesting penalty of 2, nesting level increased to 3
+  206 |             for (auto const &e: s.AsArray()){
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:211:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+  211 |         if (f == "underlayer_width"){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:159:32: warning: redundant void argument list in function definition [modernize-redundant-void-arg]
+  159 | JsonReader::ReadForMapRenderer(void){
+      |                                ^~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:162:41: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  162 |     for (auto const& [f, s]: FindInJson("render_settings").AsMap()){
+      |                                         ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:206:13: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  206 |             for (auto const &e: s.AsArray()){
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:206:30: warning: variable name 'e' is too short, expected at least 3 characters [readability-identifier-length]
+  206 |             for (auto const &e: s.AsArray()){
+      |                              ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:220:22: warning: no header providing "transport_catalogue::TransportCatalogue" is directly included [misc-include-cleaner]
+    3 | transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:224:10: warning: 'auto &cmd' can be declared as 'const auto &cmd' [readability-qualified-auto]
+  224 |     for (auto& cmd : stops_) {
+      |          ^
+      |          const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:225:9: warning: variable 'stop' of type 'transport_catalogue::Stop' can be declared 'const' [misc-const-correctness]
+  225 |         transport_catalogue::Stop stop {cmd.name, cmd.coord};
+      |         ^
+      |                                   const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:225:30: warning: no header providing "transport_catalogue::Stop" is directly included [misc-include-cleaner]
+  225 |         transport_catalogue::Stop stop {cmd.name, cmd.coord};
+      |                              ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:227:27: warning: passing result of std::move() as a const reference argument; no move will actually happen [hicpp-move-const-arg,performance-move-const-arg]
+  227 |         catalogue.AddStop(std::move(stop));
+      |                           ^~~~~~~~~~    ~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:228:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  228 |         for (auto [f, s]: cmd.road_distances)
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:228:19: warning: loop variable is copied but only used as const reference; consider making it a const reference [performance-for-range-copy]
+  228 |         for (auto [f, s]: cmd.road_distances)
+      |                   ^
+      |              const  &
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:228:46: warning: statement should be inside braces [google-readability-braces-around-statements,hicpp-braces-around-statements,readability-braces-around-statements]
+  228 |         for (auto [f, s]: cmd.road_distances)
+      |                                              ^
+      |                                               {
+  229 |             distancesBtwStops.insert({{cmd.name, f}, s});
+      |                                                          
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:233:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  233 |     for (auto& cmd : buses_) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:233:10: warning: 'auto &cmd' can be declared as 'const auto &cmd' [readability-qualified-auto]
+  233 |     for (auto& cmd : buses_) {
+      |          ^
+      |          const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:239:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  239 |     for (auto const& [pair, m]: distancesBtwStops){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:246:6: warning: no header providing "std::vector" is directly included [misc-include-cleaner]
+    3 | std::vector<std::variant<StopResponse, BusResponse, MapResponse>> 
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:246:18: warning: no header providing "std::variant" is directly included [misc-include-cleaner]
+    3 | std::vector<std::variant<StopResponse, BusResponse, MapResponse>> 
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:250:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  250 |     for (auto const& e: requests_){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:250:22: warning: variable name 'e' is too short, expected at least 3 characters [readability-identifier-length]
+  250 |     for (auto const& e: requests_){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:260:18: warning: no header providing "std::ostringstream" is directly included [misc-include-cleaner]
+    3 |             std::ostringstream strm;
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:261:13: warning: variable 'str' of type 'std::string' (aka 'basic_string<char>') can be declared 'const' [misc-const-correctness]
+  261 |             std::string str;
+      |             ^
+      |                         const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:261:25: warning: unused local variable 'str' of type 'std::string' (aka 'basic_string<char>') [bugprone-unused-local-non-trivial-variable]
+  261 |             std::string str;
+      |                         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:262:13: warning: variable 'render_settings' of type 'map_renderer::RenderSettings' can be declared 'const' [misc-const-correctness]
+  262 |             map_renderer::RenderSettings render_settings = ReadForMapRenderer();
+      |             ^
+      |                                          const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:264:13: warning: variable 'svg_doc' of type 'svg::Document' can be declared 'const' [misc-const-correctness]
+  264 |             svg::Document svg_doc = rhandler.RenderMap();
+      |             ^
+      |                           const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:264:18: warning: no header providing "svg::Document" is directly included [misc-include-cleaner]
+  264 |             svg::Document svg_doc = rhandler.RenderMap();
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:275:62: warning: parameter name 's' is too short, expected at least 3 characters [readability-identifier-length]
+  275 | void ProcessRequests(const StopResponse &value, std::string &s){
+      |                                                              ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:277:40: warning: no header providing "std::to_string" is directly included [misc-include-cleaner]
+  277 |     s += "\t\t\"request_id\": " + std::to_string(value.id);
+      |                                        ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:283:22: warning: converting integer literal to bool, use bool literal instead [modernize-use-bool-literals]
+  283 |         bool first = 1;
+      |                      ^
+note: this fix will not be applied because it overlaps with another fix
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:283:22: warning: implicit conversion 'int' -> 'bool' [readability-implicit-bool-conversion]
+note: this fix will not be applied because it overlaps with another fix
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:284:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  284 |         for (auto const& e: *(value.pbuses)){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:284:26: warning: variable name 'e' is too short, expected at least 3 characters [readability-identifier-length]
+  284 |         for (auto const& e: *(value.pbuses)){
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:291:21: warning: converting integer literal to bool, use bool literal instead [modernize-use-bool-literals]
+  291 |             first = 0;
+      |                     ^
+note: this fix will not be applied because it overlaps with another fix
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:291:21: warning: implicit conversion 'int' -> 'bool' [readability-implicit-bool-conversion]
+note: this fix will not be applied because it overlaps with another fix
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:298:61: warning: parameter name 's' is too short, expected at least 3 characters [readability-identifier-length]
+  298 | void ProcessRequests(const BusResponse &value, std::string &s){
+      |                                                             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:307:19: warning: no header providing "std::to_string" is directly included [misc-include-cleaner]
+  307 |         s += std::to_string(stat_value.curvature);
+      |                   ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:320:61: warning: parameter name 's' is too short, expected at least 3 characters [readability-identifier-length]
+  320 | void ProcessRequests(const MapResponse &value, std::string &s){
+      |                                                             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:326:11: warning: no header providing "json::PrintString" is directly included [misc-include-cleaner]
+  326 |     json::PrintString(value.svg, strm);
+      |           ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:333:17: warning: variable name 's' is too short, expected at least 3 characters [readability-identifier-length]
+  333 |     std::string s;
+      |                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:334:10: warning: no header providing "std::visit" is directly included [misc-include-cleaner]
+  334 |     std::visit(
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:345:18: warning: converting integer literal to bool, use bool literal instead [modernize-use-bool-literals]
+  345 |     bool first = 1;
+      |                  ^
+note: this fix will not be applied because it overlaps with another fix
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:345:18: warning: implicit conversion 'int' -> 'bool' [readability-implicit-bool-conversion]
+note: this fix will not be applied because it overlaps with another fix
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:346:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  346 |     for (auto const& e: requests){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:346:22: warning: variable name 'e' is too short, expected at least 3 characters [readability-identifier-length]
+  346 |     for (auto const& e: requests){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:351:17: warning: converting integer literal to bool, use bool literal instead [modernize-use-bool-literals]
+  351 |         first = 0;
+      |                 ^
+note: this fix will not be applied because it overlaps with another fix
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:351:17: warning: implicit conversion 'int' -> 'bool' [readability-implicit-bool-conversion]
+note: this fix will not be applied because it overlaps with another fix
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:354:10: warning: no header providing "std::cerr" is directly included [misc-include-cleaner]
+    3 |     std::cerr << output;
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:358:7: warning: no header providing "json::Document" is directly included [misc-include-cleaner]
+  358 | json::Document
+      |       ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:360:5: warning: variable 'strm' of type 'std::istringstream' (aka 'basic_istringstream<char>') can be declared 'const' [misc-const-correctness]
+  360 |     std::istringstream strm(MakeJsonString(requests));
+      |     ^
+      |                        const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:360:10: warning: no header providing "std::istringstream" is directly included [misc-include-cleaner]
+  360 |     std::istringstream strm(MakeJsonString(requests));
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:360:24: warning: unused local variable 'strm' of type 'std::istringstream' (aka 'basic_istringstream<char>') [bugprone-unused-local-non-trivial-variable]
+  360 |     std::istringstream strm(MakeJsonString(requests));
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:360:24: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/sstream:616:6: note: default parameter was declared here
+  616 |                           ios_base::openmode __mode = ios_base::in)
+      |                           ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:361:24: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  361 |     std::istringstream strm1("42");
+      |                        ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/sstream:616:6: note: default parameter was declared here
+  616 |                           ios_base::openmode __mode = ios_base::in)
+      |                           ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:361:30: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  361 |     std::istringstream strm1("42");
+      |                              ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:362:18: warning: no header providing "json::Load" is directly included [misc-include-cleaner]
+  362 |     return json::Load(strm1);
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.h:94:10: warning: function 'json_reader::JsonReader::WriteStops' has a definition with different parameter names [readability-inconsistent-declaration-parameter-name]
+   94 |     void WriteStops (const Stop& bus);
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.cpp:29:18: note: the definition seen here
+   29 | void JsonReader::WriteStops (const Stop& stop){
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/json_reader.h:94:10: note: differing parameters are named here: ('bus'), in definition: ('stop')
+   94 |     void WriteStops (const Stop& bus);
+      |          ^                       ~~~
+      |                                  stop
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:1:1: warning: included header algorithm is not used directly [misc-include-cleaner]
+    1 | #include <algorithm>
+      | ^~~~~~~~~~~~~~~~~~~~
+    2 | #include <cassert>
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:4:1: warning: included header numeric is not used directly [misc-include-cleaner]
+    4 | #include <numeric>
+      | ^~~~~~~~~~~~~~~~~~
+    5 | #include <vector>
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:5:1: warning: included header vector is not used directly [misc-include-cleaner]
+    5 | #include <vector>
+      | ^~~~~~~~~~~~~~~~~
+    6 | 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:9:1: warning: included header map_renderer.h is not used directly [misc-include-cleaner]
+    9 | #include "map_renderer.h"
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~
+   10 | #include "request_handler.h"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:10:1: warning: included header request_handler.h is not used directly [misc-include-cleaner]
+   10 | #include "request_handler.h"
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   11 | 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:12:17: warning: redundant void argument list in function definition [modernize-redundant-void-arg]
+   12 | void some_tests(void){
+      |                 ^~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:17:5: warning: an exception may be thrown in function 'main' which should not throw exceptions [bugprone-exception-escape]
+   17 | int main() {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:20:5: warning: variable 'input_doc' of type 'json::Document' can be declared 'const' [misc-const-correctness]
+   20 |     json::Document input_doc = json::Load(std::cin);
+      |     ^
+      |                    const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:20:11: warning: no header providing "json::Document" is directly included [misc-include-cleaner]
+    8 | #include "json_reader.h"
+    9 | #include "map_renderer.h"
+   10 | #include "request_handler.h"
+   11 | 
+   12 | void some_tests(void){
+   13 | 
+   14 |     ;
+   15 | }
+   16 | 
+   17 | int main() {
+   18 | 
+   19 |     some_tests();
+   20 |     json::Document input_doc = json::Load(std::cin);
+      |           ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:20:38: warning: no header providing "json::Load" is directly included [misc-include-cleaner]
+   20 |     json::Document input_doc = json::Load(std::cin);
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:22:5: warning: variable 'cat' of type 'transport_catalogue::TransportCatalogue' can be declared 'const' [misc-const-correctness]
+   22 |     transport_catalogue::TransportCatalogue cat = jreader.CreateTransportCatalogue();
+      |     ^
+      |                                             const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:22:26: warning: no header providing "transport_catalogue::TransportCatalogue" is directly included [misc-include-cleaner]
+   11 | 
+   12 | void some_tests(void){
+   13 | 
+   14 |     ;
+   15 | }
+   16 | 
+   17 | int main() {
+   18 | 
+   19 |     some_tests();
+   20 |     json::Document input_doc = json::Load(std::cin);
+   21 |     json_reader::JsonReader jreader{input_doc};
+   22 |     transport_catalogue::TransportCatalogue cat = jreader.CreateTransportCatalogue();
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:25:5: warning: variable 'output_doc' of type 'json::Document' can be declared 'const' [misc-const-correctness]
+   25 |     json::Document output_doc = json_reader::TransformRequestsIntoJson(requests);
+      |     ^
+      |                    const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/main.cpp:29:11: warning: no header providing "json::Print" is directly included [misc-include-cleaner]
+   29 |     json::Print(output_doc, std::cout);
+      |           ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/map_renderer.cpp:1:1: warning: included header map_renderer.h is not used directly [misc-include-cleaner]
+    1 | #include "map_renderer.h"
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~
+    2 | 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:14:6: warning: no header providing "svg::Document" is directly included [misc-include-cleaner]
+    3 | /*
+    4 |  * Здесь можно было бы разместить код обработчика запросов к базе, содержащего логику, которую не
+    5 |  * хотелось бы помещать ни в transport_catalogue, ни в json reader.
+    6 |  *
+    7 |  * Если вы затрудняетесь выбрать, что можно было бы поместить в этот файл,
+    8 |  * можете оставить его пустым.
+    9 |  */
+   10 | using namespace std::string_literals;
+   11 | using namespace std::literals;
+   12 | using namespace request_handler;
+   13 | 
+   14 | svg::Document RequestHandler::RenderMap(){
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:20:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   20 |     for (auto const &e: CreateRoutes()){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:20:22: warning: variable name 'e' is too short, expected at least 3 characters [readability-identifier-length]
+   20 |     for (auto const &e: CreateRoutes()){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:23:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   23 |     for (auto const &e: CreateBusNames()){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:23:22: warning: variable name 'e' is too short, expected at least 3 characters [readability-identifier-length]
+   23 |     for (auto const &e: CreateBusNames()){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:26:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   26 |     for (auto const &e: CreateStops()){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:26:22: warning: variable name 'e' is too short, expected at least 3 characters [readability-identifier-length]
+   26 |     for (auto const &e: CreateStops()){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:29:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   29 |     for (auto const &e: CreateStopsNames()){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:29:22: warning: variable name 'e' is too short, expected at least 3 characters [readability-identifier-length]
+   29 |     for (auto const &e: CreateStopsNames()){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:35:39: warning: redundant void argument list in function definition [modernize-redundant-void-arg]
+   35 | void RequestHandler::CreateProjection(void){
+      |                                       ^~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:36:10: warning: no header providing "std::vector" is directly included [misc-include-cleaner]
+    3 |     std::vector<geo::Coordinates> v_for_projector;
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:36:22: warning: no header providing "geo::Coordinates" is directly included [misc-include-cleaner]
+    2 |     std::vector<geo::Coordinates> v_for_projector;
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:38:22: warning: variable name 'e' is too short, expected at least 3 characters [readability-identifier-length]
+   38 |     for (auto const& e: cat_.GetStopsForAllBuses()){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:39:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   39 |         for (auto const& stop: e->stops){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:43:22: warning: no header providing "std::make_unique" is directly included [misc-include-cleaner]
+    3 |     auto proj = std::make_unique<map_renderer::SphereProjector>(
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:43:48: warning: no header providing "map_renderer::SphereProjector" is directly included [misc-include-cleaner]
+    2 |     auto proj = std::make_unique<map_renderer::SphereProjector>(
+      |                                                ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:47:18: warning: no header providing "std::move" is directly included [misc-include-cleaner]
+    3 |     proj_ = std::move(proj);
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:51:57: warning: redundant void argument list in function definition [modernize-redundant-void-arg]
+   51 | std::vector<svg::Polyline> RequestHandler::CreateRoutes(void){
+      |                                                         ^~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:53:10: warning: no header providing "std::size_t" is directly included [misc-include-cleaner]
+    3 |     std::size_t icolor = 0;
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:54:22: warning: variable name 'el' is too short, expected at least 3 characters [readability-identifier-length]
+   54 |     for (auto const& el: AllBusNames){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:55:9: warning: 'auto bus' can be declared as 'const auto *bus' [readability-qualified-auto]
+   55 |         auto bus = cat_.GetStopsForBus(el);
+      |         ^~~~
+      |         const auto *
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:56:28: warning: statement should be inside braces [google-readability-braces-around-statements,hicpp-braces-around-statements,readability-braces-around-statements]
+   56 |         if (nullptr == bus)
+      |                            ^
+      |                             {
+   57 |             continue;
+      |                      
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:59:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   59 |         for (auto const& stop: bus->stops){
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:63:40: warning: no header providing "svg::StrokeLineCap" is directly included [misc-include-cleaner]
+   63 |                 .SetStrokeLineCap(svg::StrokeLineCap::ROUND)
+      |                                        ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:64:36: warning: no header providing "svg::NoneColor" is directly included [misc-include-cleaner]
+   64 |                 .SetFillColor(svg::NoneColor)
+      |                                    ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:65:41: warning: no header providing "svg::StrokeLineJoin" is directly included [misc-include-cleaner]
+   65 |                 .SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
+      |                                         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:69:54: warning: statement should be inside braces [google-readability-braces-around-statements,hicpp-braces-around-statements,readability-braces-around-statements]
+   69 |         if (icolor == settings_.color_palette.size())
+      |                                                      ^
+      |                                                       {
+   70 |             icolor = 0;
+      |                        
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:79:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   79 |     for (auto const& el: AllBusNames){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:79:22: warning: variable name 'el' is too short, expected at least 3 characters [readability-identifier-length]
+   79 |     for (auto const& el: AllBusNames){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:80:9: warning: 'auto bus' can be declared as 'const auto *bus' [readability-qualified-auto]
+   80 |         auto bus = cat_.GetStopsForBus(el);
+      |         ^~~~
+      |         const auto *
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:81:28: warning: statement should be inside braces [google-readability-braces-around-statements,hicpp-braces-around-statements,readability-braces-around-statements]
+   81 |         if (nullptr == bus)
+      |                            ^
+      |                             {
+   82 |             continue;
+      |                      
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:84:9: warning: multiple declarations in a single statement reduces readability [readability-isolate-declaration]
+   84 |         svg::Text text1, text2;
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:85:9: warning: multiple declarations in a single statement reduces readability [readability-isolate-declaration]
+   85 |         svg::Text undertext1, undertext2;
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:91:28: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   91 |             .SetFontFamily("Verdana")
+      |                            ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:92:28: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   92 |             .SetFontWeight("bold")
+      |                            ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:107:18: warning: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length]
+  107 |             auto it = bus->stops.rbegin() + bus->stops.size()/2;
+      |                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:107:45: warning: narrowing conversion from 'size_type' (aka 'unsigned long') to signed type 'difference_type' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+  107 |             auto it = bus->stops.rbegin() + bus->stops.size()/2;
+      |                                             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:109:22: warning: the variable 'stop2' is copy-constructed from a const reference but is only used as const reference; consider making it a const reference [performance-unnecessary-copy-initialization]
+  109 |                 auto stop2 = *(it);
+      |                      ^
+      |                 const  &
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:122:54: warning: statement should be inside braces [google-readability-braces-around-statements,hicpp-braces-around-statements,readability-braces-around-statements]
+  122 |         if (icolor == settings_.color_palette.size())
+      |                                                      ^
+      |                                                       {
+  123 |             icolor = 0;
+      |                        
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:130:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  130 |     for (auto const& el: AllStopNames){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:130:22: warning: variable name 'el' is too short, expected at least 3 characters [readability-identifier-length]
+  130 |     for (auto const& el: AllStopNames){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:131:9: warning: 'const auto bus' can be declared as 'const auto *const bus' [readability-qualified-auto]
+  131 |         const auto bus = cat_.GetBusesForStop(el);
+      |         ^~~~~~~~~~
+      |         const auto *const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:132:28: warning: statement should be inside braces [google-readability-braces-around-statements,hicpp-braces-around-statements,readability-braces-around-statements]
+  132 |         if (nullptr == bus)
+      |                            ^
+      |                             {
+  133 |             continue;
+      |                      
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:134:9: warning: 'const auto stop' can be declared as 'const auto *const stop' [readability-qualified-auto]
+  134 |         const auto stop = cat_.GetStop(el);
+      |         ^~~~~~~~~~
+      |         const auto *const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:135:21: warning: variable name 'c' is too short, expected at least 3 characters [readability-identifier-length]
+  135 |         svg::Circle c;
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:146:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  146 |     for (auto const& el: AllStopNames){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:146:22: warning: variable name 'el' is too short, expected at least 3 characters [readability-identifier-length]
+  146 |     for (auto const& el: AllStopNames){
+      |                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:147:9: warning: 'const auto bus' can be declared as 'const auto *const bus' [readability-qualified-auto]
+  147 |         const auto bus = cat_.GetBusesForStop(el);
+      |         ^~~~~~~~~~
+      |         const auto *const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:148:29: warning: statement should be inside braces [google-readability-braces-around-statements,hicpp-braces-around-statements,readability-braces-around-statements]
+  148 |         if ( nullptr == bus)
+      |                             ^
+      |                              {
+  149 |             continue;
+      |                      
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:150:9: warning: 'auto pstop' can be declared as 'const auto *pstop' [readability-qualified-auto]
+  150 |         auto pstop = cat_.GetStop(el);
+      |         ^~~~
+      |         const auto *
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/request_handler.cpp:157:28: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+  157 |             .SetFontFamily("Verdana")
+      |                            ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:641:39: note: default parameter was declared here
+  641 |       basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      |                                       ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:9:31: warning: no header providing "std::ostream" is directly included [misc-include-cleaner]
+    2 | 
+    3 | namespace svg {
+    4 | 
+    5 |     using namespace std::literals;
+    6 | 
+    7 |     namespace {
+    8 | 
+    9 |         void RenderColor(std::ostream& out, std::monostate) {
+      |                               ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:9:50: warning: no header providing "std::monostate" is directly included [misc-include-cleaner]
+    2 | 
+    3 | namespace svg {
+    4 | 
+    5 |     using namespace std::literals;
+    6 | 
+    7 |     namespace {
+    8 | 
+    9 |         void RenderColor(std::ostream& out, std::monostate) {
+      |                                                  ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:9:59: warning: all parameters should be named in a function [hicpp-named-parameter,readability-named-parameter]
+    9 |         void RenderColor(std::ostream& out, std::monostate) {
+      |                                                           ^
+      |                                                            /*unused*/
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:10:26: warning: no header providing "std::operator""s" is directly included [misc-include-cleaner]
+    2 | 
+    3 | namespace svg {
+    4 | 
+    5 |     using namespace std::literals;
+    6 | 
+    7 |     namespace {
+    8 | 
+    9 |         void RenderColor(std::ostream& out, std::monostate) {
+   10 |             out << "none"s;
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:13:56: warning: no header providing "std::string" is directly included [misc-include-cleaner]
+    2 | 
+    3 | namespace svg {
+    4 | 
+    5 |     using namespace std::literals;
+    6 | 
+    7 |     namespace {
+    8 | 
+    9 |         void RenderColor(std::ostream& out, std::monostate) {
+   10 |             out << "none"s;
+   11 |         }
+   12 | 
+   13 |         void RenderColor(std::ostream& out, const std::string& value) {
+      |                                                        ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:18:26: warning: no header providing "std::operator""sv" is directly included [misc-include-cleaner]
+    2 |             out << "rgb("sv << static_cast<int>(rgb.red)  //
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:32:5: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+   32 |     std::ostream& operator<<(std::ostream& out, const Color& color) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:33:14: warning: no header providing "std::visit" is directly included [misc-include-cleaner]
+   33 |         std::visit(
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:41:5: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+   41 |     std::ostream& operator<<(std::ostream& out, StrokeLineCap value) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:42:14: warning: no header providing "std::string_view" is directly included [misc-include-cleaner]
+   42 |         std::string_view sv;
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:42:26: warning: variable name 'sv' is too short, expected at least 3 characters [readability-identifier-length]
+   42 |         std::string_view sv;
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:57:5: warning: overloading 'operator<<' is disallowed [fuchsia-overloaded-operator]
+   57 |     std::ostream& operator<<(std::ostream& out, StrokeLineJoin value) {
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:58:26: warning: variable name 'sv' is too short, expected at least 3 characters [readability-identifier-length]
+   58 |         std::string_view sv;
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:85:24: warning: do not use 'std::endl' with streams; use '\n' instead [performance-avoid-endl]
+   85 |         context.out << std::endl;
+      |                        ^~~~~~~~~
+      |                        '\n'
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:85:29: warning: no header providing "std::endl" is directly included [misc-include-cleaner]
+   85 |         context.out << std::endl;
+      |                             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:102:16: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  102 |         out << "<circle cx=\""sv << center_.x << "\" cy=\""sv << center_.y << "\" "sv;
+      |                ^~~~~~~~~~~~~~~~~
+      |                R"(<circle cx=")"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:102:50: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  102 |         out << "<circle cx=\""sv << center_.x << "\" cy=\""sv << center_.y << "\" "sv;
+      |                                                  ^~~~~~~~~~~~
+      |                                                  R"(" cy=")"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:102:79: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  102 |         out << "<circle cx=\""sv << center_.x << "\" cy=\""sv << center_.y << "\" "sv;
+      |                                                                               ^~~~~~~
+      |                                                                               R"(" )"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:103:16: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  103 |         out << "r=\""sv << radius_ << "\" "sv;
+      |                ^~~~~~~~
+      |                R"(r=")"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:103:39: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  103 |         out << "r=\""sv << radius_ << "\" "sv;
+      |                                       ^~~~~~~
+      |                                       R"(" )"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:117:16: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  117 |         out << "<polyline points=\""sv;
+      |                ^~~~~~~~~~~~~~~~~~~~~~~
+      |                R"(<polyline points=")"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:119:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  119 |         for (const Point& p : points_) {
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:119:27: warning: variable name 'p' is too short, expected at least 3 characters [readability-identifier-length]
+  119 |         for (const Point& p : points_) {
+      |                           ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:127:16: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  127 |         out << "\" "sv;
+      |                ^~~~~~~
+      |                R"(" )"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:144:29: warning: no header providing "uint32_t" is directly included [misc-include-cleaner]
+    2 |     Text& Text::SetFontSize(uint32_t size) {
+      |                             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:150:29: warning: no header providing "std::move" is directly included [misc-include-cleaner]
+    2 |         font_family_ = std::move(font_family);
+      |                             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:187:32: warning: no header providing "std::unique_ptr" is directly included [misc-include-cleaner]
+    2 |     void Document::AddPtr(std::unique_ptr<Object>&& obj) {
+      |                                ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:192:16: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  192 |         out << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"sv << std::endl;
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                R"(<?xml version="1.0" encoding="UTF-8" ?>)"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:192:67: warning: do not use 'std::endl' with streams; use '\n' instead [performance-avoid-endl]
+  192 |         out << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"sv << std::endl;
+      |                                                                   ^~~~~~~~~
+      |                                                                   '\n'
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:193:16: warning: escaped string literal can be written as a raw string literal [modernize-raw-string-literal]
+  193 |         out << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">"sv << std::endl;
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                R"(<svg xmlns="http://www.w3.org/2000/svg" version="1.1">)"
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:193:82: warning: do not use 'std::endl' with streams; use '\n' instead [performance-avoid-endl]
+  193 |         out << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">"sv << std::endl;
+      |                                                                                  ^~~~~~~~~
+      |                                                                                  '\n'
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:194:9: warning: variable 'ctx' of type 'RenderContext' can be declared 'const' [misc-const-correctness]
+  194 |         RenderContext ctx{out, 2, 2};
+      |         ^
+      |                       const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:195:9: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  195 |         for (const auto& obj : objects_) {
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:203:67: warning: parameter name 'sv' is too short, expected at least 3 characters [readability-identifier-length]
+  203 |         void HtmlEncodeString(std::ostream& out, std::string_view sv) {
+      |                                                                   ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:204:13: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  204 |             for (char c : sv) {
+      |             ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:204:18: warning: variable 'c' of type 'char' can be declared 'const' [misc-const-correctness]
+  204 |             for (char c : sv) {
+      |                  ^
+      |                       const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/svg.cpp:204:23: warning: variable name 'c' is too short, expected at least 3 characters [readability-identifier-length]
+  204 |             for (char c : sv) {
+      |                       ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:2:1: warning: included header iostream is not used directly [misc-include-cleaner]
+    2 | #include <iostream>
+      | ^~~~~~~~~~~~~~~~~~~
+    3 | #include <unordered_set>
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:12:21: warning: std::move of the const variable 'stop' has no effect; remove std::move() or make the variable non-const [hicpp-move-const-arg,performance-move-const-arg]
+   12 |     stops.push_back(std::move(stop));
+      |                     ^~~~~~~~~~    ~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:12:26: warning: no header providing "std::move" is directly included [misc-include-cleaner]
+    5 | 
+    6 | #include "transport_catalogue.h"
+    7 | 
+    8 | using namespace transport_catalogue;
+    9 | using namespace std::string_literals;
+   10 | 
+   11 | void TransportCatalogue::AddStop(const Stop& stop) { 
+   12 |     stops.push_back(std::move(stop));
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:16:58: warning: no header providing "std::pair" is directly included [misc-include-cleaner]
+   16 | void TransportCatalogue::AddDistanceBtwStops (const std::pair<std::string, std::string>& p, int m) {
+      |                                                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:16:68: warning: no header providing "std::string" is directly included [misc-include-cleaner]
+    3 | #include <unordered_set>
+    4 | #include <algorithm>
+    5 | 
+    6 | #include "transport_catalogue.h"
+    7 | 
+    8 | using namespace transport_catalogue;
+    9 | using namespace std::string_literals;
+   10 | 
+   11 | void TransportCatalogue::AddStop(const Stop& stop) { 
+   12 |     stops.push_back(std::move(stop));
+   13 |     stopname_to_stop[stops.back().name] = stops.cend() - 1;
+   14 |     stopname_to_bus[stops.back().name] = {};
+   15 | }
+   16 | void TransportCatalogue::AddDistanceBtwStops (const std::pair<std::string, std::string>& p, int m) {
+      |                                                                    ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:16:90: warning: parameter name 'p' is too short, expected at least 3 characters [readability-identifier-length]
+   16 | void TransportCatalogue::AddDistanceBtwStops (const std::pair<std::string, std::string>& p, int m) {
+      |                                                                                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:16:97: warning: parameter name 'm' is too short, expected at least 3 characters [readability-identifier-length]
+   16 | void TransportCatalogue::AddDistanceBtwStops (const std::pair<std::string, std::string>& p, int m) {
+      |                                                                                                 ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:23:44: warning: no header providing "std::vector" is directly included [misc-include-cleaner]
+    5 |                                 const std::vector<std::string_view>& stops_list,
+      |                                            ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:23:56: warning: no header providing "std::string_view" is directly included [misc-include-cleaner]
+    3 |                                 const std::vector<std::string_view>& stops_list,
+      |                                                        ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:25:24: warning: std::move of the const variable 'bus' has no effect; remove std::move() or make the variable non-const [hicpp-move-const-arg,performance-move-const-arg]
+   25 |     routes.push_back({ std::move(bus), {}, is_roundtrip});
+      |                        ^~~~~~~~~~   ~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:26:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   26 |     for ( auto const& stop_name: stops_list){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:27:20: warning: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length]
+   27 |         const auto it = stopname_to_stop.find(stop_name);
+      |                    ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:32:60: warning: no header providing "std::operator""s" is directly included [misc-include-cleaner]
+    1 |             throw std::invalid_argument("Unknown stop name"s + std::string(stop_name) + std::to_string(stops_list.size()));
+      |                                                            ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:32:64: warning: calling a function that uses a default argument is disallowed [fuchsia-default-arguments-calls]
+   32 |             throw std::invalid_argument("Unknown stop name"s + std::string(stop_name) + std::to_string(stops_list.size()));
+      |                                                                ^
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/basic_string.h:795:31: note: default parameter was declared here
+  795 |         basic_string(const _Tp& __t, const _Alloc& __a = _Alloc())
+      |                                      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:32:94: warning: no header providing "std::to_string" is directly included [misc-include-cleaner]
+   32 |             throw std::invalid_argument("Unknown stop name"s + std::string(stop_name) + std::to_string(stops_list.size()));
+      |                                                                                              ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:51:16: warning: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length]
+   51 |     const auto it = busname_to_route.find(busName);
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:58:12: warning: no header providing "std::set" is directly included [misc-include-cleaner]
+    1 | const std::set<std::string_view>* 
+      |            ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:60:16: warning: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length]
+   60 |     const auto it = stopname_to_bus.find(stopName);
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:70:6: warning: no header providing "std::optional" is directly included [misc-include-cleaner]
+    1 | std::optional<RouteStatistics> 
+      |      ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:76:5: warning: 'const auto p' can be declared as 'const auto *const p' [readability-qualified-auto]
+   76 |     const auto p = GetStopsForBus(busName);
+      |     ^~~~~~~~~~
+      |     const auto *const 
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:76:16: warning: variable name 'p' is too short, expected at least 3 characters [readability-identifier-length]
+   76 |     const auto p = GetStopsForBus(busName);
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:78:21: warning: no header providing "std::nullopt" is directly included [misc-include-cleaner]
+   78 |         return std::nullopt;
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:80:16: warning: variable name 'v' is too short, expected at least 3 characters [readability-identifier-length]
+   80 |     const auto v = p->stops;
+      |                ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:82:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   82 |     for (const auto& stop : v){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:85:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   85 |     for (size_t i = 0; i < v.size() - 1; ++i){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:85:10: warning: no header providing "size_t" is directly included [misc-include-cleaner]
+    1 |     for (size_t i = 0; i < v.size() - 1; ++i){
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:85:24: warning: backward branch (for loop) is ID-dependent due to variable reference to 'v' and may cause performance degradation [altera-id-dependent-backward-branch]
+   85 |     for (size_t i = 0; i < v.size() - 1; ++i){
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:80:5: note: inferred assignment of ID-dependent value from ID-dependent 
+   80 |     const auto v = p->stops;
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:86:21: warning: no header providing "geo::ComputeDistance" is directly included [misc-include-cleaner]
+    7 |         distance += ComputeDistance(v[i]->coordinates, v[i + 1]->coordinates);
+      |                     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:93:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+   93 |     for (size_t i = 0; i < v.size() - 1; ++i){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:93:24: warning: backward branch (for loop) is ID-dependent due to variable reference to 'v' and may cause performance degradation [altera-id-dependent-backward-branch]
+   93 |     for (size_t i = 0; i < v.size() - 1; ++i){
+      |                        ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:80:5: note: inferred assignment of ID-dependent value from ID-dependent 
+   80 |     const auto v = p->stops;
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:94:14: warning: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length]
+   94 |         auto it = distances.find({&(*v[i]), &(*v[i + 1])});
+      |              ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:108:62: warning: redundant void argument list in function definition [modernize-redundant-void-arg]
+  108 | transport_catalogue::TransportCatalogue::GetStopsForAllBuses(void) const
+      |                                                              ^~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:111:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  111 |     for (auto [f, s] : busname_to_route){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:111:15: warning: loop variable is copied but only used as const reference; consider making it a const reference [performance-for-range-copy]
+  111 |     for (auto [f, s] : busname_to_route){
+      |               ^
+      |          const  &
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:112:9: warning: 'push_back' is called inside a loop; consider pre-allocating the container capacity before the loop [performance-inefficient-vector-operation]
+  111 |     for (auto [f, s] : busname_to_route){
+  112 |         vBuses.push_back(&(*s));
+      |         ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:114:60: warning: parameter name 'a' is too short, expected at least 3 characters [readability-identifier-length]
+  114 |     std::sort(vBuses.begin(), vBuses.end(), [](const auto& a, const auto& b)
+      |                                                            ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:114:75: warning: parameter name 'b' is too short, expected at least 3 characters [readability-identifier-length]
+  114 |     std::sort(vBuses.begin(), vBuses.end(), [](const auto& a, const auto& b)
+      |                                                                           ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:122:58: warning: redundant void argument list in function definition [modernize-redundant-void-arg]
+  122 | transport_catalogue::TransportCatalogue::GetAllStopNames(void) const
+      |                                                          ^~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:125:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  125 |     for (auto [f, s]: stopname_to_stop){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:125:15: warning: loop variable is copied but only used as const reference; consider making it a const reference [performance-for-range-copy]
+  125 |     for (auto [f, s]: stopname_to_stop){
+      |               ^
+      |          const  &
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:131:57: warning: redundant void argument list in function definition [modernize-redundant-void-arg]
+  131 | transport_catalogue::TransportCatalogue::GetAllBusNames(void) const
+      |                                                         ^~~~
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:134:5: warning: kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive [altera-unroll-loops]
+  134 |     for (auto [f, s]: busname_to_route){
+      |     ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:134:15: warning: loop variable is copied but only used as const reference; consider making it a const reference [performance-for-range-copy]
+  134 |     for (auto [f, s]: busname_to_route){
+      |               ^
+      |          const  &
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:141:10: warning: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length]
+  141 |     auto it = stopname_to_stop.find(stopname);
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:142:38: warning: statement should be inside braces [google-readability-braces-around-statements,hicpp-braces-around-statements,readability-braces-around-statements]
+  142 |     if (it == stopname_to_stop.end())
+      |                                      ^
+      |                                       {
+  143 |         return nullptr;
+      |                        
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.h:86:10: warning: function 'transport_catalogue::TransportCatalogue::AddBus' has a definition with different parameter names [readability-inconsistent-declaration-parameter-name]
+   86 |     void AddBus(const std::string& name, const std::vector<std::string_view>& stops_list, bool is_roundtrip);
+      |          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.cpp:22:26: note: the definition seen here
+   22 | void TransportCatalogue::AddBus(const std::string& bus, 
+      |                          ^
+/home/amente/Desktop/cpp_backend/sprint4/final_json_svg_names/transport_catalogue.h:86:10: note: differing parameters are named here: ('name'), in definition: ('bus')
+   86 |     void AddBus(const std::string& name, const std::vector<std::string_view>& stops_list, bool is_roundtrip);
+      |          ^                         ~~~~
+      |                                    bus

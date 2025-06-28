@@ -163,4 +163,6 @@ Document Load(std::istream& input);
 
 void Print(const Document& doc, std::ostream& output);
 
+void PrintString(const std::string& value, std::ostream& out);
+
 }  // namespace json

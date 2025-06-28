@@ -58,7 +58,9 @@ struct StopResponse : public Response {
 struct BusResponse : public Response{
     std::optional<transport_catalogue::RouteStatistics> stat;
 };
-
+struct MapResponse : public Response {
+    const std::string svg;
+};
 /*
 struct RequestPtrComparator {
     bool operator()(const std::shared_ptr<Request>& lhs, const std::shared_ptr<Request>& rhs) const {
@@ -74,7 +76,7 @@ public:
     };
 
     transport_catalogue::TransportCatalogue CreateTransportCatalogue(void);
-    std::vector<std::variant<StopResponse, BusResponse>>
+    std::vector<std::variant<StopResponse, BusResponse, MapResponse>>
     CalculateRequests (const transport_catalogue::TransportCatalogue& cat);
 
     map_renderer::RenderSettings ReadForMapRenderer(void);
@@ -93,7 +95,7 @@ private:
 };
 
 json::Document
-TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse>>& requests);
+TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse, MapResponse>>& requests);
 
 
 } //namespace json_reader

@@ -1,5 +1,5 @@
 #include "json_reader.h"
-
+#include "request_handler.h"
 /*
  * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
  * а также код обработки запросов к базе и формирование массива ответов в формате JSON
@@ -15,7 +15,6 @@ void JsonReader::WriteBuses (const Bus& bus){
     Bus bus_temp = bus;
     if (bus_temp.is_roundtrip){
         ;
-        //bus_temp.stops.push_back(bus.stops.front());
     } else {
         for (auto it = bus.stops.crbegin() + 1; it != bus.stops.crend(); ++it) {
             bus_temp.stops.push_back(*it);
@@ -112,6 +111,10 @@ void JsonReader::ReadForStatRequests(void) {
                 }
                 if (s.AsString() == "Bus"){
                     request.type = "Bus";
+                    continue;
+                }
+                if (s.AsString() == "Map"){
+                    request.type = "Map";
                     continue;
                 }
             }
@@ -240,20 +243,28 @@ transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
     return catalogue;
 }
 
-std::vector<std::variant<StopResponse, BusResponse>> 
+std::vector<std::variant<StopResponse, BusResponse, MapResponse>> 
 JsonReader::CalculateRequests (const transport_catalogue::TransportCatalogue& cat){
-    std::vector<std::variant<StopResponse, BusResponse>> responses;
+    std::vector<std::variant<StopResponse, BusResponse, MapResponse>> responses;
     ReadForStatRequests();
     for (auto const& e: requests_){
         if (e.type == "Stop"){
-            //StopResponse resp{e.id, cat.GetBusesForStop(e.name)};
             responses.emplace_back(StopResponse{e.id, cat.GetBusesForStop(e.name)});
             continue;
         }
         if (e.type == "Bus"){
-            //BusResponse resp;
-            //resp.id = e.id;
             responses.emplace_back(BusResponse{e.id, cat.GetRouteStatistics(e.name)});
+            continue;
+        }
+        if (e.type == "Map"){
+            std::ostringstream strm;
+            std::string str;
+            map_renderer::RenderSettings render_settings = ReadForMapRenderer();
+            request_handler::RequestHandler rhandler{cat, render_settings};
+            svg::Document svg_doc = rhandler.RenderMap();
+
+            svg_doc.Render(strm);
+            responses.emplace_back(MapResponse{e.id, strm.str()});
             continue;
         }
         throw std::runtime_error ("Unknown request!");
@@ -306,7 +317,19 @@ void ProcessRequests(const BusResponse &value, std::string &s){
     s += "\t}\n";
 }
 
-std::string Process(std::variant<StopResponse, BusResponse> request) {
+void ProcessRequests(const MapResponse &value, std::string &s){
+    std::ostringstream strm;
+    s += "\t{\n";
+    s += "\t\t\"request_id\": " + std::to_string(value.id);
+    s += ",\n";
+    s += "\t\t\"map\": ";
+    json::PrintString(value.svg, strm);
+    s += strm.str();
+    //s += ",\n";
+    s += "\t}\n";
+}
+
+std::string Process(std::variant<StopResponse, BusResponse, MapResponse> request) {
     std::string s;
     std::visit(
         [&s](const auto& value) {
@@ -316,7 +339,7 @@ std::string Process(std::variant<StopResponse, BusResponse> request) {
     return s;
 }
 
-std::string MakeJsonString (const std::vector<std::variant<StopResponse, BusResponse>>& requests){
+std::string MakeJsonString (const std::vector<std::variant<StopResponse, BusResponse, MapResponse>>& requests){
     std::string output;
     output += "[\n";
     bool first = 1;
@@ -333,7 +356,7 @@ std::string MakeJsonString (const std::vector<std::variant<StopResponse, BusResp
 }
 
 json::Document
-json_reader::TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse>>& requests){
+json_reader::TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse, MapResponse>>& requests){
     std::istringstream strm(MakeJsonString(requests));
     //std::istringstream strm1("42");
     return json::Load(strm);

@@ -20,10 +20,11 @@ int main() {
     json::Document input_doc = json::Load(std::cin);
     json_reader::JsonReader jreader{input_doc};
     transport_catalogue::TransportCatalogue cat = jreader.CreateTransportCatalogue();
-    map_renderer::RenderSettings render_settings = jreader.ReadForMapRenderer();
-    request_handler::RequestHandler rhandler{cat, render_settings};
 
-    svg::Document output_doc = rhandler.RenderMap();
-    output_doc.Render(std::cout);
+    auto requests{jreader.CalculateRequests(cat)};
+    json::Document output_doc = json_reader::TransformRequestsIntoJson(requests);
 
+
+
+    json::Print(output_doc, std::cout);
 }
