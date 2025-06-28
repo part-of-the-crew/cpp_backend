@@ -13,9 +13,7 @@ using namespace std::string_literals;
 
 void JsonReader::WriteBuses (const Bus& bus){
     Bus bus_temp = bus;
-    if (bus_temp.is_roundtrip){
-        ;
-    } else {
+    if (!bus_temp.is_roundtrip){
         for (auto it = bus.stops.crbegin() + 1; it != bus.stops.crend(); ++it) {
             bus_temp.stops.push_back(*it);
         }
@@ -231,8 +229,6 @@ transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
     }
 
     for (auto& cmd : buses_) {
-        //for (auto e: cmd.stops_sv)
-        //    std::cerr << e << std::endl;
         catalogue.AddBus(cmd.name, cmd.stops_sv, cmd.is_roundtrip);
     }
 
@@ -325,7 +321,6 @@ void ProcessRequests(const MapResponse &value, std::string &s){
     s += "\t\t\"map\": ";
     json::PrintString(value.svg, strm);
     s += strm.str();
-    //s += ",\n";
     s += "\t}\n";
 }
 

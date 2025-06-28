@@ -31,14 +31,6 @@ void TransportCatalogue::AddBus(const std::string& bus,
         } else {
             throw std::invalid_argument("Unknown stop name"s + std::string(stop_name) + std::to_string(stops_list.size()));
         }
-/*
-        std::cout << bus << " " << std::endl;
-        for (auto e: stops_list)
-        {
-            std::cout << e << " " << std::endl;
-        }
-        return;
-*/
         auto it2 = stopname_to_bus.find(stop_name);
         auto it3 = routes.end() - 1;
         it2->second.insert(it3->name);
@@ -59,9 +51,6 @@ const std::set<std::string_view>*
 TransportCatalogue::GetBusesForStop(std::string_view stopName) const {
     const auto it = stopname_to_bus.find(stopName);
     if (it == stopname_to_bus.cend()) {
-        return nullptr;  // Indicate absence
-    }
-    if (it->second.empty()) {
         return nullptr;  // Indicate absence
     }
     return &it->second;  // Return pointer to set

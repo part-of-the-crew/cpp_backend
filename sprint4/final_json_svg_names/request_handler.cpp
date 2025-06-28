@@ -129,7 +129,7 @@ std::vector<svg::Circle> request_handler::RequestHandler::CreateStops(){
     std::vector<svg::Circle> vec;
     for (auto const& el: AllStopNames){
         const auto bus = cat_.GetBusesForStop(el);
-        if (nullptr == bus)
+        if (nullptr == bus || bus->empty())
             continue;
         const auto stop = cat_.GetStop(el);
         svg::Circle c;
@@ -145,7 +145,7 @@ std::vector<svg::Text> request_handler::RequestHandler::CreateStopsNames(){
     std::vector<svg::Text> vec;
     for (auto const& el: AllStopNames){
         const auto bus = cat_.GetBusesForStop(el);
-        if ( nullptr == bus)
+        if ( nullptr == bus || bus->empty())
             continue;
         auto pstop = cat_.GetStop(el);
         svg::Text text;
