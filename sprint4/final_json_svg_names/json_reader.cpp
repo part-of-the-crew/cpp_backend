@@ -324,6 +324,43 @@ void ProcessRequests(const MapResponse &value, std::string &s){
     s += "\t}\n";
 }
 
+json::Node SerializeResponse(const MapResponse& value) {
+    return json::Node(json::Dict{
+        {"map"s, json::Node(value.svg)},
+        {"request_id"s, json::Node(value.id)}
+    });
+}
+
+json::Node SerializeResponse(const StopResponse& value) {
+    json::Dict dict;
+    dict.emplace("request_id"s, json::Node{value.id});
+    if (value.pbuses == nullptr){
+        dict.emplace("error_message"s, "not found"s);
+    } else {
+        json::Array ar;
+        for (auto const& e: *(value.pbuses)){
+            ar.push_back(std::string{e});
+        }
+        dict.emplace("buses"s, std::move(ar));
+    }
+    return json::Node(std::move(dict));
+}
+
+json::Node SerializeResponse(const BusResponse& value) {
+    json::Dict dict;
+        dict.emplace("request_id"s, json::Node{value.id});
+    if (!(value.stat.has_value())) {
+        dict.emplace("error_message"s, "not found"s);
+    } else {
+        auto const& stat_value = value.stat.value();
+        dict.emplace("curvature"s, json::Node{stat_value.curvature});
+        dict.emplace("route_length"s, json::Node{static_cast<int>(stat_value.trajectory)});
+        dict.emplace("stop_count"s, json::Node{stat_value.totalStops});
+        dict.emplace("unique_stop_count"s, json::Node{stat_value.uniqueStops});
+    }
+    return json::Node(std::move (dict));
+}
+
 std::string Process(std::variant<StopResponse, BusResponse, MapResponse> request) {
     std::string s;
     std::visit(
@@ -352,8 +389,12 @@ std::string MakeJsonString (const std::vector<std::variant<StopResponse, BusResp
 
 json::Document
 json_reader::TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse, MapResponse>>& requests){
-    std::istringstream strm(MakeJsonString(requests));
-    //std::istringstream strm1("42");
-    return json::Load(strm);
+    json::Array array;
+    for (auto const& e: requests){
+        std::visit([&array](const auto& value) {
+            array.push_back(SerializeResponse(value));
+        }, e);
+    }
+    return json::Document{json::Node{std::move(array)}};
 }
 
