@@ -99,4 +99,26 @@ struct RenderSettings {
     std::vector <svg::Color> color_palette;
 };
 
+class MapRenderer {
+
+    const RenderSettings& settings_;
+    request_handler::RequestHandler& requestHandler_;
+
+    std::unique_ptr<map_renderer::SphereProjector> proj_;
+
+    void CreateProjection(void);
+    std::vector<svg::Polyline> CreateRoutes();
+    std::vector<svg::Text> CreateBusNames();
+    std::vector<svg::Circle> CreateStops();
+    std::vector<svg::Text> CreateStopsNames();
+public:
+    MapRenderer (const RenderSettings& settings, 
+                request_handler::RequestHandler& requestHandler)
+                : settings_{settings},
+                requestHandler_{requestHandler}
+                {};
+    std::string RenderMap();
+
+};
+
 } //namespace map_renderer

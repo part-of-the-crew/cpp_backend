@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include "svg.h"
+
 #include "transport_catalogue.h"
 #include "map_renderer.h"
 
@@ -30,10 +30,13 @@ namespace request_handler {
 class RequestHandler {
 public:
     using Catalogue = transport_catalogue::TransportCatalogue;
-
-    RequestHandler(const Catalogue& cat, const map_renderer::RenderSettings& settings)
+/*    RequestHandler(const Catalogue& cat, const map_renderer::MapRenderer& mapRenderer)
                     : cat_{cat}
-                    , settings_{settings}
+                    , mapRenderer_{mapRenderer}
+                    {}
+*/
+    RequestHandler(const Catalogue& cat)
+                    : cat_{cat}
                     {}
     // Возвращает информацию о маршруте (запрос Bus)
    // std::optional<BusStat> GetBusStat(const std::string_view& bus_name) const;
@@ -42,20 +45,22 @@ public:
     //const std::unordered_set<BusPtr>* GetBusesByStop(const std::string_view& stop_name) const;
 
     // Этот метод будет нужен в следующей части итогового проекта
-    svg::Document RenderMap(void);
-
+   //std::string RenderMap(void);
+    std::vector<const Bus*> GetStopsForAllBuses(void) const;
+    std::set<std::string_view> GetAllStopNames(void) const;
+    std::set<std::string_view> GetAllBusNames(void) const;
 private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
     const Catalogue& cat_;
-    const map_renderer::RenderSettings& settings_;
+   // const map_renderer::MapRenderer& mapRenderer_;
 
-    void CreateProjection(void);
-    std::vector<svg::Polyline> CreateRoutes();
-    std::vector<svg::Text> CreateBusNames();
-    std::vector<svg::Circle> CreateStops();
-    std::vector<svg::Text> CreateStopsNames();
+    ////void CreateProjection(void);
+    //std::vector<svg::Polyline> CreateRoutes();
+    //std::vector<svg::Text> CreateBusNames();
+    //std::vector<svg::Circle> CreateStops();
+    //std::vector<svg::Text> CreateStopsNames();
+//
 
-    std::unique_ptr<map_renderer::SphereProjector> proj_;
     std::set<std::string_view> AllStopNames;
     std::set<std::string_view> AllBusNames;
 };

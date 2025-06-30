@@ -253,75 +253,14 @@ JsonReader::CalculateRequests (const transport_catalogue::TransportCatalogue& ca
             continue;
         }
         if (e.type == "Map"){
-            std::ostringstream strm;
-            std::string str;
-            map_renderer::RenderSettings render_settings = ReadForMapRenderer();
-            request_handler::RequestHandler rhandler{cat, render_settings};
-            svg::Document svg_doc = rhandler.RenderMap();
-
-            svg_doc.Render(strm);
-            responses.emplace_back(MapResponse{e.id, strm.str()});
+            request_handler::RequestHandler rhandler{cat};
+            map_renderer::MapRenderer mapRenderer{ReadForMapRenderer(), rhandler};
+            responses.emplace_back(MapResponse{e.id, mapRenderer.RenderMap()});
             continue;
         }
         throw std::runtime_error ("Unknown request!");
     }
     return responses;
-}
-
-void ProcessRequests(const StopResponse &value, std::string &s){
-    s += "\t{\n";
-    s += "\t\t\"request_id\": " + std::to_string(value.id);
-    s += ",\n";
-    if (value.pbuses == nullptr){
-        s += "\t\t\"error_message\": \"not found\"\n";
-    } else {
-        s += "\t\t\"buses\": [\n";
-        bool first = 1;
-        for (auto const& e: *(value.pbuses)){
-            if (!first) {
-                s += ",";
-            }
-            s += "\t\t\t\"";
-            s += e;
-            s += "\"";
-            first = 0;
-        }
-        s += "\n\t\t]\n";
-    }
-    s += "\t}\n";
-}
-
-void ProcessRequests(const BusResponse &value, std::string &s){
-    s += "\t{\n";
-    s += "\t\t\"request_id\": " + std::to_string(value.id);
-    s += ",\n";
-    if (!(value.stat.has_value())) {
-        s += "\t\t\"error_message\": \"not found\"\n";
-    } else {
-        auto const& stat_value = value.stat.value();
-        s += "\t\t\"curvature\": ";
-        s += std::to_string(stat_value.curvature);
-        s += ",\n";
-        s += "\t\t\"route_length\": ";
-        s += std::to_string(static_cast<int>(stat_value.trajectory));
-        s += ",\n";
-        s += "\t\t\"stop_count\": " + std::to_string(stat_value.totalStops);
-        s += ",\n";
-        s += "\t\t\"unique_stop_count\": " + std::to_string(stat_value.uniqueStops);
-        s += "\n";
-    }
-    s += "\t}\n";
-}
-
-void ProcessRequests(const MapResponse &value, std::string &s){
-    std::ostringstream strm;
-    s += "\t{\n";
-    s += "\t\t\"request_id\": " + std::to_string(value.id);
-    s += ",\n";
-    s += "\t\t\"map\": ";
-    json::PrintString(value.svg, strm);
-    s += strm.str();
-    s += "\t}\n";
 }
 
 json::Node SerializeResponse(const MapResponse& value) {
@@ -361,32 +300,6 @@ json::Node SerializeResponse(const BusResponse& value) {
     return json::Node(std::move (dict));
 }
 
-std::string Process(std::variant<StopResponse, BusResponse, MapResponse> request) {
-    std::string s;
-    std::visit(
-        [&s](const auto& value) {
-            ProcessRequests(value, s);
-        },
-        request);   
-    return s;
-}
-
-std::string MakeJsonString (const std::vector<std::variant<StopResponse, BusResponse, MapResponse>>& requests){
-    std::string output;
-    output += "[\n";
-    bool first = 1;
-    for (auto const& e: requests){
-        if (!first) {
-            output += "\t,\n";
-        }
-        output += Process(e);
-        first = 0;
-    }
-    output += "]\n";
-    //std::cerr << output;
-    return output;
-}
-
 json::Document
 json_reader::TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse, MapResponse>>& requests){
     json::Array array;
@@ -397,4 +310,3 @@ json_reader::TransformRequestsIntoJson(const std::vector<std::variant<StopRespon
     }
     return json::Document{json::Node{std::move(array)}};
 }
-
