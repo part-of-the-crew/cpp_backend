@@ -51,8 +51,8 @@ public:
     std::set<std::string_view> GetAllStopNames(void) const;
     std::set<std::string_view> GetAllBusNames(void) const;
     std::vector<geo::Coordinates> GetAllCoordinates(void);
-    std::vector<const transport_catalogue::Bus*>GetBuses(void);
-    std::vector<const transport_catalogue::Stop*>GetStops(void);
+    std::vector<const domain::Bus*>GetBuses(void);
+    std::vector<const domain::Stop*>GetStops(void);
 private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
     const Catalogue& cat_;

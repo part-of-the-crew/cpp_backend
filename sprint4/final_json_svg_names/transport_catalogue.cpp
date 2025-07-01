@@ -8,14 +8,14 @@
 using namespace transport_catalogue;
 using namespace std::string_literals;
 
-void TransportCatalogue::AddStop(const Stop& stop) { 
+void TransportCatalogue::AddStop(const domain::Stop& stop) { 
     stops.push_back(std::move(stop));
     stopname_to_stop[stops.back().name] = stops.cend() - 1;
     stopname_to_bus[stops.back().name] = {};
 }
 void TransportCatalogue::AddDistanceBtwStops (const std::pair<std::string, std::string>& p, int m) {
-    const Stop* ptr1 = &(*stopname_to_stop[p.first]);
-    const Stop* ptr2 = &(*stopname_to_stop[p.second]);
+    const domain::Stop* ptr1 = &(*stopname_to_stop[p.first]);
+    const domain::Stop* ptr2 = &(*stopname_to_stop[p.second]);
     distances.insert({{ptr1, ptr2 }, m});
 }
 
@@ -38,7 +38,7 @@ void TransportCatalogue::AddBus(const std::string& bus,
     busname_to_route[routes.back().name] = routes.cend() - 1;
 }
 
-const Bus*
+const domain::Bus*
 TransportCatalogue::GetStopsForBus(std::string_view busName) const {
     const auto it = busname_to_route.find(busName);
     if (it == busname_to_route.cend()){
@@ -56,7 +56,7 @@ TransportCatalogue::GetBusesForStop(std::string_view stopName) const {
     return &it->second;  // Return pointer to set
 }
 
-std::optional<RouteStatistics> 
+std::optional<domain::RouteStatistics> 
 TransportCatalogue::GetRouteStatistics(std::string_view busName) const {
     double distance {0};
     double trajectory {0};
@@ -89,14 +89,14 @@ TransportCatalogue::GetRouteStatistics(std::string_view busName) const {
         }
         trajectory += it->second;
     }
-    return RouteStatistics{busName, trajectory, trajectory/distance, 
+    return domain::RouteStatistics{busName, trajectory, trajectory/distance, 
             static_cast<int>(unique_stops.size()), static_cast<int>(v.size())};
 }
 
-std::vector<const Bus *>
+std::vector<const domain::Bus *>
 transport_catalogue::TransportCatalogue::GetStopsForAllBuses(void) const
 {
-    std::vector<const Bus *> vBuses;
+    std::vector<const domain::Bus *> vBuses;
     for (auto [f, s] : busname_to_route){
         vBuses.push_back(&(*s));
     }
@@ -125,7 +125,7 @@ transport_catalogue::TransportCatalogue::GetAllBusNames(void) const
     }
     return index;
 }
-const Stop *transport_catalogue::TransportCatalogue::GetStop(std::string_view stopname) const
+const domain::Stop *transport_catalogue::TransportCatalogue::GetStop(std::string_view stopname) const
 {
     auto it = stopname_to_stop.find(stopname);
     if (it == stopname_to_stop.end())

@@ -56,7 +56,7 @@ struct StopResponse : public Response {
 };
 
 struct BusResponse : public Response{
-    std::optional<transport_catalogue::RouteStatistics> stat;
+    std::optional<domain::RouteStatistics> stat;
 };
 struct MapResponse : public Response {
     const std::string svg;

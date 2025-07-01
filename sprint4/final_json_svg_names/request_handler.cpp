@@ -3,7 +3,7 @@
 
 /*
  * Здесь можно было бы разместить код обработчика запросов к базе, содержащего логику, которую не
- * хотелось бы помещать ни в transport_catalogue, ни в json reader.
+ * хотелось бы помещать ни в domain, ни в json reader.
  *
  * Если вы затрудняетесь выбрать, что можно было бы поместить в этот файл,
  * можете оставить его пустым.
@@ -34,9 +34,9 @@ void RequestHandler::FetchAllEntities(void){
     AllBusNames = cat_.GetAllBusNames();
 }
 
-std::vector<const transport_catalogue::Bus*>
+std::vector<const domain::Bus*>
 RequestHandler::GetBuses(void){
-    std::vector<const transport_catalogue::Bus*> v;
+    std::vector<const domain::Bus*> v;
     for (auto const& el: AllBusNames){
         auto bus = cat_.GetStopsForBus(el);
         if (nullptr == bus)
@@ -45,9 +45,9 @@ RequestHandler::GetBuses(void){
     }
     return v;
 }
-std::vector<const transport_catalogue::Stop*>
+std::vector<const domain::Stop*>
 RequestHandler::GetStops(void){
-    std::vector<const transport_catalogue::Stop*> v;
+    std::vector<const domain::Stop*> v;
     for (auto const& el: AllStopNames){
         auto bus = cat_.GetBusesForStop(el);
         if (nullptr == bus || bus->empty())

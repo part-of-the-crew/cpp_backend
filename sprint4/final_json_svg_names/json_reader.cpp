@@ -220,7 +220,7 @@ transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
     transport_catalogue::TransportCatalogue::distanceBtwStops_t distancesBtwStops;
     ReadForBaseRequests();
     for (auto& cmd : stops_) {
-        transport_catalogue::Stop stop {cmd.name, cmd.coord};
+        domain::Stop stop {cmd.name, cmd.coord};
 
         catalogue.AddStop(std::move(stop));
         for (auto [f, s]: cmd.road_distances)
