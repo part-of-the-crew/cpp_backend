@@ -8,6 +8,7 @@
 #include <iostream>
 #include <optional>
 #include <vector>
+#include "request_handler.h"
 
 inline const double EPSILON = 1e-6;
 
@@ -101,7 +102,7 @@ struct RenderSettings {
 
 class MapRenderer {
 
-    const RenderSettings& settings_;
+    const RenderSettings settings_;
     request_handler::RequestHandler& requestHandler_;
 
     std::unique_ptr<map_renderer::SphereProjector> proj_;
@@ -112,10 +113,10 @@ class MapRenderer {
     std::vector<svg::Circle> CreateStops();
     std::vector<svg::Text> CreateStopsNames();
 public:
-    MapRenderer (const RenderSettings& settings, 
+    MapRenderer (const RenderSettings settings, 
                 request_handler::RequestHandler& requestHandler)
-                : settings_{settings},
-                requestHandler_{requestHandler}
+                : settings_{settings}
+                , requestHandler_{requestHandler}
                 {};
     std::string RenderMap();
 

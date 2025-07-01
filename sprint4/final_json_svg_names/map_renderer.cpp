@@ -1,6 +1,7 @@
 #include "map_renderer.h"
 #include <sstream>
 #include <iostream>
+
 using namespace map_renderer;
 
 /*
@@ -35,7 +36,6 @@ void MapRenderer::CreateProjection(void){
     auto proj = std::make_unique<SphereProjector>(
         v_for_projector.begin(), v_for_projector.end(), 
         settings_.width, settings_.height, settings_.padding);
-
     proj_ = std::move(proj);
 }
 
@@ -46,9 +46,6 @@ std::vector<svg::Polyline> MapRenderer::CreateRoutes(void){
     std::vector<svg::Polyline> poly_vec;
     std::size_t icolor = 0;
     for (auto const& bus: requestHandler_.GetBuses()){
-        //auto bus = requestHandler_.GetStopsForBus(el);
-        if (nullptr == bus)
-            continue;
         svg::Polyline poly;
         for (auto const& stop: bus->stops){
             poly.AddPoint((*proj_)({stop->coordinates.lat, stop->coordinates.lng}))
@@ -63,17 +60,13 @@ std::vector<svg::Polyline> MapRenderer::CreateRoutes(void){
         if (icolor == settings_.color_palette.size())
             icolor = 0;
     }
-
     return poly_vec;
 }
 
 std::vector<svg::Text> MapRenderer::CreateBusNames(){
     std::vector<svg::Text> vec;
     std::size_t icolor = 0;
-    for (auto const& el: AllBusNames){
-        auto bus = requestHandler_.GetStopsForBus(el);
-        if (nullptr == bus)
-            continue;
+    for (auto const& bus: requestHandler_.GetBuses()){
         auto stop1 = *(bus->stops.front());
         svg::Text text1, text2;
         svg::Text undertext1, undertext2;
@@ -121,13 +114,9 @@ std::vector<svg::Text> MapRenderer::CreateBusNames(){
 
 std::vector<svg::Circle> MapRenderer::CreateStops(){
     std::vector<svg::Circle> vec;
-    for (auto const& el: AllStopNames){
-        const auto bus = requestHandler_.GetBusesForStop(el);
-        if (nullptr == bus || bus->empty())
-            continue;
-        const auto stop = requestHandler_.GetStop(el);
+    for (auto const& pstop: requestHandler_.GetStops()){
         svg::Circle c;
-        c.SetCenter((*proj_)({stop->coordinates.lat, stop->coordinates.lng}))
+        c.SetCenter((*proj_)({pstop->coordinates.lat, pstop->coordinates.lng}))
             .SetRadius(settings_.stop_radius)
             .SetFillColor("white");
         vec.emplace_back(std::move(c));
@@ -137,11 +126,7 @@ std::vector<svg::Circle> MapRenderer::CreateStops(){
 
 std::vector<svg::Text> MapRenderer::CreateStopsNames(){
     std::vector<svg::Text> vec;
-    for (auto const& el: AllStopNames){
-        const auto bus = requestHandler_.GetBusesForStop(el);
-        if ( nullptr == bus || bus->empty())
-            continue;
-        auto pstop = requestHandler_.GetStop(el);
+    for (auto const& pstop: requestHandler_.GetStops()){
         svg::Text text;
         svg::Text undertext;
         text.SetData(pstop->name)

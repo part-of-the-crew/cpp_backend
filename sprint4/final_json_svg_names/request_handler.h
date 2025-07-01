@@ -6,7 +6,6 @@
 
 
 #include "transport_catalogue.h"
-#include "map_renderer.h"
 
 
 namespace request_handler {
@@ -37,7 +36,9 @@ public:
 */
     RequestHandler(const Catalogue& cat)
                     : cat_{cat}
-                    {}
+                    {
+                        FetchAllEntities();
+                    }
     // Возвращает информацию о маршруте (запрос Bus)
    // std::optional<BusStat> GetBusStat(const std::string_view& bus_name) const;
 
@@ -46,21 +47,17 @@ public:
 
     // Этот метод будет нужен в следующей части итогового проекта
    //std::string RenderMap(void);
-    std::vector<const Bus*> GetStopsForAllBuses(void) const;
+    //std::vector<const transport_catalogue::Bus*> GetStopsForAllBuses(void) const;
     std::set<std::string_view> GetAllStopNames(void) const;
     std::set<std::string_view> GetAllBusNames(void) const;
+    std::vector<geo::Coordinates> GetAllCoordinates(void);
+    std::vector<const transport_catalogue::Bus*>GetBuses(void);
+    std::vector<const transport_catalogue::Stop*>GetStops(void);
 private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
     const Catalogue& cat_;
    // const map_renderer::MapRenderer& mapRenderer_;
-
-    ////void CreateProjection(void);
-    //std::vector<svg::Polyline> CreateRoutes();
-    //std::vector<svg::Text> CreateBusNames();
-    //std::vector<svg::Circle> CreateStops();
-    //std::vector<svg::Text> CreateStopsNames();
-//
-
+    void FetchAllEntities(void);
     std::set<std::string_view> AllStopNames;
     std::set<std::string_view> AllBusNames;
 };

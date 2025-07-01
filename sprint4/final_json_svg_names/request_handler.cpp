@@ -12,20 +12,48 @@ using namespace std::string_literals;
 using namespace std::literals;
 using namespace request_handler;
 
+/*
 RequestHandler::GetStopsForAllBuses(void){
 
 }
-
+*/
 std::vector<geo::Coordinates>
 RequestHandler::GetAllCoordinates(void){
-        for (auto const& e: requestHandler_.GetStopsForAllBuses()){
-        for (auto const& stop: e->stops){
-            v_for_projector.push_back(stop->coordinates);
+
+    std::vector<geo::Coordinates> v;
+    for (auto const& bus: cat_.GetStopsForAllBuses()){
+        for (auto const& stop: bus->stops){
+            v.push_back(stop->coordinates);
         }
     }
     return v;
 }
 
-RequestHandler::GetBuses(void){
+void RequestHandler::FetchAllEntities(void){
+    AllStopNames = cat_.GetAllStopNames();
+    AllBusNames = cat_.GetAllBusNames();
+}
 
+std::vector<const transport_catalogue::Bus*>
+RequestHandler::GetBuses(void){
+    std::vector<const transport_catalogue::Bus*> v;
+    for (auto const& el: AllBusNames){
+        auto bus = cat_.GetStopsForBus(el);
+        if (nullptr == bus)
+            continue;
+        v.push_back(bus);
+    }
+    return v;
+}
+std::vector<const transport_catalogue::Stop*>
+RequestHandler::GetStops(void){
+    std::vector<const transport_catalogue::Stop*> v;
+    for (auto const& el: AllStopNames){
+        auto bus = cat_.GetBusesForStop(el);
+        if (nullptr == bus || bus->empty())
+            continue;
+        const auto stop = cat_.GetStop(el);
+        v.push_back(stop);
+    }
+    return v;
 }
