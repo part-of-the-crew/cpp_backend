@@ -17,7 +17,7 @@ int main() {
             cout
         );
         cout << endl;
-        return 1;
+        return 0;
     }
     if(nTest == 2){
         json::Print(
@@ -32,7 +32,7 @@ int main() {
             cout
         );
         cout << endl;
-        return 1;
+        return 0;
     }
     if(nTest == 3){
         json::Print(
@@ -51,7 +51,7 @@ int main() {
             cout
         );
         cout << endl;
-        return 1;
+        return 0;
     }
     if(nTest == 4){
         json::Print(
@@ -75,7 +75,7 @@ int main() {
             cout
         );
         cout << endl;
-        return 1;
+        return 0;
     }
 
 }

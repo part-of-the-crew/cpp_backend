@@ -1,106 +1,105 @@
 #include "json_builder.h"
-#include <iterator>
+#include <exception>
+#include <variant>
+#include <utility>
 
-
-using namespace std::string_literals;
+using namespace std::literals;
 
 namespace json {
 
+Builder::Builder()
+    : root_()
+    , nodes_stack_{&root_}
+{}
 
-Builder &json::Builder::Value(Node::Value value)
-{
+Node Builder::Build() {
+    if (!nodes_stack_.empty()) {
+        throw std::logic_error("Attempt to build JSON which isn't finalized"s);
+    }
+    return std::move(root_);
+}
 
-    if (stack_.back()->IsArray()){
-        auto ar = stack_.back()->AsArray();
-        if (std::holds_alternative<std::nullptr_t>(value)){
-            ar.emplace_back(std::move(*std::make_unique<Node>(Node{std::get<std::nullptr_t>(value)})));
-        } else if (std::holds_alternative<Array>(value)){
-            throw std::logic_error("Array1 is not properly created"s);
-        } else if (std::holds_alternative<Dict>(value)){
-            throw std::logic_error("Array2 is not properly created"s);
-        } else if (std::holds_alternative<bool>(value)){
-            ar.emplace_back(std::move(*std::make_unique<Node>(Node{std::get<bool>(value)})));
-        } else if (std::holds_alternative<int>(value)){
-            ar.emplace_back(std::move(*std::make_unique<Node>(Node{std::get<int>(value)})));
-        } else if (std::holds_alternative<double>(value)){
-            ar.emplace_back(std::move(*std::make_unique<Node>(Node{std::get<double>(value)})));
-        } else if (std::holds_alternative<std::string>(value)){
-            ar.emplace_back(std::move(*std::make_unique<Node>(Node{std::get<std::string>(value)})));
+Builder& Builder::Key(std::string key) {
+    Node::Value& host_value = GetCurrentValue();
+    
+    if (!std::holds_alternative<Dict>(host_value)) {
+        throw std::logic_error("Key() outside a dict"s);
+    }
+
+    auto val = &std::get<Dict>(host_value)[std::move(key)];
+    nodes_stack_.emplace_back(std::move(val));
+    return *this;
+}
+
+Builder& Builder::Value(Node::Value value) {
+    AddObject(std::move(value), /* one_shot */ true);
+    return *this;
+}
+
+Builder& Builder::StartDict() {
+    AddObject(Dict{}, /* one_shot */ false);
+    return *this;
+}
+
+Builder& Builder::StartArray() {
+    AddObject(Array{}, /* one_shot */ false);
+    return *this;
+}
+
+Builder& Builder::EndDict() {
+    if (!std::holds_alternative<Dict>(GetCurrentValue())) {
+        throw std::logic_error("EndDict() outside a dict"s);
+    }
+    nodes_stack_.pop_back();
+    return *this;
+}
+
+Builder& Builder::EndArray() {
+    if (!std::holds_alternative<Array>(GetCurrentValue())) {
+        throw std::logic_error("EndDict() outside an array"s);
+    }
+    nodes_stack_.pop_back();
+    return *this;
+}
+    
+// Current value can be:
+// * Dict, when .Key().Value() or EndDict() is expected
+// * Array, when .Value() or EndArray() is expected
+// * nullptr (default), when first call or dict Value() is expected
+
+Node::Value& Builder::GetCurrentValue() {
+    if (nodes_stack_.empty()) {
+        throw std::logic_error("Attempt to change finalized JSON"s);
+    }
+    return nodes_stack_.back()->GetValue();
+}
+
+// Tell about this trick
+const Node::Value& Builder::GetCurrentValue() const {
+    return const_cast<Builder*>(this)->GetCurrentValue();
+}
+
+void Builder::AssertNewObjectContext() const {
+    if (!std::holds_alternative<std::nullptr_t>(GetCurrentValue())) {
+        throw std::logic_error("New object in wrong context"s);
+    }
+}
+
+void Builder::AddObject(Node::Value value, bool one_shot) {
+    Node::Value& host_value = GetCurrentValue();
+    if (std::holds_alternative<Array>(host_value)) {
+        // Tell about emplace_back
+        Node& node = std::get<Array>(host_value).emplace_back(std::move(value));
+        if (!one_shot) {
+            nodes_stack_.push_back(&node);
         }
-    } else if (stack_.back()->IsDict()){
-        ;
     } else {
-        if (std::holds_alternative<std::nullptr_t>(value)){
-            stack_.emplace_back(std::move(std::make_unique<Node>(Node{std::get<std::nullptr_t>(value)})));
-        } else if (std::holds_alternative<bool>(value)){
-            stack_.emplace_back(std::move(std::make_unique<Node>(Node{std::get<bool>(value)})));
-        } else if (std::holds_alternative<int>(value)){
-            stack_.emplace_back(std::move(std::make_unique<Node>(Node{std::get<int>(value)})));
-        } else if (std::holds_alternative<double>(value)){
-            stack_.emplace_back(std::move(std::make_unique<Node>(Node{std::get<double>(value)})));
-        } else if (std::holds_alternative<std::string>(value)){
-            stack_.emplace_back(std::move(std::make_unique<Node>(Node{std::get<std::string>(value)})));
+        AssertNewObjectContext();
+        host_value = std::move(value);
+        if (one_shot) {
+            nodes_stack_.pop_back();
         }
     }
-
-    return *this;
 }
 
-Builder &Builder::Key(std::string)
-{
-    return *this;
-}
-
-Builder &Builder::StartDict()
-{
-    root_ = json::Dict{};
-    return *this;
-}
-
-Builder &Builder::EndDict()
-{
-    return *this;
-}
-
-Builder &Builder::StartArray()
-{
-    stack_.emplace_back(std::move(std::make_unique<Node>(json::Array{})));
-    //root_ = json::Array{};
-    return *this;
-}
-
-Builder &Builder::EndArray()
-{
-
-    if (!stack_.back()->IsArray()){
-        throw std::logic_error("Array2 is not properly created"s);
-    }
-    /*
-    for (auto const& el: stack_){
-        ar.emplace_back(std::move(*el));
-    }
-    */
-    //json::Array ar{*std::move(stack_.back())};
-    root_ = *std::move(stack_.back());
-    stack_.pop_back();
-    return *this;
-}
-
-json::Node Builder::Build()
-{
-    if (!stack_.empty()){
-        throw std::logic_error("Object is not properly created"s);
-    }
-    return root_;
-}
-
-}
-/*
-Мы рекомендуем хранить в объекте json::Builder следующее состояние:
-Node root_; — сам конструируемый объект.
-std::vector<Node*> nodes_stack_; — стек указателей на те вершины JSON, которые ещё не построены:
-то есть текущее описываемое значение и цепочка его родителей. 
-Он поможет возвращаться в нужный контекст после вызова End-методов.
-Начните проектирование кода с описания ожидаемого состояния класса 
-(в первую очередь — последней вершины в стеке) для каждой точки в цепочке вызовов в примере.
-*/
+}  // namespace json
