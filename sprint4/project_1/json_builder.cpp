@@ -19,7 +19,7 @@ Node Builder::Build() {
     return std::move(root_);
 }
 
-Builder& Builder::Key(std::string key) {
+DictKeyContext Builder::Key(std::string key) {
     Node::Value& host_value = GetCurrentValue();
     
     if (!std::holds_alternative<Dict>(host_value)) {
@@ -28,7 +28,7 @@ Builder& Builder::Key(std::string key) {
 
     auto val = &std::get<Dict>(host_value)[std::move(key)];
     nodes_stack_.emplace_back(std::move(val));
-    return *this;
+    return DictKeyContext(*this);
 }
 
 Builder& Builder::Value(Node::Value value) {
@@ -36,14 +36,14 @@ Builder& Builder::Value(Node::Value value) {
     return *this;
 }
 
-Builder& Builder::StartDict() {
+DictItemContext Builder::StartDict() {
     AddObject(Dict{}, /* one_shot */ false);
-    return *this;
+    return DictItemContext(*this);
 }
 
-Builder& Builder::StartArray() {
+StartArrayContext Builder::StartArray() {
     AddObject(Array{}, /* one_shot */ false);
-    return *this;
+    return StartArrayContext(*this);
 }
 
 Builder& Builder::EndDict() {
@@ -100,6 +100,75 @@ void Builder::AddObject(Node::Value value, bool one_shot) {
             nodes_stack_.pop_back();
         }
     }
+}
+
+
+
+ValueContext DictKeyContext::Value(Node::Value value){
+    return ValueContext(builder_.Value(value));
+}
+DictItemContext DictKeyContext::StartDict() {
+    return builder_.StartDict();
+}
+StartArrayContext DictKeyContext::StartArray() {
+    return builder_.StartArray();
+}
+
+
+DictKeyContext DictItemContext::Key(std::string key){
+    return builder_.Key(key);
+}
+Builder& DictItemContext::EndDict() {
+    return builder_.EndDict();
+}
+
+
+
+ValueContext::ValueContext(Builder& builder)
+    : builder_{builder} 
+{}
+DictKeyContext ValueContext::Key(std::string key){
+    return builder_.Key(key);
+}
+Builder& ValueContext::EndDict(){
+    return builder_.EndDict();
+}
+
+
+
+StartArrayAndValueContext StartArrayContext::Value(Node::Value value){
+    return StartArrayAndValueContext(builder_.Value(value));
+}
+DictItemContext StartArrayContext::StartDict(){
+    return builder_.StartDict();
+}
+StartArrayContext StartArrayContext::StartArray(){
+    return builder_.StartArray();
+}
+Builder& StartArrayContext::EndArray(){
+    return builder_.EndArray();
+};
+
+StartArrayContext::StartArrayContext(Builder& builder)
+    : builder_{builder}
+{};
+
+
+StartArrayAndValueContext::StartArrayAndValueContext(Builder& builder)    
+    : builder_{builder}
+{};
+
+StartArrayAndValueContext StartArrayAndValueContext::Value(Node::Value value){
+    return StartArrayAndValueContext(builder_.Value(value));
+}
+DictItemContext StartArrayAndValueContext::StartDict(){
+    return builder_.StartDict();
+}
+StartArrayContext StartArrayAndValueContext::StartArray(){
+    return builder_.StartArray();
+}
+Builder& StartArrayAndValueContext::EndArray(){
+    return builder_.EndArray();
 }
 
 }  // namespace json
