@@ -7,11 +7,11 @@
 namespace json {
 
 
-class DictItemContext;
 class DictKeyContext;
-class ValueContext;
-class StartArrayContext;
-class StartArrayAndValueContext;
+class DictItemContext;//
+//class ValueContext;//
+class StartArrayContext;//*
+class StartArrayAndValueContext;//*
 
 class Builder {
 public:
@@ -21,7 +21,6 @@ public:
     DictKeyContext Key(std::string key);
     Builder& Value(Node::Value value);
     DictItemContext StartDict();
-    //DictItemContext StartDict(Dict &dict);
     StartArrayContext StartArray();
     Builder& EndDict();
     Builder& EndArray();
@@ -44,7 +43,7 @@ public:
         {};
     Builder& builder_;
 
-    ValueContext Value(Node::Value value);
+    DictItemContext Value(Node::Value value);
     DictItemContext StartDict();
     StartArrayContext StartArray();
 };
@@ -60,14 +59,6 @@ public:
     Builder& EndDict();
 };
 
-class ValueContext {
-public:
-    ValueContext(Builder& builder);
-    Builder& builder_;
-
-    DictKeyContext Key(std::string key);
-    Builder& EndDict();
-};
 
 class StartArrayContext {
 public:

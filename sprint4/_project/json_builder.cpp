@@ -110,8 +110,8 @@ void Builder::AddObject(Node::Value value, bool one_shot) {
 
 
 
-ValueContext DictKeyContext::Value(Node::Value value){
-    return ValueContext(builder_.Value(value));
+DictItemContext DictKeyContext::Value(Node::Value value){
+    return DictItemContext(builder_.Value(value));
 }
 DictItemContext DictKeyContext::StartDict() {
     return builder_.StartDict();
@@ -125,18 +125,6 @@ DictKeyContext DictItemContext::Key(std::string key){
     return builder_.Key(key);
 }
 Builder& DictItemContext::EndDict() {
-    return builder_.EndDict();
-}
-
-
-
-ValueContext::ValueContext(Builder& builder)
-    : builder_{builder} 
-{}
-DictKeyContext ValueContext::Key(std::string key){
-    return builder_.Key(key);
-}
-Builder& ValueContext::EndDict(){
     return builder_.EndDict();
 }
 
