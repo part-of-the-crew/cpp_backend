@@ -36,7 +36,7 @@ private:
 
 class BasicContext {
 protected:
-    explicit BasicContext(Builder& builder)
+    BasicContext(Builder& builder)
         : builder_{builder} 
         {};
     Builder& builder_;
