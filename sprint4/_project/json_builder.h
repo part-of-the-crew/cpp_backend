@@ -9,8 +9,6 @@ namespace json {
 
 class DictKeyContext;
 class DictItemContext;//
-//class ValueContext;//
-class StartArrayContext;//*
 class StartArrayAndValueContext;//*
 
 class Builder {
@@ -21,7 +19,7 @@ public:
     DictKeyContext Key(std::string key);
     Builder& Value(Node::Value value);
     DictItemContext StartDict();
-    StartArrayContext StartArray();
+    StartArrayAndValueContext StartArray();
     Builder& EndDict();
     Builder& EndArray();
 
@@ -36,49 +34,36 @@ private:
     void AddObject(Node::Value value, bool one_shot);
 };
 
-class DictKeyContext {
-public:
-    DictKeyContext(Builder& builder)
+class BasicContext {
+protected:
+    explicit BasicContext(Builder& builder)
         : builder_{builder} 
         {};
     Builder& builder_;
-
-    DictItemContext Value(Node::Value value);
-    DictItemContext StartDict();
-    StartArrayContext StartArray();
 };
 
-class DictItemContext {
+class DictKeyContext : public BasicContext {
 public:
-    DictItemContext(Builder& builder)
-        : builder_{builder} 
-        {};
-    Builder& builder_;
+    DictKeyContext(Builder& builder) : BasicContext(builder) {}
+    DictItemContext Value(Node::Value value);
+    DictItemContext StartDict();
+    StartArrayAndValueContext StartArray();
+};
 
+class DictItemContext : public BasicContext {
+public:
+    DictItemContext(Builder& builder) : BasicContext(builder) {}
     DictKeyContext Key(std::string key);
     Builder& EndDict();
 };
 
 
-class StartArrayContext {
+class StartArrayAndValueContext : public BasicContext {
 public:
-    StartArrayContext(Builder& builder);
-    Builder& builder_;
-
+    StartArrayAndValueContext(Builder& builder) : BasicContext(builder) {}
     StartArrayAndValueContext Value(Node::Value value);
     DictItemContext StartDict();
-    StartArrayContext StartArray();
-    Builder& EndArray();
-};
-
-class StartArrayAndValueContext {
-public:
-    StartArrayAndValueContext(Builder& builder);
-    Builder& builder_;
-
-    StartArrayAndValueContext Value(Node::Value value);
-    DictItemContext StartDict();
-    StartArrayContext StartArray();
+    StartArrayAndValueContext StartArray();
     Builder& EndArray();
 };
 

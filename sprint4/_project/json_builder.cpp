@@ -47,9 +47,9 @@ DictItemContext Builder::StartDict() {
     return DictItemContext(*this);
 }
 
-StartArrayContext Builder::StartArray() {
+StartArrayAndValueContext Builder::StartArray() {
     AddObject(Array{}, /* one_shot */ false);
-    return StartArrayContext(*this);
+    return StartArrayAndValueContext(*this);
 }
 
 Builder& Builder::EndDict() {
@@ -116,7 +116,7 @@ DictItemContext DictKeyContext::Value(Node::Value value){
 DictItemContext DictKeyContext::StartDict() {
     return builder_.StartDict();
 }
-StartArrayContext DictKeyContext::StartArray() {
+StartArrayAndValueContext DictKeyContext::StartArray() {
     return builder_.StartArray();
 }
 
@@ -129,36 +129,13 @@ Builder& DictItemContext::EndDict() {
 }
 
 
-
-StartArrayAndValueContext StartArrayContext::Value(Node::Value value){
-    return StartArrayAndValueContext(builder_.Value(value));
-}
-DictItemContext StartArrayContext::StartDict(){
-    return builder_.StartDict();
-}
-StartArrayContext StartArrayContext::StartArray(){
-    return builder_.StartArray();
-}
-Builder& StartArrayContext::EndArray(){
-    return builder_.EndArray();
-};
-
-StartArrayContext::StartArrayContext(Builder& builder)
-    : builder_{builder}
-{};
-
-
-StartArrayAndValueContext::StartArrayAndValueContext(Builder& builder)    
-    : builder_{builder}
-{};
-
 StartArrayAndValueContext StartArrayAndValueContext::Value(Node::Value value){
     return StartArrayAndValueContext(builder_.Value(value));
 }
 DictItemContext StartArrayAndValueContext::StartDict(){
     return builder_.StartDict();
 }
-StartArrayContext StartArrayAndValueContext::StartArray(){
+StartArrayAndValueContext StartArrayAndValueContext::StartArray(){
     return builder_.StartArray();
 }
 Builder& StartArrayAndValueContext::EndArray(){
