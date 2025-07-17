@@ -1,0 +1,7 @@
+Median age = 40
+Median age for females = 40
+Median age for males = 55
+Median age for employed females = 40
+Median age for unemployed females = 80
+Median age for employed males = 55
+Median age for unemployed males = 78
