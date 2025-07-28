@@ -15,28 +15,34 @@ public:
     void UpdateProgress(int user, int page){
         auto it = user_progress_.find(user);
         if (it != user_progress_.end()){
-            --page_user_count_[it->second];
-            it->second = page;
+            if (it->second == page) return; // no change needed
+            int old_page = it->second;
+            if (--page_user_count_[old_page] == 0) {
+                page_user_count_.erase(old_page);
+            }
         }
         user_progress_[user] = page;
         ++page_user_count_[page];
     }
     double GetStat(int user) const {
-        auto user_current_page = user_progress_.find(user);
-        if (user_current_page == user_progress_.end())
+        auto it = user_progress_.find(user);
+        if (it == user_progress_.end())
             return 0;
-        if (user_progress_.size() == 1)
+        if (GetUserCount() == 1)
             return 1;
-        int amount_of_users = 0;
-        for (auto [page, users]: page_user_count_){
-            if (page >= user_current_page->second)
-                break;
-            amount_of_users += users;
+        int current_page = it->second;
+        int users_behind = 0;
+
+        for (auto iter = page_user_count_.begin(); iter != page_user_count_.lower_bound(current_page); ++iter) {
+            users_behind += iter->second;
         }
 
-        return static_cast<double>(amount_of_users)/static_cast<double>(user_progress_.size() - 1);
+        return static_cast<double>(users_behind)/static_cast<double>(GetUserCount() - 1);
     }
 
+    size_t GetUserCount() const {
+        return user_progress_.size();
+    }
 };
 
 
