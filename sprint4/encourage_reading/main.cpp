@@ -1,40 +1,40 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <unordered_map>
 #include <map>
+#include <iomanip>
 
 using namespace std;
 
 
 class Db {
-
-    unordered_map <int, int> user_progress_;
-    map <int, int> book_progress_; // page, amount of users
+    std::unordered_map<int, int> user_progress_; // user -> page
+    std::map<int, int> page_user_count_;         // page -> user count
 public:
     void UpdateProgress(int user, int page){
         auto it = user_progress_.find(user);
         if (it != user_progress_.end()){
-            --book_progress_[it->second];
+            --page_user_count_[it->second];
             it->second = page;
         }
         user_progress_[user] = page;
-        ++book_progress_[page];
+        ++page_user_count_[page];
     }
     double GetStat(int user) const {
         auto user_current_page = user_progress_.find(user);
         if (user_current_page == user_progress_.end())
             return 0;
-        //double percent;
+        if (user_progress_.size() == 1)
+            return 1;
         int amount_of_users = 0;
-        for (auto [page, users]: book_progress_){
-            if (page > user_current_page->second)
+        for (auto [page, users]: page_user_count_){
+            if (page >= user_current_page->second)
                 break;
             amount_of_users += users;
         }
 
-        return (amount_of_users)/user_progress_.size();
+        return static_cast<double>(amount_of_users)/static_cast<double>(user_progress_.size() - 1);
     }
 
 };
@@ -63,6 +63,7 @@ void ProcessRequests (Db &db, std::istream &in, std::ostream &out){
 int main() {
     //Let's make our processing interactive
     //This means that I print out each response as soon as I have enough information for it.
+    std::cout << std::setprecision(6);
     Db db;
     ProcessRequests(db, std::cin, std::cout);
 
