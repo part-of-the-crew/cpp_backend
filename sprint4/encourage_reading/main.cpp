@@ -16,7 +16,7 @@ public:
         auto it = user_progress_.find(user);
         if (it != user_progress_.end()){
             if (it->second == page) return; // no change needed
-            int old_page = it->second;
+            const int old_page = it->second;
             if (--page_user_count_[old_page] == 0) {
                 page_user_count_.erase(old_page);
             }
@@ -30,7 +30,7 @@ public:
             return 0;
         if (GetUserCount() == 1)
             return 1;
-        int current_page = it->second;
+        const int current_page = it->second;
         int users_behind = 0;
 
         for (auto iter = page_user_count_.begin(); iter != page_user_count_.lower_bound(current_page); ++iter) {
