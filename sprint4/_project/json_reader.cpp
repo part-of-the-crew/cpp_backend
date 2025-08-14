@@ -29,14 +29,18 @@ void JsonReader::WriteStops (const Stop& stop){
 }
 
 const json::Node& JsonReader::FindInJson(const std::string &s){
-    auto p = root_.AsDict().find(s);
-    if (p == root_.AsDict().end()){
-        throw std::runtime_error ("Cannot find " + s + " in root map!");
+    try {
+        auto p = root_.AsDict().find(s);
+        if (p == root_.AsDict().end()){
+            throw std::runtime_error ("Cannot find " + s + " in root map!");
+        }
+        return p->second;
+    } catch (const std::exception& e){
+        throw std::runtime_error ("Cannot find " + s + " because it is not a Dict!");
     }
-    return p->second;
 }
 
-void JsonReader::ReadForBaseRequests(void){
+void JsonReader::ReadBaseRequests(void){
     for (auto const& e: FindInJson("base_requests").AsArray()){
         std::string type = e.AsDict().at("type").AsString();
         if (type == "Stop"){
@@ -91,7 +95,7 @@ void JsonReader::ReadForBaseRequests(void){
     }
 }
 
-void JsonReader::ReadForStatRequests(void) {
+void JsonReader::ReadStatRequests(void) {
     for (auto const& e: FindInJson("stat_requests").AsArray()){
         if (!e.IsDict()) {
             throw std::runtime_error ("Elements array of stat_requests aren't maps!");
@@ -103,26 +107,38 @@ void JsonReader::ReadForStatRequests(void) {
                 continue;
             }
             if (f == "type"){
-                if (s.AsString() == "Stop"){
-                    request.type = "Stop";
-                    continue;
-                }
-                if (s.AsString() == "Bus"){
-                    request.type = "Bus";
-                    continue;
-                }
-                if (s.AsString() == "Map"){
-                    request.type = "Map";
-                    continue;
-                }
+                request.type = s.AsString();
+                continue;
             }
             if (f == "name"){
                 request.name = s.AsString();
                 continue;
             }
+            if (f == "from"){
+                request.from = s.AsString();
+                continue;
+            }
+            if (f == "to"){
+                request.to = s.AsString();
+                continue;
+            }
             throw std::runtime_error ("Unknown type in stat_requests!");
         }
         requests_.emplace_back(request);
+    }
+}
+
+void JsonReader::ReadRoutingSettings(void) {
+    for (auto const& [f, s]: FindInJson("routing_settings").AsDict()){
+        if (f == "bus_wait_time"){
+            routing_settings_.bus_wait_time = s.AsInt();
+            continue;
+        }
+        if (f == "bus_velocity"){
+            routing_settings_.bus_velocity = s.AsInt();
+            continue;
+        }
+        throw std::runtime_error ("Unknown type in routing_settings!");
     }
 }
 
@@ -154,7 +170,7 @@ svg::Color JsonReader::GetColor(const json::Node &node){
 }
 
 map_renderer::RenderSettings
-JsonReader::ReadForMapRenderer(void){
+JsonReader::ReadMapRenderer(void){
     map_renderer::RenderSettings settings;
 
     for (auto const& [f, s]: FindInJson("render_settings").AsDict()){
@@ -218,7 +234,8 @@ JsonReader::ReadForMapRenderer(void){
 transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
     transport_catalogue::TransportCatalogue catalogue;
     transport_catalogue::TransportCatalogue::distanceBtwStops_t distancesBtwStops;
-    ReadForBaseRequests();
+    ReadBaseRequests();
+    ReadRoutingSettings();
     for (auto& cmd : stops_) {
         domain::Stop stop {cmd.name, cmd.coord};
 
@@ -239,10 +256,10 @@ transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
     return catalogue;
 }
 
-std::vector<std::variant<StopResponse, BusResponse, MapResponse>> 
+std::vector<std::variant<StopResponse, BusResponse, MapResponse, RouteResponse>> 
 JsonReader::CalculateRequests (const transport_catalogue::TransportCatalogue& cat){
-    std::vector<std::variant<StopResponse, BusResponse, MapResponse>> responses;
-    ReadForStatRequests();
+    std::vector<std::variant<StopResponse, BusResponse, MapResponse, RouteResponse>> responses;
+    ReadStatRequests();
     for (auto const& e: requests_){
         if (e.type == "Stop"){
             responses.emplace_back(StopResponse{e.id, cat.GetBusesForStop(e.name)});
@@ -254,8 +271,12 @@ JsonReader::CalculateRequests (const transport_catalogue::TransportCatalogue& ca
         }
         if (e.type == "Map"){
             request_handler::RequestHandler rhandler{cat};
-            map_renderer::MapRenderer mapRenderer{ReadForMapRenderer(), rhandler};
+            map_renderer::MapRenderer mapRenderer{ReadMapRenderer(), rhandler};
             responses.emplace_back(MapResponse{e.id, mapRenderer.RenderMap()});
+            continue;
+        }
+        if (e.type == "Route"){
+            //RouteResponse response;
             continue;
         }
         throw std::runtime_error ("Unknown request!");
@@ -304,8 +325,14 @@ json::Node SerializeResponse(const BusResponse& value) {
     return builder.EndDict().Build();
 }
 
+json::Node SerializeResponse(const RouteResponse& value) {
+json::Builder builder;
+                builder.StartDict();
+    return builder.EndDict().Build();
+}
+
 json::Document
-json_reader::TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse, MapResponse>>& requests){
+json_reader::TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse, MapResponse, RouteResponse>>& requests){
     json::Array array;
     for (auto const& e: requests){
         std::visit([&array](const auto& value) {

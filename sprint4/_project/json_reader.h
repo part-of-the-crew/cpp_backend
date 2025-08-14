@@ -45,6 +45,8 @@ struct Request : public Enquire {
 public:
     int id;
     std::string type;
+    std::string from;
+    std::string to;
 };
 
 struct Response {
@@ -61,6 +63,16 @@ struct BusResponse : public Response{
 struct MapResponse : public Response {
     const std::string svg;
 };
+
+struct RouteResponse  : public Response {
+    std::string to;
+    std::string from;
+};
+
+struct RoutingSettings {
+    int bus_wait_time;
+    int bus_velocity;
+};
 /*
 struct RequestPtrComparator {
     bool operator()(const std::shared_ptr<Request>& lhs, const std::shared_ptr<Request>& rhs) const {
@@ -76,18 +88,20 @@ public:
     };
 
     transport_catalogue::TransportCatalogue CreateTransportCatalogue(void);
-    std::vector<std::variant<StopResponse, BusResponse, MapResponse>>
+    std::vector<std::variant<StopResponse, BusResponse, MapResponse, RouteResponse>> 
     CalculateRequests (const transport_catalogue::TransportCatalogue& cat);
 
-    map_renderer::RenderSettings ReadForMapRenderer(void);
+    map_renderer::RenderSettings ReadMapRenderer(void);
 private:
+    //json::Document doc_;
     const json::Node& root_;
     std::set <Bus> buses_;
     std::set <Stop> stops_;
     std::vector <Request> requests_;
-
-    void ReadForBaseRequests(void);
-    void ReadForStatRequests(void);
+    RoutingSettings routing_settings_;
+    void ReadBaseRequests(void);
+    void ReadStatRequests(void);
+    void ReadRoutingSettings(void);    
     svg::Color GetColor(const json::Node &node);
     const json::Node& FindInJson(const std::string &s);
     void WriteBuses (const Bus& bus);
@@ -95,7 +109,7 @@ private:
 };
 
 json::Document
-TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse, MapResponse>>& requests);
+TransformRequestsIntoJson(const std::vector<std::variant<StopResponse, BusResponse, MapResponse, RouteResponse>>& requests);
 
 
 } //namespace json_reader
