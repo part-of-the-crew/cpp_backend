@@ -53,5 +53,48 @@ struct RouteStatistics {
     int uniqueStops;
     int totalStops;
 };
+/*
+{
+        "items": [
+            {
+                "stop_name": "Zagorye",
+                "time": 2,
+                "type": "Wait"
+            },
+            {
+                "bus": "289",
+                "span_count": 1,
+                "time": 24.8,
+                "type": "Bus"
+            }
+        ],
+        "request_id": 2,
+        "total_time": 29.26
+    },
+*/
+struct BusPoint {
+    std::string_view name;
+    double time;
+    std::string type;
+};
+struct StopPoint {
+    std::string_view name;
+    double time;
+    std::string type;
+    int span_count;
+};
+
+struct RoutePoint {
+    std::string_view name;
+    double time;
+    std::string type;
+    int span_count;
+};
+
+struct Route {
+    int total_time;
+    //std::vector<std::variant <BusPoint, StopPoint>> routePoints;
+    std::vector<RoutePoint> routePoints;
+};
 
 }  // namespace domain

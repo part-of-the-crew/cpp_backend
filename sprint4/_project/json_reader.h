@@ -65,14 +65,14 @@ struct MapResponse : public Response {
 };
 
 struct RouteResponse  : public Response {
-    std::string to;
-    std::string from;
+    std::optional<domain::Route> route;
 };
 
 struct RoutingSettings {
     int bus_wait_time;
     int bus_velocity;
 };
+
 /*
 struct RequestPtrComparator {
     bool operator()(const std::shared_ptr<Request>& lhs, const std::shared_ptr<Request>& rhs) const {

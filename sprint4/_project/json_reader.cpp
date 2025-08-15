@@ -276,7 +276,10 @@ JsonReader::CalculateRequests (const transport_catalogue::TransportCatalogue& ca
             continue;
         }
         if (e.type == "Route"){
-            //RouteResponse response;
+            ////TODO
+
+
+            //responses.emplace_back(RouteResponse{e.id, Router.GetRoute() });
             continue;
         }
         throw std::runtime_error ("Unknown request!");
@@ -326,8 +329,30 @@ json::Node SerializeResponse(const BusResponse& value) {
 }
 
 json::Node SerializeResponse(const RouteResponse& value) {
-json::Builder builder;
-                builder.StartDict();
+    json::Builder builder;
+                builder.StartDict()
+                    .Key("request_id"s).Value(value.id);
+    if (!(value.route.has_value())) {
+       builder.Key("error_message"s).Value("not found"s);
+    } else {
+        auto const& route = value.route.value();
+        builder.Key("total_time"s).Value(route.total_time);
+        builder.Key("items"s).StartArray();
+        for (auto const& e: route.routePoints){
+            builder.StartDict();
+            builder.Key("type"s).Value(e.type);
+            builder.Key("time"s).Value(e.time);
+            if (e.type == "Wait"){
+                builder.Key("stop_name").Value(std::string(e.name));
+                builder.Key("span_count"s).Value(e.time);
+            } else {
+                builder.Key("bus").Value(std::string(e.name));
+                builder.Key("time"s).Value(e.time);
+            }
+            builder.EndDict();
+        }
+        builder.EndArray();
+    }
     return builder.EndDict().Build();
 }
 
