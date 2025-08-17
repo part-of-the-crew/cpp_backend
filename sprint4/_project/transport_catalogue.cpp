@@ -56,6 +56,19 @@ TransportCatalogue::GetBusesForStop(std::string_view stopName) const {
     return &it->second;  // Return pointer to set
 }
 
+
+std::optional<int> 
+TransportCatalogue::GetDistance(const domain::Stop *from, const domain::Stop *to) const
+{
+    auto it = distances.find({from, to});
+    if (it == distances.end()){
+        it = distances.find({to, from});
+        if (it == distances.end())
+            return std::nullopt;
+    }
+    return it->second;     
+}
+
 std::optional<domain::RouteStatistics> 
 TransportCatalogue::GetRouteStatistics(std::string_view busName) const {
     double distance {0};

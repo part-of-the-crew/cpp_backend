@@ -11,6 +11,7 @@
 #include "json_builder.h"
 #include "geo.h"
 #include "map_renderer.h"
+#include "transport_router.h"
 
 namespace json_reader {
 
@@ -68,10 +69,6 @@ struct RouteResponse  : public Response {
     std::optional<domain::Route> route;
 };
 
-struct RoutingSettings {
-    int bus_wait_time;
-    int bus_velocity;
-};
 
 /*
 struct RequestPtrComparator {
@@ -91,21 +88,21 @@ public:
     std::vector<std::variant<StopResponse, BusResponse, MapResponse, RouteResponse>> 
     CalculateRequests (const transport_catalogue::TransportCatalogue& cat);
 
-    map_renderer::RenderSettings ReadMapRenderer(void);
 private:
     //json::Document doc_;
     const json::Node& root_;
     std::set <Bus> buses_;
     std::set <Stop> stops_;
     std::vector <Request> requests_;
-    RoutingSettings routing_settings_;
     void ReadBaseRequests(void);
     void ReadStatRequests(void);
-    void ReadRoutingSettings(void);    
     svg::Color GetColor(const json::Node &node);
     const json::Node& FindInJson(const std::string &s);
     void WriteBuses (const Bus& bus);
     void WriteStops (const Stop& bus);
+
+    std::optional<map_renderer::RenderSettings> ReadMapRenderer(void);
+    std::optional<transport_router::RoutingSettings> ReadRoutingSettings(void);
 };
 
 json::Document

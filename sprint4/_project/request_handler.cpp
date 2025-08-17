@@ -57,3 +57,11 @@ RequestHandler::GetStops(void){
     }
     return v;
 }
+
+ssize_t RequestHandler::GetStopNumber(void) const {
+    return AllStopNames.size();
+}
+
+int RequestHandler::GetDistance(const domain::Stop* from, const domain::Stop* to) const{
+    return cat_.GetDistance(from, to).value();
+} 

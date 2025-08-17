@@ -62,7 +62,7 @@ public:
     const std::set<std::string_view>* GetBusesForStop(std::string_view stopName) const;
     std::optional<domain::RouteStatistics> GetRouteStatistics(std::string_view busName) const;
 
-
+    std::optional<int> GetDistance(const domain::Stop*, const domain::Stop*) const;
 };
 
 }//transport_catalogue

@@ -53,6 +53,8 @@ public:
     std::vector<geo::Coordinates> GetAllCoordinates(void);
     std::vector<const domain::Bus*>GetBuses(void);
     std::vector<const domain::Stop*>GetStops(void);
+    ssize_t GetStopNumber(void) const;
+    int GetDistance(const domain::Stop*, const domain::Stop*) const;
 private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
     const Catalogue& cat_;

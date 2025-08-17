@@ -128,17 +128,19 @@ void JsonReader::ReadStatRequests(void) {
     }
 }
 
-void JsonReader::ReadRoutingSettings(void) {
+std::optional<transport_router::RoutingSettings>
+JsonReader::ReadRoutingSettings(void) {
+    transport_router::RoutingSettings routing_settings;
     for (auto const& [f, s]: FindInJson("routing_settings").AsDict()){
         if (f == "bus_wait_time"){
-            routing_settings_.bus_wait_time = s.AsInt();
+            routing_settings.bus_wait_time = s.AsInt();
             continue;
         }
         if (f == "bus_velocity"){
-            routing_settings_.bus_velocity = s.AsInt();
+            routing_settings.bus_velocity = s.AsInt();
             continue;
         }
-        throw std::runtime_error ("Unknown type in routing_settings!");
+        return std::nullopt;
     }
 }
 
@@ -169,9 +171,9 @@ svg::Color JsonReader::GetColor(const json::Node &node){
     throw std::runtime_error ("Unexpected color format");
 }
 
-map_renderer::RenderSettings
+std::optional<map_renderer::RenderSettings>
 JsonReader::ReadMapRenderer(void){
-    map_renderer::RenderSettings settings;
+   map_renderer::RenderSettings settings;
 
     for (auto const& [f, s]: FindInJson("render_settings").AsDict()){
         if (f == "width"){
@@ -235,7 +237,7 @@ transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
     transport_catalogue::TransportCatalogue catalogue;
     transport_catalogue::TransportCatalogue::distanceBtwStops_t distancesBtwStops;
     ReadBaseRequests();
-    ReadRoutingSettings();
+    
     for (auto& cmd : stops_) {
         domain::Stop stop {cmd.name, cmd.coord};
 
@@ -260,6 +262,11 @@ std::vector<std::variant<StopResponse, BusResponse, MapResponse, RouteResponse>>
 JsonReader::CalculateRequests (const transport_catalogue::TransportCatalogue& cat){
     std::vector<std::variant<StopResponse, BusResponse, MapResponse, RouteResponse>> responses;
     ReadStatRequests();
+    request_handler::RequestHandler rhandler{cat};
+    std::optional<map_renderer::RenderSettings> renderingSettings;
+    std::optional<transport_router::RoutingSettings> routingSettings;
+    if (!routingSettings) routingSettings = ReadRoutingSettings();
+    transport_router::RouteContainer rContainer{rhandler, routingSettings.value()};
     for (auto const& e: requests_){
         if (e.type == "Stop"){
             responses.emplace_back(StopResponse{e.id, cat.GetBusesForStop(e.name)});
@@ -270,16 +277,13 @@ JsonReader::CalculateRequests (const transport_catalogue::TransportCatalogue& ca
             continue;
         }
         if (e.type == "Map"){
-            request_handler::RequestHandler rhandler{cat};
-            map_renderer::MapRenderer mapRenderer{ReadMapRenderer(), rhandler};
+           if (!renderingSettings) renderingSettings = ReadMapRenderer();
+            map_renderer::MapRenderer mapRenderer{renderingSettings.value(), rhandler};
             responses.emplace_back(MapResponse{e.id, mapRenderer.RenderMap()});
             continue;
         }
         if (e.type == "Route"){
-            ////TODO
-
-
-            //responses.emplace_back(RouteResponse{e.id, Router.GetRoute() });
+            responses.emplace_back(RouteResponse{e.id, rContainer.GetRoute(e.from, e.to) });
             continue;
         }
         throw std::runtime_error ("Unknown request!");

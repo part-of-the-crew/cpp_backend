@@ -71,7 +71,7 @@ struct RouteStatistics {
         "request_id": 2,
         "total_time": 29.26
     },
-*/
+
 struct BusPoint {
     std::string_view name;
     double time;
@@ -83,7 +83,7 @@ struct StopPoint {
     std::string type;
     int span_count;
 };
-
+*/
 struct RoutePoint {
     std::string_view name;
     double time;

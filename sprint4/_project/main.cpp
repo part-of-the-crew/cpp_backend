@@ -24,8 +24,8 @@ int main() {
     //return 0;
 
     transport_catalogue::TransportCatalogue cat = jreader.CreateTransportCatalogue();
-    auto requests{jreader.CalculateRequests(cat)};
-    json::Document output_doc = json_reader::TransformRequestsIntoJson(requests);
+    auto preparedRequests = jreader.CalculateRequests(cat);
+    json::Document output_doc = json_reader::TransformRequestsIntoJson(preparedRequests);
 
 
 
