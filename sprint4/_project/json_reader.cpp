@@ -133,15 +133,16 @@ JsonReader::ReadRoutingSettings(void) {
     transport_router::RoutingSettings routing_settings;
     for (auto const& [f, s]: FindInJson("routing_settings").AsDict()){
         if (f == "bus_wait_time"){
-            routing_settings.bus_wait_time = s.AsInt();
+            routing_settings.bus_wait_time = s.AsDouble();
             continue;
         }
         if (f == "bus_velocity"){
-            routing_settings.bus_velocity = s.AsInt();
+            routing_settings.bus_velocity = s.AsDouble();
             continue;
         }
         return std::nullopt;
     }
+    return routing_settings;
 }
 
 svg::Color JsonReader::GetColor(const json::Node &node){
