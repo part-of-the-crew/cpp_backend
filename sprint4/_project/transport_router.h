@@ -19,11 +19,17 @@ struct RoutingSettings {
 
 
 class RouteContainer {
-    //request_handler::RequestHandler &rhandler_;
+    struct EdgeInfo {
+        std::string type;
+        std::string name;
+    };
+    
+    request_handler::RequestHandler &rHandler_;
     transport_router::RoutingSettings rSettings_;
     graph::DirectedWeightedGraph<double> dwg_;
-    std::vector<std::string> edgeIndex_;
+    std::vector<EdgeInfo> edgeList_;
     std::unordered_map<std::string, size_t> vertexIndex_;
+
     std::pair <int, int> GetStopVertexes(const std::string &from, const std::string &to) const {
         auto it_from = vertexIndex_.find(from);
         auto it_to = vertexIndex_.find(to);
@@ -32,23 +38,65 @@ class RouteContainer {
         
         return {it_from->second, it_to->second};
     }
-    std::optional<size_t> GetStopVertex(const std::string &vertex) const {
+    size_t GetStopVertex(const std::string &vertex) const {
+        using namespace std::string_literals;
         auto it = vertexIndex_.find(vertex);
         if (it == vertexIndex_.end())
-            return std::nullopt;
+            throw std::runtime_error ("Unknown vertex "s + vertex);
         return it->second;
     }
+    void setStops(){
+        using namespace std::string_literals;
+        for (auto const& stop: rHandler_.GetAllStopNames()){
+            const auto index = edgeList_.size();
+            vertexIndex_[std::string(stop)] = index;
 
-    //void FillGraph(void);
+            dwg_.AddEdge(graph::Edge<double> (index, index + 1, rSettings_.bus_wait_time));
+            edgeList_.push_back({"Wait"s, std::string(stop)});
+            dwg_.AddEdge(graph::Edge<double> (index + 1, index, 0));
+            edgeList_.push_back({"NoWait"s, ""s});
+        }
+    }
+    void setRoutes(){
+        auto const& buses = rHandler_.GetBuses();
+        for (auto it = buses.begin(); it != buses.end(); ++it) {
+            setRoute(*it);
+        }
+    }
+    void setRoute (const domain::Bus *const bus){
+        using namespace std::string_literals;
+        constexpr double KMH_TO_MS = 60.0 / 1000.0;
+        auto const& stops = bus->stops;
+        for (size_t i = 0; i < stops.size() - 1; i++){
+            auto const& stop_from = stops[i];
+            auto const& stop_to = stops[i + 1];
+            auto distance = rHandler_.GetDistance(&(*stop_from), &(*stop_to));
+            auto time = static_cast<double>(distance) / rSettings_.bus_velocity * KMH_TO_MS;
+            auto numberFrom = GetStopVertex(stop_from->name);
+            auto numberTo = GetStopVertex(stop_to->name);
+            if ( i != (bus->stops.size() - 1)){
+                dwg_.AddEdge({numberFrom + 1, numberTo + 1, time});
+            } else {
+                dwg_.AddEdge({numberFrom + 1, numberTo, time});
+            }
+            edgeList_.push_back({"Bus"s, bus->name});
+        }
+    }
 public:
-    RouteContainer(request_handler::RequestHandler &rHandler, transport_router::RoutingSettings routingSettings)
-        : rSettings_(routingSettings)
-        , dwg_(rHandler.GetStopNumber()*3)
-        , edgeIndex_(rHandler.GetStopNumber()*3)
+    RouteContainer(request_handler::RequestHandler &rHandler, const transport_router::RoutingSettings& routingSettings)
+        : rHandler_(rHandler)
+        , rSettings_(routingSettings)
+        , dwg_(rHandler.GetStopNumber()*8)
+        //, edgeList_(rHandler.GetStopNumber()*8)
         {
-
+            setStops();
+            setRoutes();
+            return;
+        }
+            /*
             size_t stopVertex = 0;
-            size_t nextStopVertex = 1;
+            size_t nextStopVertex = 2;
+
             for (auto const& bus: rHandler.GetBuses()){
 
                 for (size_t i = 0; i < bus->stops.size() - 1; i++){
@@ -60,11 +108,12 @@ public:
                     auto numberTo = GetStopVertex(stop_to->name);
                     auto curStopVertex = stopVertex;
                     auto curNextStopVertex = nextStopVertex;
+
                     if (numberFrom.has_value()){
                         curStopVertex = numberFrom.value();
                     }
                     if (numberTo.has_value()){
-                        curNextStopVertex = numberFrom.value();
+                        curNextStopVertex = numberTo.value();
                     }
                    
 
@@ -72,31 +121,39 @@ public:
                     if (!numberFrom.has_value()){
                         graph::Edge<double> vWait1{curStopVertex, curStopVertex + 1, rSettings_.bus_wait_time};
                         dwg_.AddEdge(vWait1);
-                        edgeIndex_.push_back(bus->name);
+                        edgeList_.push_back("Wait");
                         vertexIndex_[stop_from->name] = curStopVertex;
+                    } else {
+                        ;//std::cout << "  why " << std::endl;
                     }
                     if (!numberTo.has_value()){
-                        vertexIndex_[stop_to->name] = curNextStopVertex;
+                        ;//vertexIndex_[stop_to->name] = curNextStopVertex;
                     }
-
+                    std::cout << "  Edge " << i
+                       << ": ●" << curStopVertex << "("<< stop_from->name << ")" 
+                       << " --" << curNextStopVertex << "--> ●(" << stop_to->name << " time = " << time
+                       << " bus_wait_time = " << rSettings_.bus_wait_time
+                       << ")\n";
                     if (stop_from->name != stop_to->name){
                         graph::Edge<double> vStoping1{curStopVertex + 1, curNextStopVertex, time};
                         dwg_.AddEdge(vStoping1);
-                        edgeIndex_.push_back(bus->name);
+                        edgeList_.push_back(bus->name);
+                        ++stopVertex;
                     } else {
                         graph::Edge<double> vWait2{curStopVertex, curNextStopVertex + 1, rSettings_.bus_wait_time};
                         dwg_.AddEdge(vWait2);
-                        edgeIndex_.push_back(bus->name);
+                        edgeList_.push_back("Wait");
                     }
-
+                    ++nextStopVertex;
                     if ( i != (bus->stops.size() - 1)){
                         graph::Edge<double> vGo1{curStopVertex + 1, curNextStopVertex + 1, time};
                         dwg_.AddEdge(vGo1);
-                        edgeIndex_.push_back(bus->name);
+                        edgeList_.push_back(bus->name);
                     }
                 }
             }
         }
+        */
 /*{
         "stop_name": "Apteka",
         "time": 2,
@@ -109,23 +166,51 @@ public:
         "type": "Bus"
     },
 struct RoutePoint {
-    std::string_view name;
+    std::string name;
     double time;
     std::string type;
     int span_count;
-};*/
+            {
+                "stop_name": "Lipetskaya ulitsa 46",
+                "time": 2,
+                "type": "Wait"
+            },
+            {
+                "bus": "289",
+                "span_count": 1,
+                "time": 24.8,
+                "type": "Bus"
+            }};
+*/
+
     std::optional<domain::Route> GetRoute(const std::string& stopFrom, const std::string& stopTo) const {
         using namespace std::string_literals;
         domain::Route route;
         auto [from, to] = GetStopVertexes(stopFrom, stopTo);
         graph::Router<double> router(this->dwg_);
-        auto routeFromRouter = router.BuildRoute(from, to);
-        if (!routeFromRouter.has_value())
-            throw std::runtime_error ("No Path from "s + stopFrom + " to "s + stopTo);
+        std::optional<graph::Router<double>::RouteInfo> routeFromRouter = router.BuildRoute(from, to);
+        dwg_.PrintGraph();
+        if (!routeFromRouter.has_value()){
+            return std::nullopt;
+            //throw std::runtime_error ("No Path from "s + stopFrom + " to "s + stopTo);
+        }
         auto weight = routeFromRouter.value().weight;
-        auto edges = routeFromRouter.value().edges;
         route.total_time = weight;
-
+        for (size_t point: routeFromRouter.value().edges){//size_t
+            graph::Edge<double> edge = dwg_.GetEdge(point);
+            if (edge.weight == 0){
+                ;//continue;
+            }
+            auto type = edgeList_.at(point);
+            domain::RoutePoint routePoint;
+            routePoint.type = type.type;
+            if (routePoint.type == "Wait"s ){
+                routePoint.span_count = 0;
+            }
+            routePoint.name = type.name;
+            routePoint.time = edge.weight;
+            route.routePoints.emplace_back(std::move(routePoint));
+        }
         return route;
 
 

@@ -18,7 +18,7 @@ RequestHandler::GetStopsForAllBuses(void){
 }
 */
 std::vector<geo::Coordinates>
-RequestHandler::GetAllCoordinates(void){
+RequestHandler::GetAllCoordinates(void) const {
 
     std::vector<geo::Coordinates> v;
     for (auto const& bus: cat_.GetStopsForAllBuses()){
@@ -34,8 +34,12 @@ void RequestHandler::FetchAllEntities(void){
     AllBusNames = cat_.GetAllBusNames();
 }
 
+std::set<std::string_view> RequestHandler::GetAllStopNames(void) const {
+    return AllStopNames;
+}
+
 std::vector<const domain::Bus*>
-RequestHandler::GetBuses(void){
+RequestHandler::GetBuses(void) const {
     std::vector<const domain::Bus*> v;
     for (auto const& el: AllBusNames){
         auto bus = cat_.GetStopsForBus(el);
@@ -46,7 +50,7 @@ RequestHandler::GetBuses(void){
     return v;
 }
 std::vector<const domain::Stop*>
-RequestHandler::GetStops(void){
+RequestHandler::GetStops(void) const {
     std::vector<const domain::Stop*> v;
     for (auto const& el: AllStopNames){
         auto bus = cat_.GetBusesForStop(el);
@@ -62,6 +66,6 @@ ssize_t RequestHandler::GetStopNumber(void) const {
     return AllStopNames.size();
 }
 
-int RequestHandler::GetDistance(const domain::Stop* from, const domain::Stop* to) const{
+int RequestHandler::GetDistance(const domain::Stop* from, const domain::Stop* to) const {
     return cat_.GetDistance(from, to).value();
 } 

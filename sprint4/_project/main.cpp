@@ -28,6 +28,6 @@ int main() {
     json::Document output_doc = json_reader::TransformRequestsIntoJson(preparedRequests);
 
 
-
     json::Print(output_doc, std::cout);
+    json::Print(output_doc, std::cerr);
 }

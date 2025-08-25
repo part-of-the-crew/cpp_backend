@@ -348,11 +348,10 @@ json::Node SerializeResponse(const RouteResponse& value) {
             builder.Key("type"s).Value(e.type);
             builder.Key("time"s).Value(e.time);
             if (e.type == "Wait"){
-                builder.Key("stop_name").Value(std::string(e.name));
-                builder.Key("span_count"s).Value(e.time);
+                builder.Key("stop_name").Value(e.name);
             } else {
-                builder.Key("bus").Value(std::string(e.name));
-                builder.Key("time"s).Value(e.time);
+                builder.Key("bus").Value(e.name);
+                builder.Key("span_count"s).Value(e.span_count);
             }
             builder.EndDict();
         }

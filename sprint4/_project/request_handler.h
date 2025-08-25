@@ -50,9 +50,9 @@ public:
     //std::vector<const transport_catalogue::Bus*> GetStopsForAllBuses(void) const;
     std::set<std::string_view> GetAllStopNames(void) const;
     std::set<std::string_view> GetAllBusNames(void) const;
-    std::vector<geo::Coordinates> GetAllCoordinates(void);
-    std::vector<const domain::Bus*>GetBuses(void);
-    std::vector<const domain::Stop*>GetStops(void);
+    std::vector<geo::Coordinates> GetAllCoordinates(void) const;
+    std::vector<const domain::Bus*>GetBuses(void) const;
+    std::vector<const domain::Stop*>GetStops(void) const;
     ssize_t GetStopNumber(void) const;
     int GetDistance(const domain::Stop*, const domain::Stop*) const;
 private:
