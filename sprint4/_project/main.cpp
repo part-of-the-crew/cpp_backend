@@ -29,5 +29,5 @@ int main() {
 
 
     json::Print(output_doc, std::cout);
-    json::Print(output_doc, std::cerr);
+    //json::Print(output_doc, std::cerr);
 }

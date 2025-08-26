@@ -45,42 +45,64 @@ class RouteContainer {
             throw std::runtime_error ("Unknown vertex "s + vertex);
         return it->second;
     }
-    void setStops(){
+    void SetStops(){
         using namespace std::string_literals;
         for (auto const& stop: rHandler_.GetAllStopNames()){
-            const auto index = edgeList_.size();
+            const auto index = vertexIndex_.size();
             vertexIndex_[std::string(stop)] = index;
 
-            dwg_.AddEdge(graph::Edge<double> (index, index + 1, rSettings_.bus_wait_time));
-            edgeList_.push_back({"Wait"s, std::string(stop)});
-            dwg_.AddEdge(graph::Edge<double> (index + 1, index, 0));
-            edgeList_.push_back({"NoWait"s, ""s});
+
+            //dwg_.AddEdge(graph::Edge<double> (index + 1, index, 0));
+            //edgeList_.push_back({"NoWait"s, ""s});
         }
     }
-    void setRoutes(){
+    void SetRoutes(){
         auto const& buses = rHandler_.GetBuses();
+        auto waitVertex = vertexIndex_.size();
         for (auto it = buses.begin(); it != buses.end(); ++it) {
-            setRoute(*it);
+            waitVertex = SetRoute(*it, waitVertex);
         }
     }
-    void setRoute (const domain::Bus *const bus){
+    void SetWaitVertex(std::string stop, size_t stopIndex){
+        using namespace std::string_literals;
+        //const auto index = edgeList_.size();
+        dwg_.AddEdge(graph::Edge<double> (GetStopVertex(stop), stopIndex, rSettings_.bus_wait_time));
+        edgeList_.push_back({"Wait"s, stop});
+        //return stopIndex;
+    }
+    std::size_t SetRoute (const domain::Bus *const bus, std::size_t waitVertex){
         using namespace std::string_literals;
         constexpr double KMH_TO_MS = 60.0 / 1000.0;
         auto const& stops = bus->stops;
+        //auto waitVertex = vertexIndex_.size();
         for (size_t i = 0; i < stops.size() - 1; i++){
             auto const& stop_from = stops[i];
             auto const& stop_to = stops[i + 1];
             auto distance = rHandler_.GetDistance(&(*stop_from), &(*stop_to));
             auto time = static_cast<double>(distance) / rSettings_.bus_velocity * KMH_TO_MS;
-            auto numberFrom = GetStopVertex(stop_from->name);
-            auto numberTo = GetStopVertex(stop_to->name);
-            if ( i != (bus->stops.size() - 1)){
-                dwg_.AddEdge({numberFrom + 1, numberTo + 1, time});
-            } else {
-                dwg_.AddEdge({numberFrom + 1, numberTo, time});
+            //auto fromIndex = GetStopVertex(stop_from->name);
+            auto toIndex = GetStopVertex(stop_to->name);
+            SetWaitVertex(stop_from->name, waitVertex);
+            //auto waitToIndex = SetWaitVertex(stop_to->name, toIndex);
+
+            if ( i < (bus->stops.size() - 2)){
+                //Go
+                dwg_.AddEdge({waitVertex, waitVertex + 1, time});
+                edgeList_.push_back({"Bus"s, bus->name});
             }
+            //Stoping
+            dwg_.AddEdge({waitVertex, toIndex, time});
             edgeList_.push_back({"Bus"s, bus->name});
+/*
+            std::cout << "  Edge " << i
+               << ": ●" << curStopVertex << "("<< stop_from->name << ")" 
+               << " --" << curNextStopVertex << "--> ●(" << stop_to->name << " time = " << time
+               << " bus_wait_time = " << rSettings_.bus_wait_time
+               << ")\n";
+*/
+            waitVertex++;
         }
+        return waitVertex;
     }
 public:
     RouteContainer(request_handler::RequestHandler &rHandler, const transport_router::RoutingSettings& routingSettings)
@@ -89,8 +111,8 @@ public:
         , dwg_(rHandler.GetStopNumber()*8)
         //, edgeList_(rHandler.GetStopNumber()*8)
         {
-            setStops();
-            setRoutes();
+            SetStops();
+            SetRoutes();
             return;
         }
             /*
@@ -189,7 +211,7 @@ struct RoutePoint {
         auto [from, to] = GetStopVertexes(stopFrom, stopTo);
         graph::Router<double> router(this->dwg_);
         std::optional<graph::Router<double>::RouteInfo> routeFromRouter = router.BuildRoute(from, to);
-        dwg_.PrintGraph();
+        //dwg_.PrintGraph();
         if (!routeFromRouter.has_value()){
             return std::nullopt;
             //throw std::runtime_error ("No Path from "s + stopFrom + " to "s + stopTo);
@@ -198,18 +220,20 @@ struct RoutePoint {
         route.total_time = weight;
         for (size_t point: routeFromRouter.value().edges){//size_t
             graph::Edge<double> edge = dwg_.GetEdge(point);
-            if (edge.weight == 0){
-                ;//continue;
-            }
             auto type = edgeList_.at(point);
-            domain::RoutePoint routePoint;
-            routePoint.type = type.type;
-            if (routePoint.type == "Wait"s ){
-                routePoint.span_count = 0;
+            domain::RoutePoint routePoint{type.name, edge.weight, type.type, 1};
+            if (!route.routePoints.empty()){
+                domain::RoutePoint& prev = route.routePoints.back();
+                if (prev.type ==  routePoint.type){
+                    ++prev.span_count;
+                    prev.time += routePoint.time;
+                } else {
+                    route.routePoints.emplace_back(std::move(routePoint));
+                }
+            } else {
+                route.routePoints.emplace_back(std::move(routePoint));
             }
-            routePoint.name = type.name;
-            routePoint.time = edge.weight;
-            route.routePoints.emplace_back(std::move(routePoint));
+
         }
         return route;
 
