@@ -29,6 +29,14 @@ RequestHandler::GetAllCoordinates(void) const {
     return v;
 }
 
+size_t RequestHandler::GetNumberOfRoutePoints(void) const {
+    size_t ret = 0;
+    for (auto const& bus: cat_.GetStopsForAllBuses()){
+        ret += bus->stops.size();
+    }
+    return ret;
+}
+
 void RequestHandler::FetchAllEntities(void){
     AllStopNames = cat_.GetAllStopNames();
     AllBusNames = cat_.GetAllBusNames();

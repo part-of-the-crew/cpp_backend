@@ -261,6 +261,7 @@ transport_catalogue::TransportCatalogue JsonReader::CreateTransportCatalogue(){
 
 std::vector<std::variant<StopResponse, BusResponse, MapResponse, RouteResponse>> 
 JsonReader::CalculateRequests (const transport_catalogue::TransportCatalogue& cat){
+    
     std::vector<std::variant<StopResponse, BusResponse, MapResponse, RouteResponse>> responses;
     ReadStatRequests();
     request_handler::RequestHandler rhandler{cat};

@@ -54,7 +54,9 @@ public:
     std::vector<const domain::Bus*>GetBuses(void) const;
     std::vector<const domain::Stop*>GetStops(void) const;
     ssize_t GetStopNumber(void) const;
+    size_t GetNumberOfRoutePoints(void) const;
     int GetDistance(const domain::Stop*, const domain::Stop*) const;
+    
 private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
     const Catalogue& cat_;
