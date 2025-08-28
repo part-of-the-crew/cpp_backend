@@ -75,5 +75,8 @@ ssize_t RequestHandler::GetStopNumber(void) const {
 }
 
 int RequestHandler::GetDistance(const domain::Stop* from, const domain::Stop* to) const {
+    using namespace std::string_literals;
+    if (!cat_.GetDistance(from, to).has_value())
+        throw std::runtime_error ("No distance btw "s + from->name + " and " + to->name);
     return cat_.GetDistance(from, to).value();
 } 
