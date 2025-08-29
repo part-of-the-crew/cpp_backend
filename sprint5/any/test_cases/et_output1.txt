@@ -1,0 +1,10 @@
+42
+abc
+construct
+move
+destruct
+construct
+copy
+destruct
+destruct
+destruct
