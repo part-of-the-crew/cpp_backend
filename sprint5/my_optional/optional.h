@@ -15,35 +15,113 @@ template <typename T>
 class Optional {
 public:
     Optional() = default;
-    Optional(const T& value);
-    Optional(T&& value);
-    Optional(const Optional& other);
-    Optional(Optional&& other);
 
-    Optional& operator=(const T& value);
-    Optional& operator=(T&& rhs);
-    Optional& operator=(const Optional& rhs);
-    Optional& operator=(Optional&& rhs);
+    Optional(const T& value) {
+        new (&data_) T(value);
+        is_initialized_ = true;
+    }
 
-    ~Optional();
+    Optional(T&& value) {
+        new (&data_) T(std::move(value));
+        is_initialized_ = true;
+    }
 
-    bool HasValue() const;
+    Optional(const Optional& other) {
+        if (other.is_initialized_) {
+            new (&data_) T(*other.ptr());
+            is_initialized_ = true;
+        }
+    }
 
-    // Операторы * и -> не должны делать никаких проверок на пустоту Optional.
-    // Эти проверки остаются на совести программиста
-    T& operator*();
-    const T& operator*() const;
-    T* operator->();
-    const T* operator->() const;
+    Optional(Optional&& other) {
+        if (this == &other) return ;
+        if (!other.is_initialized_) {
+            Reset();
+        } else if (is_initialized_) {
+            *ptr() = std::move(*other.ptr());
+        } else {
+            new (&data_) T(std::move(*other.ptr()));
+            is_initialized_ = true;
+        }
+    }
 
-    // Метод Value() генерирует исключение BadOptionalAccess, если Optional пуст
-    T& Value();
-    const T& Value() const;
+    Optional& operator=(const T& value) {
+        if (is_initialized_) {
+            *ptr() = value;               // assign into existing object
+        } else {
+            new (&data_) T(value);
+            is_initialized_ = true;
+        }
+        return *this;
+    }
 
-    void Reset();
+    Optional& operator=(T&& value) {
+        if (is_initialized_) {
+            *ptr() = std::move(value);
+        } else {
+            new (&data_) T(std::move(value));
+            is_initialized_ = true;
+        }
+        return *this;
+    }
 
+    Optional& operator=(const Optional& other) {
+        if (this == &other) return *this;
+        if (!other.is_initialized_) {
+            Reset();
+        } else if (is_initialized_) {
+            *ptr() = *other.ptr();
+        } else {
+            new (&data_) T(*other.ptr());
+            is_initialized_ = true;
+        }
+        return *this;
+    }
+
+    Optional& operator=(Optional&& other) {
+        if (this == &other) return *this;
+        if (!other.is_initialized_) {
+            Reset();
+        } else if (is_initialized_) {
+            *ptr() = std::move(*other.ptr());
+        } else {
+            new (&data_) T(std::move(*other.ptr()));
+            is_initialized_ = true;
+        }
+        return *this;
+    }
+
+    ~Optional() { Reset(); }
+
+    bool HasValue() const { return is_initialized_; }
+    explicit operator bool() const { return is_initialized_; }
+
+    T& Value() {
+        if (!is_initialized_) throw BadOptionalAccess{};
+        return *ptr();
+    }
+    const T& Value() const {
+        if (!is_initialized_) throw BadOptionalAccess{};
+        return *ptr();
+    }
+
+    T& operator*() { return *ptr(); }
+    const T& operator*() const { return *ptr(); }
+
+    T* operator->() { return ptr(); }
+    const T* operator->() const { return ptr(); }
+
+    void Reset() {
+        if (is_initialized_) {
+            ptr()->~T();
+            is_initialized_ = false;
+        }
+    }
 private:
     // alignas нужен для правильного выравнивания блока памяти
     alignas(T) char data_[sizeof(T)];
     bool is_initialized_ = false;
+
+    T* ptr() { return reinterpret_cast<T*>(&data_); }
+    const T* ptr() const { return reinterpret_cast<const T*>(&data_); }
 };

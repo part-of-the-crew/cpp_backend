@@ -1,5 +1,5 @@
 #include "optional.h"
-
+#include <iostream>
 #include <cassert>
 
 struct C {
@@ -95,8 +95,11 @@ void TestInitialization() {
         C c;
         Optional<C> o1(c);
         const Optional<C> o2(std::move(o1));
-        assert(C::def_ctor == 1 && C::copy_ctor == 1 && C::move_ctor == 1 && C::copy_assign == 0
-               && C::move_assign == 0);
+        assert(C::def_ctor == 1); 
+        assert(C::copy_ctor == 1); 
+        assert(C::move_ctor == 1); 
+        assert(C::copy_assign == 0);
+        assert(C::move_assign == 0);
         assert(C::InstanceCount() == 3);
     }
     assert(C::InstanceCount() == 0);
@@ -143,7 +146,9 @@ void TestMoveAssignment() {
         Optional<C> o2{C{}};
         C::Reset();
         o1 = std::move(o2);
-        assert(C::move_ctor == 1 && C::move_assign == 0 && C::dtor == 0);
+        assert(C::move_ctor == 1);
+        assert(C::move_assign == 0);
+        assert(C::dtor == 0);
     }
     {  // Assign non empty to non-empty
         Optional<C> o1{C{}};
