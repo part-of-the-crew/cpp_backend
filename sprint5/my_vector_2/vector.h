@@ -185,21 +185,57 @@ public:
         new_data.Swap(data_);
     };
 
-private:
-    static void DestroyN(T* buf, size_t n) noexcept {
-        for (size_t i = 0; i != n; ++i) {
-            Destroy(buf + i);
+
+    void Resize(size_t new_size){
+        if (size_ >= new_size){
+            std::destroy_n(data_.GetAddress() + new_size, size_ - new_size);
+        } else {
+            Reserve(new_size);
+            std::uninitialized_value_construct_n(data_.GetAddress() + size_, new_size - size_);
         }
-    }
-    // Создаёт копию объекта elem в сырой памяти по адресу buf
-    static void CopyConstruct(T* buf, const T& elem) {
-        new (buf) T(elem);
-    }
-    // Вызывает деструктор объекта по адресу buf
-    static void Destroy(T* buf) noexcept {
-        buf->~T();
-    }
-    //-----------------------
+        size_ = new_size;
+    };
+
+    void PopBack() noexcept {
+        std::destroy_at(data_.GetAddress() + size_ - 1);
+        if (size_ > 0)
+            size_ -= 1;
+    };
+
+    void PushBack(const T& value){
+        if (size_ == Capacity()) {
+            RawMemory<T> new_data(size_ == 0 ? 1 : size_ * 2);
+            std::construct_at(new_data + size_, value);
+            if constexpr (std::is_nothrow_move_constructible_v<T> || !std::is_copy_constructible_v<T>) {
+                std::uninitialized_move_n(data_.GetAddress(), size_, new_data.GetAddress());
+            } else {
+                std::uninitialized_copy_n(data_.GetAddress(), size_, new_data.GetAddress());
+            }
+            std::destroy_n(data_.GetAddress(), size_);
+            new_data.Swap(data_);
+        } else {
+            std::construct_at(data_ + size_, value);
+        }
+        ++size_;
+    };
+    void PushBack(T&& value){
+        if (size_ == Capacity()) {
+            RawMemory<T> new_data(size_ == 0 ? 1 : size_ * 2);
+            std::construct_at(new_data + size_, std::move(value));
+            if constexpr (std::is_nothrow_move_constructible_v<T> || !std::is_copy_constructible_v<T>) {
+                std::uninitialized_move_n(data_.GetAddress(), size_, new_data.GetAddress());
+            } else {
+                std::uninitialized_copy_n(data_.GetAddress(), size_, new_data.GetAddress());
+            }
+            std::destroy_n(data_.GetAddress(), size_);
+            new_data.Swap(data_);
+        } else {
+            std::construct_at(data_ + size_, std::move(value));
+        }
+        ++size_;
+    };
+
+private:
     RawMemory<T> data_;
     size_t size_ = 0;
 };
