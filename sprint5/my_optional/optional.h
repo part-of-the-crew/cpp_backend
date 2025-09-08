@@ -117,6 +117,13 @@ public:
             is_initialized_ = false;
         }
     }
+    template<class... Args>
+    T& Emplace(Args&&... args){
+        Reset();
+        new (&data_) T(std::forward<Args>(args)...);
+        is_initialized_ = true;
+        return *ptr();
+    }
 private:
     // alignas нужен для правильного выравнивания блока памяти
     alignas(T) char data_[sizeof(T)];
