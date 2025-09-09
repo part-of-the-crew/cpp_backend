@@ -163,6 +163,7 @@ public:
     };
 
     const T& operator[](size_t index) const noexcept {
+        assert(index < size_);
         return const_cast<Vector&>(*this)[index];
     };
 
@@ -202,10 +203,11 @@ public:
             size_ -= 1;
     };
 
-    void PushBack(const T& value){
+    template<typename T0>
+    void PushBack(T0&& value){
         if (size_ == Capacity()) {
             RawMemory<T> new_data(size_ == 0 ? 1 : size_ * 2);
-            std::construct_at(new_data + size_, value);
+            std::construct_at(new_data + size_, std::forward<T0>(value));
             if constexpr (std::is_nothrow_move_constructible_v<T> || !std::is_copy_constructible_v<T>) {
                 std::uninitialized_move_n(data_.GetAddress(), size_, new_data.GetAddress());
             } else {
@@ -214,14 +216,16 @@ public:
             std::destroy_n(data_.GetAddress(), size_);
             new_data.Swap(data_);
         } else {
-            std::construct_at(data_ + size_, value);
+            std::construct_at(data_ + size_, std::forward<T0>(value));
         }
         ++size_;
     };
-    void PushBack(T&& value){
+
+    template<class... Args>
+    T& EmplaceBack(Args&&... args){
         if (size_ == Capacity()) {
             RawMemory<T> new_data(size_ == 0 ? 1 : size_ * 2);
-            std::construct_at(new_data + size_, std::move(value));
+            std::construct_at(new_data + size_, std::forward<Args>(args)...);
             if constexpr (std::is_nothrow_move_constructible_v<T> || !std::is_copy_constructible_v<T>) {
                 std::uninitialized_move_n(data_.GetAddress(), size_, new_data.GetAddress());
             } else {
@@ -230,9 +234,10 @@ public:
             std::destroy_n(data_.GetAddress(), size_);
             new_data.Swap(data_);
         } else {
-            std::construct_at(data_ + size_, std::move(value));
+            std::construct_at(data_ + size_, std::forward<Args>(args)...);
         }
         ++size_;
+        return (*this)[size_ - 1];
     };
 
 private:
