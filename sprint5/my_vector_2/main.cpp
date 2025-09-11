@@ -429,6 +429,7 @@ void Test6() {
         assert(Obj::num_default_constructed == SIZE);
         assert(Obj::GetAliveObjectCount() == SIZE + 2);
     }
+
     {
         Obj::ResetCounters();
         Vector<Obj> v;
@@ -459,6 +460,7 @@ void Test6() {
         assert(Obj::num_move_assigned == 0);
         assert(Obj::GetAliveObjectCount() == 1);
     }
+
     {
         Obj::ResetCounters();
         Vector<Obj> v{SIZE};
@@ -539,7 +541,9 @@ void Test6() {
         assert(Obj::num_default_constructed == SIZE);
         assert(Obj::num_constructed_with_id_and_name == 1);
         assert(Obj::num_moved == old_num_moved + 1);
-        assert(Obj::num_move_assigned == SIZE - 3);
+        //std::cout << Obj::num_move_assigned << std::endl;
+        //return;
+        assert(Obj::num_move_assigned == SIZE - 3);//6 != 7
         assert(Obj::num_assigned == 0);
     }
     {
