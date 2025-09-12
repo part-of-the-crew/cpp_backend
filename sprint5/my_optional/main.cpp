@@ -1,5 +1,5 @@
 #include "optional.h"
-#include <iostream>
+
 #include <cassert>
 #include <memory>
 
@@ -27,6 +27,18 @@ struct C {
         ++dtor;
     }
 
+    void Update() const& {
+        ++const_lvalue_call_count;
+    }
+
+    void Update() & {
+        ++lvalue_call_count;
+    }
+
+    void Update() && {
+        ++rvalue_call_count;
+    }
+
     static size_t InstanceCount() {
         return def_ctor + copy_ctor + move_ctor - dtor;
     }
@@ -38,6 +50,9 @@ struct C {
         copy_assign = 0;
         move_assign = 0;
         dtor = 0;
+        lvalue_call_count = 0;
+        rvalue_call_count = 0;
+        const_lvalue_call_count = 0;
     }
 
     inline static size_t def_ctor = 0;
@@ -46,6 +61,10 @@ struct C {
     inline static size_t copy_assign = 0;
     inline static size_t move_assign = 0;
     inline static size_t dtor = 0;
+
+    inline static size_t lvalue_call_count = 0;
+    inline static size_t rvalue_call_count = 0;
+    inline static size_t const_lvalue_call_count = 0;
 };
 
 void TestInitialization() {
@@ -96,11 +115,8 @@ void TestInitialization() {
         C c;
         Optional<C> o1(c);
         const Optional<C> o2(std::move(o1));
-        assert(C::def_ctor == 1); 
-        assert(C::copy_ctor == 1); 
-        assert(C::move_ctor == 1); 
-        assert(C::copy_assign == 0);
-        assert(C::move_assign == 0);
+        assert(C::def_ctor == 1 && C::copy_ctor == 1 && C::move_ctor == 1 && C::copy_assign == 0
+               && C::move_assign == 0);
         assert(C::InstanceCount() == 3);
     }
     assert(C::InstanceCount() == 0);
@@ -120,12 +136,12 @@ void TestAssignment() {
         o2 = o1;
         assert(C::copy_ctor == 1 && C::copy_assign == 0 && C::dtor == 0);
     }
-    {  // Assign non empty to non-empty
+    {  // Assign non-empty to non-empty
         C::Reset();
         o2 = o1;
         assert(C::copy_ctor == 0 && C::copy_assign == 1 && C::dtor == 0);
     }
-    {  // Assign empty to non empty
+    {  // Assign empty to non-empty
         C::Reset();
         Optional<C> empty;
         o1 = empty;
@@ -147,18 +163,16 @@ void TestMoveAssignment() {
         Optional<C> o2{C{}};
         C::Reset();
         o1 = std::move(o2);
-        assert(C::move_ctor == 1);
-        assert(C::move_assign == 0);
-        assert(C::dtor == 0);
+        assert(C::move_ctor == 1 && C::move_assign == 0 && C::dtor == 0);
     }
-    {  // Assign non empty to non-empty
+    {  // Assign non-empty to non-empty
         Optional<C> o1{C{}};
         Optional<C> o2{C{}};
         C::Reset();
         o2 = std::move(o1);
         assert(C::copy_ctor == 0 && C::move_assign == 1 && C::dtor == 0);
     }
-    {  // Assign empty to non empty
+    {  // Assign empty to non-empty
         Optional<C> o1{C{}};
         C::Reset();
         Optional<C> empty;
@@ -210,15 +224,69 @@ void TestEmplace() {
         int i;
         std::unique_ptr<int> p;
     };
+
     Optional<S> o;
     o.Emplace(1, std::make_unique<int>(2));
     assert(o.HasValue());
     assert(o->i == 1);
     assert(*(o->p) == 2);
+
     o.Emplace(3, std::make_unique<int>(4));
     assert(o.HasValue());
     assert(o->i == 3);
     assert(*(o->p) == 4);
+}
+
+void TestRefQualifiedMethodOverloading() {
+    {
+        C::Reset();
+        C val = *Optional<C>(C{});
+        assert(C::copy_ctor == 0);
+        assert(C::move_ctor == 2);
+        assert(C::def_ctor == 1);
+        assert(C::copy_assign == 0);
+        assert(C::move_assign == 0);
+    }
+    {
+        C::Reset();
+        C val = Optional<C>(C{}).Value();
+        assert(C::copy_ctor == 0);
+        assert(C::move_ctor == 2);
+        assert(C::def_ctor == 1);
+        assert(C::copy_assign == 0);
+        assert(C::move_assign == 0);
+    }
+    {
+        C::Reset();
+        Optional<C> opt(C{});
+        (*opt).Update();
+        assert(C::lvalue_call_count == 1);
+        assert(C::rvalue_call_count == 0);
+        (*std::move(opt)).Update();
+        assert(C::lvalue_call_count == 1);
+        assert(C::rvalue_call_count == 1);
+    }
+    {
+        C::Reset();
+        const Optional<C> opt(C{});
+        (*opt).Update();
+        assert(C::const_lvalue_call_count == 1);
+    }
+    {
+        C::Reset();
+        Optional<C> opt(C{});
+        opt.Value().Update();
+        assert(C::lvalue_call_count == 1);
+        assert(C::rvalue_call_count == 0);
+        std::move(opt).Value().Update();
+        assert(C::lvalue_call_count == 1);
+    }
+    {
+        C::Reset();
+        const Optional<C> opt(C{});
+        opt.Value().Update();
+        assert(C::const_lvalue_call_count == 1);
+    }
 }
 
 int main() {
@@ -228,7 +296,8 @@ int main() {
         TestMoveAssignment();
         TestValueAccess();
         TestReset();
-          TestEmplace();
+        TestEmplace();
+        TestRefQualifiedMethodOverloading();
     } catch (...) {
         assert(false);
     }

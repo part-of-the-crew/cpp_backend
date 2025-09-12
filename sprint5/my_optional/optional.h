@@ -96,17 +96,28 @@ public:
     bool HasValue() const { return is_initialized_; }
     explicit operator bool() const { return is_initialized_; }
 
-    T& Value() {
+    //Реализуйте в классе Optional перегрузку оператора * и метода Value для rvalue-ссылок, 
+    //чтобы при вызове у временных объектов они возвращали rvalue-ссылку на содержимое Optional.
+
+
+    T&& Value() && {
         if (!is_initialized_) throw BadOptionalAccess{};
-        return *ptr();
-    }
-    const T& Value() const {
-        if (!is_initialized_) throw BadOptionalAccess{};
-        return *ptr();
+        return std::move(*ptr());
     }
 
-    T& operator*() { return *ptr(); }
-    const T& operator*() const { return *ptr(); }
+    T& Value() & {
+        if (!is_initialized_) throw BadOptionalAccess{};
+        return *ptr();
+    }
+    const T& Value() const& {
+        if (!is_initialized_) throw BadOptionalAccess{};
+        return *ptr();
+    }
+    T&& operator*() && { return std::move(*ptr()); }
+
+    T& operator*() & { return *ptr(); }
+
+    const T& operator*() const& { return *ptr(); }
 
     T* operator->() { return ptr(); }
     const T* operator->() const { return ptr(); }
