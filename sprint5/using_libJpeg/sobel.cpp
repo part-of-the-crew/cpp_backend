@@ -52,8 +52,7 @@ img_lib::Image Sobel(const img_lib::Image& image_){
             
             auto gx = -tl - 2*tc - tr + bl + 2 * bc + br;
             auto gy = -tl - 2*cl - bl + tr + 2 * cr + br;
-            auto result = sqrt(gx*gx + gy*gy);
-            auto after_clamp = std::clamp<double>(result, 0.0, 255.0);
+            auto after_clamp = std::clamp<double>(sqrt(gx*gx + gy*gy), 0.0, 255.0);
             line_change[x].r = static_cast<byte>(after_clamp);
             line_change[x].g = static_cast<byte>(after_clamp);
             line_change[x].b = static_cast<byte>(after_clamp);

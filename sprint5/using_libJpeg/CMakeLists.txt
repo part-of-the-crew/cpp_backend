@@ -17,10 +17,13 @@ add_executable(vmirror  ${IMGLIB_FILES}
 add_executable(sobel  ${IMGLIB_FILES}
             sobel.cpp)
 
-message(STATUS "Good luck")
 
-#if(CMAKE_SYSTEM_NAME MATCHES "^MINGW")
-#    set(SYSTEM_LIBS -lstdc++)
-#else()
-#    set(SYSTEM_LIBS)
-#endif()
+if(CMAKE_SYSTEM_NAME MATCHES "^MINGW")
+    set(SYSTEM_LIBS -lstdc++)
+else()
+    set(SYSTEM_LIBS)
+endif()
+
+target_link_libraries(hmirror ${SYSTEM_LIBS})
+target_link_libraries(vmirror ${SYSTEM_LIBS})
+target_link_libraries(sobel ${SYSTEM_LIBS})
