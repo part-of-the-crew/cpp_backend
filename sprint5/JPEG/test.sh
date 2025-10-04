@@ -17,17 +17,18 @@ if [ $? -eq 1 ]; then
 fi
 
 cmake --build . --verbose
-
 cd ..
+
+
 ./build/imgconv ./test_cases/reading_dog.ppm ./build/_.jpeg
 colordiff -yq ./build/_.jpeg ./test_cases/_.jpeg
 
 if [ $? -eq 0 ]; then
-    printf ${GREEN}___PASS!___${NC}
+    printf ${GREEN}___PASS!___${NC} && echo ""
 else
-    printf ${RED}___FAIL!!!___${NC}
+    printf ${RED}___FAIL!!!___${NC} && echo ""
 fi
-echo ""
+
 
 rm -rf ./build
 

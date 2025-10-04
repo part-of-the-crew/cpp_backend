@@ -4,8 +4,11 @@
 #include <cassert>
 #include <cstddef>
 #include <vector>
+#include <filesystem>
 
 namespace img_lib {
+
+using Path = std::filesystem::path;
 
 struct Size {
     int width;

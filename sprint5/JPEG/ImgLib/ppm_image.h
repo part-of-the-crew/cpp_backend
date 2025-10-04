@@ -3,10 +3,10 @@
 
 #include <filesystem>
 
-namespace img_lib {
+namespace img_lib_ppm {
 using Path = std::filesystem::path;
 
-bool SavePPM(const Path& file, const Image& image);
-Image LoadPPM(const Path& file);
+bool SavePPM(const Path& file, const img_lib::Image& image);
+img_lib::Image LoadPPM(const Path& file);
 
-}  // namespace img_lib
+}  // namespace img_lib_ppm

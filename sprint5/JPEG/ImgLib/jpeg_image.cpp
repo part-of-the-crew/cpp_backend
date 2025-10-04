@@ -1,4 +1,4 @@
-#include "ppm_image.h"
+#include "jpeg_image.h"
 
 #include <array>
 #include <fstream>
@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace img_lib {
+namespace img_lib_jpeg {
 
 // структура из примера LibJPEG
 struct my_error_mgr {
@@ -26,18 +26,9 @@ my_error_exit (j_common_ptr cinfo) {
     (*cinfo->err->output_message) (cinfo);
     longjmp(myerr->setjmp_buffer, 1);
 }
-/*
-1. Измените метод открытия файла. При компиляции под Visual Studio должна использоваться функция _wfopen вместо fopen.
-2.+Уберите вызов функции jpeg_set_quality.
-3.+Уберите слово struct при объявлении переменных. В C используется синтаксис struct jpeg_compress_struct cinfo, 
-    в C++ — просто jpeg_compress_struct cinfo.
-4.+Исключите использование глобальных переменных. Размеры и данные изображения нужно брать из параметра image.
-5.+Исключите диагностические сообщения, выводимые функцией fprintf.
-6.+При ошибке вместо вызова exit верните false. В случае успеха возвратите true.*/
-// В эту функцию вставлен код примера из библиотеки libjpeg.
-// Измените его, чтобы адаптировать к переменным file и image.
-// Задание качества уберите - будет использовано качество по умолчанию
-bool SaveJPEG(const Path& file, const Image& image) {
+
+
+bool SaveJPEG(const Path& file, const img_lib::Image& image) {
     
     /* This struct contains the JPEG compression parameters and pointers to
     * working space (which is allocated as needed by the JPEG library).
@@ -160,15 +151,15 @@ bool SaveJPEG(const Path& file, const Image& image) {
 }
 
 // тип JSAMPLE фактически псевдоним для unsigned char
-void SaveSсanlineToImage(const JSAMPLE* row, int y, Image& out_image) {
-    Color* line = out_image.GetLine(y);
+void SaveSсanlineToImage(const JSAMPLE* row, int y, img_lib::Image& out_image) {
+    img_lib::Color* line = out_image.GetLine(y);
     for (int x = 0; x < out_image.GetWidth(); ++x) {
         const JSAMPLE* pixel = row + x * 3;
-        line[x] = Color{byte{pixel[0]}, byte{pixel[1]}, byte{pixel[2]}, byte{255}};
+        line[x] = img_lib::Color{byte{pixel[0]}, byte{pixel[1]}, byte{pixel[2]}, byte{255}};
     }
 }
 
-Image LoadJPEG(const Path& file) {
+img_lib::Image LoadJPEG(const Path& file) {
     jpeg_decompress_struct cinfo;
     my_error_mgr jerr;
     
@@ -225,7 +216,7 @@ Image LoadJPEG(const Path& file) {
                 ((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
 
     /* Шаг 5a: выделим изображение ImgLib */
-    Image result(cinfo.output_width, cinfo.output_height, Color::Black());
+    img_lib::Image result(cinfo.output_width, cinfo.output_height, img_lib::Color::Black());
 
     /* Шаг 6: while (остаются строки изображения) */
     /*                     jpeg_read_scanlines(...); */

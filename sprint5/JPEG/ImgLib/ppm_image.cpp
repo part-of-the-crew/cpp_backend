@@ -6,12 +6,12 @@
 
 using namespace std;
 
-namespace img_lib {
+namespace img_lib_ppm {
 
 static const string_view PPM_SIG = "P6"sv;
 static const int PPM_MAX = 255;
 
-bool SavePPM(const Path& file, const Image& image) {
+bool SavePPM(const Path& file, const img_lib::Image& image) {
     ofstream out(file, ios::binary);
 
     out << PPM_SIG << '\n' << image.GetWidth() << ' ' << image.GetHeight() << '\n' << PPM_MAX << '\n';
@@ -21,7 +21,7 @@ bool SavePPM(const Path& file, const Image& image) {
     std::vector<char> buff(w * 3);
 
     for (int y = 0; y < h; ++y) {
-        const Color* line = image.GetLine(y);
+        const img_lib::Color* line = image.GetLine(y);
         for (int x = 0; x < w; ++x) {
             buff[x * 3 + 0] = static_cast<char>(line[x].r);
             buff[x * 3 + 1] = static_cast<char>(line[x].g);
@@ -33,7 +33,7 @@ bool SavePPM(const Path& file, const Image& image) {
     return out.good();
 }
 
-Image LoadPPM(const Path& file) {
+img_lib::Image LoadPPM(const Path& file) {
     // открываем поток с флагом ios::binary
     // поскольку будем читать данные в двоичном формате
     ifstream ifs(file, ios::binary);
@@ -56,11 +56,11 @@ Image LoadPPM(const Path& file) {
         return {};
     }
 
-    Image result(w, h, Color::Black());
+    img_lib::Image result(w, h, img_lib::Color::Black());
     std::vector<char> buff(w * 3);
 
     for (int y = 0; y < h; ++y) {
-        Color* line = result.GetLine(y);
+        img_lib::Color* line = result.GetLine(y);
         ifs.read(buff.data(), w * 3);
 
         for (int x = 0; x < w; ++x) {
