@@ -26,18 +26,26 @@ my_error_exit (j_common_ptr cinfo) {
     (*cinfo->err->output_message) (cinfo);
     longjmp(myerr->setjmp_buffer, 1);
 }
-
+/*
+1. Измените метод открытия файла. При компиляции под Visual Studio должна использоваться функция _wfopen вместо fopen.
+2.+Уберите вызов функции jpeg_set_quality.
+3.+Уберите слово struct при объявлении переменных. В C используется синтаксис struct jpeg_compress_struct cinfo, 
+    в C++ — просто jpeg_compress_struct cinfo.
+4.+Исключите использование глобальных переменных. Размеры и данные изображения нужно брать из параметра image.
+5.+Исключите диагностические сообщения, выводимые функцией fprintf.
+6.+При ошибке вместо вызова exit верните false. В случае успеха возвратите true.*/
 // В эту функцию вставлен код примера из библиотеки libjpeg.
 // Измените его, чтобы адаптировать к переменным file и image.
 // Задание качества уберите - будет использовано качество по умолчанию
 bool SaveJPEG(const Path& file, const Image& image) {
+    
     /* This struct contains the JPEG compression parameters and pointers to
     * working space (which is allocated as needed by the JPEG library).
     * It is possible to have several such structures, representing multiple
     * compression/decompression processes, in existence at once.  We refer
     * to any one struct (and its associated working data) as a "JPEG object".
     */
-    struct jpeg_compress_struct cinfo;
+    jpeg_compress_struct cinfo;
     /* This struct represents a JPEG error handler.  It is declared separately
     * because applications often want to supply a specialized error handler
     * (see the second half of this file for an example).  But here we just
@@ -46,7 +54,7 @@ bool SaveJPEG(const Path& file, const Image& image) {
     * Note that this struct must live as long as the main JPEG parameter
     * struct, to avoid dangling-pointer problems.
     */
-    struct jpeg_error_mgr jerr;
+    jpeg_error_mgr jerr;
     /* More stuff */
     FILE * outfile;       /* target file */
     JSAMPROW row_pointer[1];  /* pointer to JSAMPLE row[s] */
@@ -71,9 +79,15 @@ bool SaveJPEG(const Path& file, const Image& image) {
     * VERY IMPORTANT: use "b" option to fopen() if you are on a machine that
     * requires it in order to write binary files.
     */
-    if ((outfile = fopen(filename, "wb")) == NULL) {
-    fprintf(stderr, "can't open %s\n", filename);
-    exit(1);
+    #ifdef _MSC_VER
+        if ((outfile = _wfopen(file.wstring().c_str(), "wb")) == NULL) {
+    #else
+        if ((outfile = fopen(file.string().c_str(), "wb")) == NULL) {
+    #endif
+    //if ((outfile = fopen(filename, "wb")) == NULL) {
+        //fprintf(stderr, "can't open %s\n", filename);
+        throw std::runtime_error ("Cannot open file: "s + file.c_str());
+        return false;
     }
     jpeg_stdio_dest(&cinfo, outfile);
 
@@ -82,8 +96,8 @@ bool SaveJPEG(const Path& file, const Image& image) {
     /* First we supply a description of the input image.
     * Four fields of the cinfo struct must be filled in:
     */
-    cinfo.image_width = image_width;  /* image width and height, in pixels */
-    cinfo.image_height = image_height;
+    cinfo.image_width = image.GetWidth();  /* image width and height, in pixels */
+    cinfo.image_height = image.GetHeight();
     cinfo.input_components = 3;       /* # of color components per pixel */
     cinfo.in_color_space = JCS_RGB;   /* colorspace of input image */
     /* Now use the library's routine to set default compression parameters.
@@ -94,7 +108,7 @@ bool SaveJPEG(const Path& file, const Image& image) {
     /* Now you can set any non-default parameters you wish to.
     * Here we just illustrate the use of quality (quantization table) scaling:
     */
-    jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
+    //jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
 
     /* Step 4: Start compressor */
 
@@ -111,15 +125,23 @@ bool SaveJPEG(const Path& file, const Image& image) {
     * To keep things simple, we pass one scanline per call; you can pass
     * more if you wish, though.
     */
-    row_stride = image_width * 3; /* JSAMPLEs per row in image_buffer */
+    row_stride = image.GetWidth() * 3; /* JSAMPLEs per row in image_buffer */
 
     while (cinfo.next_scanline < cinfo.image_height) {
     /* jpeg_write_scanlines expects an array of pointers to scanlines.
      * Here the array is only one element long, but you could pass
      * more than one scanline at a time if that's more convenient.
      */
-    row_pointer[0] = & image_buffer[cinfo.next_scanline * row_stride];
-    (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+        auto pline = image.GetLine(cinfo.next_scanline);
+        std::vector<JSAMPLE> vsampl(row_stride);
+        for (int i = 0; i < image.GetWidth(); i++){
+            vsampl[3*i + 0] = static_cast<JSAMPLE>(pline[i].r);
+            vsampl[3*i + 1] = static_cast<JSAMPLE>(pline[i].g);
+            vsampl[3*i + 2] = static_cast<JSAMPLE>(pline[i].b);
+        }
+        //row_pointer[0] = & image_buffer[cinfo.next_scanline * row_stride];
+        JSAMPROW row = vsampl.data();
+        (void) jpeg_write_scanlines(&cinfo, &row, 1);
     }
 
     /* Step 6: Finish compression */
@@ -134,6 +156,7 @@ bool SaveJPEG(const Path& file, const Image& image) {
     jpeg_destroy_compress(&cinfo);
 
     /* And we're done! */
+    return true;
 }
 
 // тип JSAMPLE фактически псевдоним для unsigned char

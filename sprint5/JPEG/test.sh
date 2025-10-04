@@ -19,8 +19,8 @@ fi
 cmake --build . --verbose
 
 cd ..
-./build/imgconv ./test_cases/reading_dog_ppm.ppm ./build/_.jpeg
-colordiff -yq ./build/_.jpeg ./test_cases/reading_dog_from_ppm.jpg
+./build/imgconv ./test_cases/reading_dog.ppm ./build/_.jpeg
+colordiff -yq ./build/_.jpeg ./test_cases/_.jpeg
 
 if [ $? -eq 0 ]; then
     printf ${GREEN}___PASS!___${NC}

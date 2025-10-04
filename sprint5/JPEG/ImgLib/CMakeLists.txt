@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.11)
 project(ImgLib CXX)
 set(CMAKE_CXX_STANDARD 20)
 
-find_library(LIBJPEG_DIR jpeg)
-find_path(LIBJPEG_INCLUDE_DIR
-    NAMES jpeglib.h
-    HINTS /usr/include /usr/local/include
-)
+#find_library(LIBJPEG_DIR jpeg)
+#find_path(LIBJPEG_INCLUDE_DIR
+#    NAMES jpeglib.h
+#    HINTS /usr/include /usr/local/include
+#)
 
 # добавляем новую переменную - путь к LibJPEG
 set(LIBJPEG_DIR CACHE STRING "LibJPEG static library directory")
@@ -27,8 +27,8 @@ add_library(ImgLib STATIC ${IMGLIB_MAIN_FILES}
             ${IMGLIB_FORMAT_FILES})
 
 # Include-директории теперь включают LibJPEG
-#target_include_directories(ImgLib PUBLIC "${LIBJPEG_DIR}/include")
-target_include_directories(ImgLib PUBLIC "${LIBJPEG_INCLUDE_DIR}")
+target_include_directories(ImgLib PUBLIC "${LIBJPEG_DIR}/include" "${LIBJPEG_INCLUDE_DIR}")
+#target_include_directories(ImgLib PUBLIC "${LIBJPEG_INCLUDE_DIR}")
 # Флаг INTERFACE обозначает видимость параметра - только для зависимых целей.
 # Для самой ImgLib не нужно указывать зависимости компоновки, поскольку
 # статическая библиотека не компонуется, а просто архивируется
