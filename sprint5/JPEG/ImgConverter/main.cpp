@@ -1,5 +1,6 @@
 #include <jpeg_image.h>
 #include <ppm_image.h>
+#include <bmp_image.h>
 
 #include <filesystem>
 #include <string_view>
@@ -12,6 +13,7 @@ using namespace std;
 enum class Format {
     JPEG,
     PPM,
+    BMP,
     UNKNOWN
 };
 
@@ -23,6 +25,10 @@ Format GetFormatByExtension(const img_lib::Path& input_file) {
 
     if (ext == ".ppm"sv) {
         return Format::PPM;
+    }
+
+    if (ext == ".bmp"sv) {
+        return Format::BMP;
     }
 
     return Format::UNKNOWN;
@@ -53,19 +59,33 @@ class PPM : public ImageFormatInterface {
         return img_lib_ppm::LoadPPM(file);;
     }
 };
+
+class BMP : public ImageFormatInterface {
+    bool SaveImage(const img_lib::Path& file, const img_lib::Image& image) const override {
+        return img_lib_bmp::SavePPM(file, image);
+    }
+    img_lib::Image LoadImage(const img_lib::Path& file) const override {
+        return img_lib_bmp::LoadPPM(file);;
+    }
+};
+
 } //namespace FormatInterfaces {
 
 const FormatInterfaces::ImageFormatInterface* GetFormatInterface(const img_lib::Path& path){
     static const FormatInterfaces::PPM ppmInterface;
     static const FormatInterfaces::JPEG jpegInterface;
+    static const FormatInterfaces::BMP bmpInterface;
+
     auto format = GetFormatByExtension (path);
     if (format == Format::JPEG){
         return &jpegInterface;
     }
     if (format == Format::PPM){
-        return &ppmInterface;;
+        return &ppmInterface;
     }
-
+    if (format == Format::BMP){
+        return &bmpInterface;
+    }
     return nullptr;
 }
 

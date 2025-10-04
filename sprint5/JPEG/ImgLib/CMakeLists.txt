@@ -21,7 +21,9 @@ set(IMGLIB_MAIN_FILES img_lib.h img_lib.cpp)
 # к файлам форматов добавим JPEG
 set(IMGLIB_FORMAT_FILES 
     ppm_image.h ppm_image.cpp 
-    jpeg_image.h jpeg_image.cpp)
+    jpeg_image.h jpeg_image.cpp
+    bmp_image.h bmp_image.cpp
+    )
 
 add_library(ImgLib STATIC ${IMGLIB_MAIN_FILES} 
             ${IMGLIB_FORMAT_FILES})
@@ -36,6 +38,5 @@ target_link_directories(ImgLib INTERFACE
     "${LIBJPEG_DIR}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>"
     )
 
-# В качестве зависимости указано jpeg. Компоновщик будет искать
-# файл libjpeg.a
+# В качестве зависимости указано jpeg. Компоновщик будет искать файл libjpeg.a
 target_link_libraries(ImgLib INTERFACE jpeg)
