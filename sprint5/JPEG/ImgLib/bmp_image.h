@@ -6,7 +6,7 @@
 namespace img_lib_bmp {
 using Path = std::filesystem::path;
 
-bool SavePPM(const Path& file, const img_lib::Image& image);
-img_lib::Image LoadPPM(const Path& file);
+bool SaveBMP(const Path& file, const img_lib::Image& image);
+img_lib::Image LoadBMP(const Path& file);
 
 } // namespace img_lib

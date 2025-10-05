@@ -19,9 +19,30 @@ fi
 cmake --build . --verbose
 cd ..
 
+#ppm -> jpeg
+./build/imgconv ./test_cases/reading_dog.ppm ./build/1.jpeg
+colordiff -yq ./build/1.jpeg ./test_cases/1.jpeg
 
-./build/imgconv ./test_cases/reading_dog.ppm ./build/_.jpeg
-colordiff -yq ./build/_.jpeg ./test_cases/_.jpeg
+if [ $? -eq 0 ]; then
+    printf ${GREEN}___PASS!___${NC} && echo ""
+else
+    printf ${RED}___FAIL!!!___${NC} && echo ""
+fi
+
+#bmp -> ppm
+./build/imgconv ./test_cases/b4.bmp ./build/2.ppm
+colordiff -yq ./build/2.ppm ./test_cases/b4.ppm
+
+if [ $? -eq 0 ]; then
+    printf ${GREEN}___PASS!___${NC} && echo ""
+else
+    printf ${RED}___FAIL!!!___${NC} && echo ""
+fi
+
+
+#ppm -> bmp
+./build/imgconv ./test_cases/b4.ppm ./build/3.bmp
+colordiff -yq ./build/3.bmp ./test_cases/b4.bmp
 
 if [ $? -eq 0 ]; then
     printf ${GREEN}___PASS!___${NC} && echo ""

@@ -62,10 +62,10 @@ class PPM : public ImageFormatInterface {
 
 class BMP : public ImageFormatInterface {
     bool SaveImage(const img_lib::Path& file, const img_lib::Image& image) const override {
-        return img_lib_bmp::SavePPM(file, image);
+        return img_lib_bmp::SaveBMP(file, image);
     }
     img_lib::Image LoadImage(const img_lib::Path& file) const override {
-        return img_lib_bmp::LoadPPM(file);;
+        return img_lib_bmp::LoadBMP(file);;
     }
 };
 

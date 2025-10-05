@@ -151,7 +151,7 @@ bool SaveJPEG(const Path& file, const img_lib::Image& image) {
 }
 
 // тип JSAMPLE фактически псевдоним для unsigned char
-void SaveSсanlineToImage(const JSAMPLE* row, int y, img_lib::Image& out_image) {
+void SaveScanlineToImage(const JSAMPLE* row, int y, img_lib::Image& out_image) {
     img_lib::Color* line = out_image.GetLine(y);
     for (int x = 0; x < out_image.GetWidth(); ++x) {
         const JSAMPLE* pixel = row + x * 3;
@@ -225,7 +225,7 @@ img_lib::Image LoadJPEG(const Path& file) {
         int y = cinfo.output_scanline;
         (void) jpeg_read_scanlines(&cinfo, buffer, 1);
 
-        SaveSсanlineToImage(buffer[0], y, result);
+        SaveScanlineToImage(buffer[0], y, result);
     }
 
     /* Шаг 7: Останавливаем декодирование */
