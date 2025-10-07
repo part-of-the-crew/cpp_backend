@@ -37,16 +37,20 @@ PACKED_STRUCT_END
 // функция вычисления отступа по ширине
 // pixels to bytes
 static int GetBMPStride(int w) {
-    return 4 * ((w * 3 + 3) / 4);
+    static constexpr int alignment = 4;
+    static constexpr int colors = 3;
+    return ((w * colors + alignment - 1) / alignment) * alignment;
 }
 
-// напишите эту функцию
+
 bool SaveBMP(const Path& file, const img_lib::Image& image){
     BitmapFileHeader fileHeader;
     BitmapInfoHeader infoHeader;
 
     ofstream out(file, ios::binary);
-
+    if (!out) {
+        throw std::runtime_error("Failed to open file for writing: " + file.string());
+    }
     // pixels to bytes
     const int efWidth = GetBMPStride(image.GetWidth());
     infoHeader.biWidth = image.GetWidth();
@@ -57,7 +61,14 @@ bool SaveBMP(const Path& file, const img_lib::Image& image){
 
 
     out.write(reinterpret_cast<char*>(&fileHeader), sizeof(fileHeader));
+    if (!out) {
+        throw std::runtime_error("Error writing BMP file header to: " + file.string());
+    }
     out.write(reinterpret_cast<char*>(&infoHeader), sizeof(infoHeader));
+
+    if (!out) {
+        throw std::runtime_error("Error writing BMP info header to: " + file.string());
+    }
 
     const int w = image.GetWidth();
     const int h = image.GetHeight();
@@ -72,9 +83,14 @@ bool SaveBMP(const Path& file, const img_lib::Image& image){
         }
         out.write(buff.data(), buff.size());
     }
-    return out.good();
+    out.flush();
+    if (!out.good()) {
+        throw runtime_error("Incomplete write to BMP file: " + file.string());
+    }
+
+    return true;
 }
-// напишите эту функцию
+
 img_lib::Image LoadBMP(const Path& file){
     BitmapFileHeader fileHeader;
     BitmapInfoHeader infoHeader;
@@ -84,10 +100,17 @@ img_lib::Image LoadBMP(const Path& file){
 
     std::ifstream in(file, std::ios::binary);
     if (!in) 
-        throw std::runtime_error ("Cannot open file: "s + file.c_str());
+        return {};
     
     in.read(reinterpret_cast<char*>(&fileHeader), sizeof(fileHeader));
+    if (!in) {
+        return {};
+    }
+
     in.read(reinterpret_cast<char*>(&infoHeader), sizeof(infoHeader));
+    if (!in) {
+        return {};
+    }
 
     if (fileHeader.bfOffBits != _fileHeader.bfOffBits || fileHeader.bfReserved != _fileHeader.bfReserved ||
         fileHeader.bfType != _fileHeader.bfType ) {
