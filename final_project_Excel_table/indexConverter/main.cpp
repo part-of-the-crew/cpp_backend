@@ -52,7 +52,8 @@ void TestStringToPositionInvalid() {
     ASSERT(!Position::FromString("1").IsValid());
     ASSERT(!Position::FromString("e2").IsValid());
     ASSERT(!Position::FromString("A0").IsValid());
-    ASSERT(!Position::FromString("A-1").IsValid());
+    ASSERT(!Position::FromString("A-").IsValid());
+    ASSERT(!Position::FromString("A-2").IsValid());
     ASSERT(!Position::FromString("A+1").IsValid());
     ASSERT(!Position::FromString("R2D2").IsValid());
     ASSERT(!Position::FromString("C3PO").IsValid());
