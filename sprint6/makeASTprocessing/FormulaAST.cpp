@@ -162,9 +162,10 @@ public:
             return lhs_->Evaluate()/(rhs_->Evaluate());
             break;
         default:
-            break;
+            // have to do this because VC++ has a buggy warning
+            assert(false);
         }
-        return 0.0;
+            return static_cast<ExprPrecedence>(INT_MAX);
     }
 
 private:
@@ -212,9 +213,10 @@ public:
             return -operand_->Evaluate();
             break;
         default:
-            break;
+            // have to do this because VC++ has a buggy warning
+            assert(false);
         }
-        return 0.0;
+        return static_cast<ExprPrecedence>(INT_MAX);
     }
 
 private:
