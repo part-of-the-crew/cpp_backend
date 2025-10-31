@@ -50,7 +50,9 @@ case "$1" in
         run "$@"
         ;;
     *)
+        clean
         configure
-        build
+        echo "cmake --build ./$BUILD_DIR"
+        #build
         ;;
 esac
