@@ -57,9 +57,9 @@ Cell::Value Cell::FormulaImpl::GetValue() const {
 
 // ====================== Cell Implementation ======================
 
-Cell::Cell(){}
+//Cell::Cell(){}
 
-Cell::~Cell() {}
+//Cell::~Cell() {}
 
 void Cell::Set(std::string text) {
     if (text.front() == FORMULA_SIGN && text.size() > 1){
