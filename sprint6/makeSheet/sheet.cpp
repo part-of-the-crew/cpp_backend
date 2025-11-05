@@ -10,7 +10,7 @@
 
 using namespace std::literals;
 
-Sheet::~Sheet() {}
+Sheet::~Sheet() = default;
 
 void Sheet::SetCell(Position pos, std::string text) {
     if (!pos.IsValid())
@@ -151,11 +151,12 @@ Size Sheet::GetPrintableSize() const {
     return printableSize_;
 }
 
-void Sheet::PrintValues(std::ostream& output) const {
+void Sheet::PrintCells(std::ostream& output,
+            const std::function<void(const CellInterface&)>& printCell) const {
     for (int r = 0; r < printableSize_.rows; ++r) {
         for (int c = 0; c < printableSize_.cols; ++c) {
             if (sheet_.contains(r) && sheet_.at(r).contains(c)) {
-                output << sheet_.at(r).at(c)->GetValue();
+                printCell(*sheet_.at(r).at(c));
             }
             if (c < printableSize_.cols - 1) {
                 output << "\t";
@@ -166,30 +167,14 @@ void Sheet::PrintValues(std::ostream& output) const {
 }
 
 void Sheet::PrintValues(std::ostream& output) const {
-    for (int r = 0; r < printableSize_.rows; ++r) {
-        for (int c = 0; c < printableSize_.cols; ++c) {
-            if (sheet_.contains(r) && sheet_.at(r).contains(c)) {
-                output << sheet_.at(r).at(c)->GetValue();
-            }
-            if (c < printableSize_.cols - 1) {
-                output << "\t";
-            }
-        }
-        output << "\n";
-    }
+    PrintCells(output, [&output](const CellInterface& cell) {
+        output << cell.GetValue();
+    });
 }
 void Sheet::PrintTexts(std::ostream& output) const {
-    for (int r = 0; r < printableSize_.rows; ++r) {
-        for (int c = 0; c < printableSize_.cols; ++c) {
-            if (sheet_.contains(r) && sheet_.at(r).contains(c)) {
-                output << sheet_.at(r).at(c)->GetText();
-            }
-            if (c < printableSize_.cols - 1) {
-                output << "\t";
-            }
-        }
-        output << "\n";
-    }
+    PrintCells(output, [&output](const CellInterface& cell) {
+        output << cell.GetText();
+    });
 }
 
 
@@ -197,26 +182,3 @@ std::unique_ptr<SheetInterface> CreateSheet() {
     return std::make_unique<Sheet>();
 }
 
-/*
-template <typename Getter>
-void Sheet::PrintGeneric(std::ostream& output, Getter getter) const {
-    for (int r = 0; r < printableSize_.rows; ++r) {
-        for (int c = 0; c < printableSize_.cols; ++c) { // fixed cols
-            if (sheet_.contains(r) && sheet_.at(r).contains(c)) {
-                output << getter(sheet_.at(r).at(c)) << '\t';
-            } else {
-                output << '\t';
-            }
-        }
-        output << '\n';
-    }
-}
-
-void Sheet::PrintValues(std::ostream& output) const {
-    PrintGeneric(output, [](const Cell& cell) { return cell.GetValue(); });
-}
-
-void Sheet::PrintTexts(std::ostream& output) const {
-    PrintGeneric(output, [](const Cell& cell) { return cell.GetText(); });
-}
-*/

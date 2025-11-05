@@ -27,14 +27,8 @@ public:
 private:
 	// Можете дополнить ваш класс нужными полями и методами
     Size printableSize_;
-    void Print(std::ostream& output) const;
     void UpdatePrintableSize();
-    /*
-    // Custom hash for Cell
-    struct CellHash {
-        std::size_t operator()(const Cell& c) const noexcept {
-        return std::hash<int>()(p.row) * 31 + std::hash<int>()(p.col);
-    }
-        */
+    void PrintCells(std::ostream& output,
+                    const std::function<void(const CellInterface&)>& printCell) const;
     std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Cell>>> sheet_;
 };
