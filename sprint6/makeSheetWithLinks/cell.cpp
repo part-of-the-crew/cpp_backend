@@ -86,7 +86,9 @@ private:
 // ====================== Cell Implementation ======================
 
 
-Cell::Cell() : impl_(std::make_unique<EmptyImpl>()) {}
+Cell::Cell(Sheet &sheet) 
+    : sheet_(sheet)
+    , impl_(std::make_unique<EmptyImpl>()) {}
 
 Cell::~Cell() = default;
 
