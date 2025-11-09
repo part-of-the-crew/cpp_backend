@@ -24,13 +24,14 @@ public:
         throw error;
     }
     
-    Value Evaluate() const override {
+    Value Evaluate(const SheetInterface& sheet) const override {
         try {
-            return ast_.Execute();
+            return ast_.Execute(sheet);
         } catch (FormulaError error){
             return error;
         }
     }
+
     std::string GetExpression() const override {
         std::ostringstream out;      // string-based output stream
         ast_.PrintFormula(out);      // print the AST into it

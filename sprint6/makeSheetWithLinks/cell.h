@@ -9,7 +9,7 @@
 
 class Cell : public CellInterface {
 public:
-    Cell(Sheet &sheet);
+    Cell(Sheet &sheet, std::unordered_set<Cell*> deps);
     ~Cell();
     Cell(Cell&&) noexcept = default;
     Cell& operator=(Cell&&) noexcept = default;
@@ -17,21 +17,28 @@ public:
     void Set(std::string text);
     void Clear();
 
-    Value GetValue() const override;
+    CellInterface::Value GetValue() const override;
     std::string GetText() const override;
     std::vector<Position> GetReferencedCells();
-
+    std::unordered_set<Cell*> GetDownstream();
 private:
-    bool FindCircularDependency();
-    bool SetDependencyDown(); //Set down dependencies for cash invalidation
+    bool IsCircularDependencyDFS();
+
+    //Set dependencies for cache invalidation
+    void SetDependencies(std::unordered_set<Cell*> dep);
+    //Get dependencies for cache invalidation
+    std::unordered_set<Cell*> GetDependencies();   
+
+
+
     Sheet &sheet_;
 
     class Impl;
     class EmptyImpl;
     class TextImpl;
     class FormulaImpl;
-    class CellImpl;
-    std::unordered_set<Cell*> updeps_;   //for Cashe
+
+    std::unordered_set<Cell*> updeps_;   //for Cache
     std::unordered_set<Cell*> downdeps_; //for Circular
     std::unique_ptr<Impl> impl_;
     mutable std::optional<FormulaInterface::Value> cache_;

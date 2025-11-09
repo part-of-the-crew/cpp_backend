@@ -4,7 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/sprint6/antlr4_runtime/**"
+                "${workspaceFolder}/sprint6/makeSheetWithLinks/build/antlr4cpp_generated_src/Formula/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
