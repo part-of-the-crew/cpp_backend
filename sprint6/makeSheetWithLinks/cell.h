@@ -19,7 +19,7 @@ public:
 
     CellInterface::Value GetValue() const override;
     std::string GetText() const override;
-    std::vector<Position> GetReferencedCells();
+    std::vector<Position> GetReferencedCells() const override;
     std::unordered_set<Cell*> GetDownstream();
 private:
     bool IsCircularDependencyDFS();
