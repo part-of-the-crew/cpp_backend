@@ -1,6 +1,5 @@
 #include "sheet.h"
 
-#include "cell.h"
 #include "common.h"
 
 #include <algorithm>
@@ -25,9 +24,10 @@ void Sheet::SetCell(Position pos, std::string text) {
 
     auto& row = sheet_[pos.row];
     if (!row.contains(pos.col)) {
-        row[pos.col] = std::make_unique<Cell>();
+        row[pos.col] = std::make_unique<Cell>(*this);
     }
     row[pos.col]->Set(std::move(text));
+    cellPtr_.emplace(row[pos.col].get(), pos);
 
 
 /*
@@ -134,7 +134,8 @@ void Sheet::ClearCell(Position pos) {
     if (cell_it == row.end()) {
         return; // Cell not found
     }
-
+    Cell* ptr = row_it->second.at(pos.col).get();
+    cellPtr_.erase(ptr);  // remove mapping
     // Erase the cell completely (not just clear content)
     row.erase(cell_it);
 
@@ -177,6 +178,10 @@ void Sheet::PrintTexts(std::ostream& output) const {
     });
 }
 
+Position Sheet::GetCellByPtr(const Cell *cell) const {
+    const auto it = cellPtr_.find(cell);
+    return it->second;
+}
 
 std::unique_ptr<SheetInterface> CreateSheet() {
     return std::make_unique<Sheet>();

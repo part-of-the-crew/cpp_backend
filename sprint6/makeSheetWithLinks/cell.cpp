@@ -1,4 +1,5 @@
 #include "cell.h"
+#include "sheet.h"
 
 #include <cassert>
 #include <iostream>
@@ -11,6 +12,7 @@
 #include <vector>
 #include <stack>
 #include <algorithm>
+#include <cctype>
 
 std::ostream& operator<<(std::ostream& out, const CellInterface::Value& value) {
     std::visit([&out](const auto& v) {
@@ -18,13 +20,19 @@ std::ostream& operator<<(std::ostream& out, const CellInterface::Value& value) {
     }, value);
     return out;
 }
-
+bool IsNumber(const std::string& s) {
+    if (s.empty()) return false;
+    char* end = nullptr;
+    std::strtod(s.c_str(), &end);
+    return end == s.c_str() + s.size(); // true if fully converted
+}
 // ---------- Impl base ----------
 class Cell::Impl {
 public:
     virtual ~Impl() = default;
     virtual std::string GetText() const = 0;
-    virtual Value GetValue() const = 0;
+    virtual Value GetValue(const SheetInterface& sheet) = 0;
+    virtual Value GetValue(const SheetInterface& sheet) const = 0;
 };
 
 // ---------- EmptyImpl ----------
@@ -33,7 +41,10 @@ public:
     std::string GetText() const override {
         return "";
     }
-    Value GetValue() const override {
+    Value GetValue(const SheetInterface& sheet) const override {
+        return std::string("");
+    }
+    Value GetValue(const SheetInterface& sheet) override {
         return std::string("");
     }
 };
@@ -48,7 +59,13 @@ public:
         return text_;
     }
 
-    Value GetValue() const override {
+    Value GetValue(const SheetInterface& sheet) const {
+        if (!text_.empty() && text_.front() == ESCAPE_SIGN) {
+            return text_.substr(1);  // skip escape char
+        }
+        return text_;
+    }
+    Value GetValue(const SheetInterface& sheet) {
         if (!text_.empty() && text_.front() == ESCAPE_SIGN) {
             return text_.substr(1);  // skip escape char
         }
@@ -63,7 +80,7 @@ private:
 class Cell::FormulaImpl : public Cell::Impl {
 public:
     explicit FormulaImpl(std::string expression)
-        : formula_(ParseFormula(expression.substr(1))) {}
+        : formula_(ParseFormula(expression)) {}
 
     std::string GetText() const override {
         return "=" + formula_->GetExpression();
@@ -79,11 +96,25 @@ public:
 
         if (std::holds_alternative<double>(result)) {
             return std::get<double>(result);
+        }
+        if (std::holds_alternative<FormulaError>(result)) {
+            return std::get<FormulaError>(result);
+        }
+    }
+    Value GetValue(const SheetInterface& sheet) override {
+        FormulaInterface::Value result;
+        try {
+            result = formula_->Evaluate(sheet);
+        } catch (const FormulaError& e) {
+            return e;
+        }
+
+        if (std::holds_alternative<double>(result)) {
+            return std::get<double>(result);
         } else {
             return std::get<FormulaError>(result);
         }
     }
-
 private:
     std::unique_ptr<FormulaInterface> formula_;
 };
@@ -91,16 +122,19 @@ private:
 // ====================== Cell Implementation ======================
 
 
-Cell::Cell(Sheet &sheet, std::unordered_set<Cell*> deps)
+Cell::Cell(Sheet &sheet)
     : sheet_(sheet)
-    : updeps_(deps)
     , impl_(std::make_unique<EmptyImpl>()) {}
 
 Cell::~Cell() = default;
 
 void Cell::Set(std::string text) {
-    if (text.front() == FORMULA_SIGN && text.size() > 1){
+    if (IsNumber(text)) {
         impl_ = std::make_unique<FormulaImpl>(text);
+        return;
+    }
+    if (text.front() == FORMULA_SIGN && text.size() > 1){
+        impl_ = std::make_unique<FormulaImpl>(text.substr(1));
         return;
     }
     if (text.size() == 0){
@@ -111,29 +145,39 @@ void Cell::Set(std::string text) {
         impl_ = std::make_unique<TextImpl>(text);
         return;    
     }
-
 }
 
 void Cell::Clear() {
     impl_.reset();
 }
 
-Cell::Value Cell::GetValue(const SheetInterface& sheet) const {
+Cell::Value Cell::GetValue() const {
     Value value;
     try {
-        value = impl_->GetValue(sheet);
+        value = impl_->GetValue(sheet_);
     } catch (const FormulaException& error ){
         throw error;
     }
     return value;
 }
+
+Cell::Value Cell::GetValue() {
+    Value value;
+    try {
+        value = impl_->GetValue(sheet_);
+    } catch (const FormulaException& error ){
+        throw error;
+    }
+    return value;
+}
+
 std::string Cell::GetText() const {
     return impl_->GetText();
 }
 
 
 
-bool IsCircularDependencyDFS() {
+bool Cell::IsCircularDependencyDFS() {
     
     enum class State { Unvisited, Visiting, Done };
     std::unordered_map<const Cell*, State> state;
@@ -161,46 +205,56 @@ bool IsCircularDependencyDFS() {
     return false;
 }
 
+std::unordered_set<Cell*> Cell::GetDownstream(){
+    return downdeps_;
+}
 
+std::unordered_set<Cell*> Cell::GetDownstream() const {
+    return downdeps_;
+}
 
-bool IsCircularDependencyDFS1() {
-    //int start_vertex, const std::map <int, std::vector<int>> &gr
-    std::unordered_set <Cell*> proccesed;
-    std::stack<Cell*> st;
-
-    stack.push(start_vertex);  // Добавляем стартовую вершину в стек.
-    while (!stack.empty()) {   // Пока стек не пуст:
-        // Получаем из стека очередную вершину.
-        // Это может быть как новая вершина, так и уже посещённая однажды.
-        auto v = stack.top();
-        stack.pop();
-    
-        if (!proccesed.contains(v)) {
-            // Красим вершину в серый. И сразу кладём её обратно в стек:
-            // это позволит алгоритму позднее вспомнить обратный путь по графу.
-            proccesed.insert(v);
-
-            stack.push(v);
-            std::cout << v << " ";
-            //b is Теперь добавляем в стек все непосещённые соседние вершины,
-            // вместо вызова рекурсии
-            auto it = gr.find(v);
-            if (it != gr.end())  // Если в графе есть ребра из v.
-              for (int w : it->second) {
-                //std::cout << it->first << "x";
-               //print (it->second);
-                  // Для каждого исходящего ребра (v, w):
-                  //std::cout << w << color[w] << "x";
-                  if (color[w] == "white") {
-                      stack.push(w);
-                  }
-              }
-        } else if (color[v] == "gray") {
-            // Серую вершину мы могли получить из стека только на обратном пути.
-            // Следовательно, её следует перекрасить в чёрный.
-            //color[v] = "black";
-            return true;
-        }
+std::vector<Position> Cell::GetReferencedCells() const {
+    std::vector<Position> vec;
+    for (auto dep: downdeps_) {
+        vec.push_back(sheet_.GetCellByPtr(dep));
     }
-    return false;
+    return vec;
+}
+
+    //Set dependencies for cache invalidation
+void Cell::SetDependencies(std::unordered_set<Cell*> dep){
+    updeps_ = dep;
+    
+}
+    //Get dependencies for cache invalidation
+std::unordered_set<Cell*> Cell::GetDependencies() {
+    return updeps_;
+}
+
+//----------------------------------------------------------
+FormulaError::FormulaError(Category category)
+    : category_(category) {}
+
+FormulaError::Category FormulaError::GetCategory() const {
+    return category_;
+}
+
+bool FormulaError::operator==(FormulaError rhs) const {
+    return category_ == rhs.category_;
+}
+
+std::string_view FormulaError::ToString() const {
+    switch (category_) {
+        case Category::Ref:
+            return "#REF!";
+        case Category::Value:
+            return "#VALUE!";
+        case Category::Arithmetic:
+            return "#DIV/0!";
+    }
+    return "#ERROR!";  // fallback for unexpected cases
+}
+
+std::ostream& operator<<(std::ostream& output, FormulaError fe) {
+    return output << fe.ToString();
 }

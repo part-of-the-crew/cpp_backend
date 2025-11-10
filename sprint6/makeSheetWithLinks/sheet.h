@@ -21,14 +21,15 @@ public:
 
     void PrintValues(std::ostream& output) const override;
     void PrintTexts(std::ostream& output) const override;
+    Position GetCellByPtr(const Cell* cell) const;
 
-	// Можете дополнить ваш класс нужными полями и методами
 
 private:
-	// Можете дополнить ваш класс нужными полями и методами
     Size printableSize_;
     void UpdatePrintableSize();
     void PrintCells(std::ostream& output,
                     const std::function<void(const CellInterface&)>& printCell) const;
+
     std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Cell>>> sheet_;
+    std::unordered_map<const Cell*, Position> cellPtr_;
 };

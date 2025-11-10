@@ -2,14 +2,18 @@
 
 
 #include <unordered_set>
+#include <optional>
+
 #include "common.h"
-#include "sheet.h"
+//#include "sheet.h"
 #include "formula.h"
 #include "FormulaAST.h"
 
+class Sheet;
+
 class Cell : public CellInterface {
 public:
-    Cell(Sheet &sheet, std::unordered_set<Cell*> deps);
+    Cell(Sheet &sheet);
     ~Cell();
     Cell(Cell&&) noexcept = default;
     Cell& operator=(Cell&&) noexcept = default;
@@ -18,9 +22,11 @@ public:
     void Clear();
 
     CellInterface::Value GetValue() const override;
+    CellInterface::Value GetValue();
     std::string GetText() const override;
     std::vector<Position> GetReferencedCells() const override;
     std::unordered_set<Cell*> GetDownstream();
+    std::unordered_set<Cell*> GetDownstream() const;
 private:
     bool IsCircularDependencyDFS();
 
@@ -30,7 +36,6 @@ private:
     std::unordered_set<Cell*> GetDependencies();   
 
 
-
     Sheet &sheet_;
 
     class Impl;
@@ -38,8 +43,8 @@ private:
     class TextImpl;
     class FormulaImpl;
 
-    std::unordered_set<Cell*> updeps_;   //for Cache
-    std::unordered_set<Cell*> downdeps_; //for Circular
+    mutable std::unordered_set<Cell*> updeps_;   //for Cache
+    mutable std::unordered_set<Cell*> downdeps_; //for Circular
     std::unique_ptr<Impl> impl_;
     mutable std::optional<FormulaInterface::Value> cache_;
 };

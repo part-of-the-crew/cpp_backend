@@ -37,7 +37,10 @@ public:
         ast_.PrintFormula(out);      // print the AST into it
         return out.str();            // extract the string
     }
-
+    std::vector<Position> GetReferencedCells() const override {
+        //std::vector<Position> vec(ast_.GetCells().begin(), ast_.GetCells().end());
+        return {ast_.GetCells().begin(), ast_.GetCells().end()};
+    }
 private:
     FormulaAST ast_;
 };
