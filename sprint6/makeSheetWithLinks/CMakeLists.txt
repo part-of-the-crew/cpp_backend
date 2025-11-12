@@ -10,7 +10,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 else()
     set(
         CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-unused-parameter -Wno-implicit-fallthrough"
+        "${CMAKE_CXX_FLAGS} -g -Wall -Wextra -pedantic -Wno-unused-parameter -Wno-implicit-fallthrough"
     )
 endif()
 

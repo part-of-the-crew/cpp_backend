@@ -13,17 +13,35 @@ std::ostream& operator<<(std::ostream& output, const FormulaError& fe) {
     return output << "#ARITHM!";
 }
 
+std::optional<double> GetNumber(const std::string& s) {
+    if (s.empty()) 
+        return std::nullopt;
+
+    char* end = nullptr;
+    double res = std::strtod(s.c_str(), &end);
+
+    // Check if the whole string was parsed as a number
+    if (end == s.c_str() + s.size()) 
+        return res;
+    else 
+        return std::nullopt;
+}
+
 namespace {
 class Formula : public FormulaInterface {
 public:
 // Реализуйте следующие методы:
+/*
     explicit Formula(std::string expression)
     try
         : ast_(ParseFormulaAST(expression)) {
     } catch (const FormulaException& error) {
         throw error;
     }
-    
+        */
+    explicit Formula(const std::string &expression)
+    : ast_{ParseFormulaAST(expression)} {}
+/*
     Value Evaluate(const SheetInterface& sheet) const override {
         try {
             return ast_.Execute(sheet);
@@ -31,21 +49,98 @@ public:
             return error;
         }
     }
+*/
+ Value Evaluate(const SheetInterface &sheet) const override {
+    auto lambda = [&sheet](Position pos) -> double {
+      auto cell = sheet.GetCell(pos);
+      auto value = cell ? cell->GetValue() : 0.0;
 
+      if (std::holds_alternative<double>(value)) {
+        return std::get<double>(value);
+      } else if (std::holds_alternative<std::string>(value)) {
+        std::string str_value = std::get<std::string>(value);
+
+        if (str_value.empty()) {
+          return 0;
+        }
+        
+        auto res = GetNumber(str_value);
+        if (res.has_value()){
+            return *res;
+        }
+        throw FormulaError(FormulaError::Category::Value);
+        /*
+        char *endptr;
+        errno = 0;
+        auto res = std::strtod(str_value.c_str(), &endptr);
+
+        if ((errno == ERANGE && res == 9999999999.9)//HUGE_VAL)
+            || (errno != 0 && res == 0)) {
+          throw FormulaError(FormulaError::Category::Value);
+        }
+
+        // Цифры отсутствуют
+        if (endptr == str_value.c_str()) {
+          throw FormulaError(FormulaError::Category::Value);
+        }
+
+        // После числа есть ещё символы
+        if (*endptr != '\0') {
+          throw FormulaError(FormulaError::Category::Value);
+        }
+
+        return *res;
+        */
+      } else {
+        throw std::get<FormulaError>(value);
+      }
+    };
+
+    try {
+      return ast_.Execute(lambda);
+    } catch (FormulaError &fe) {
+      return fe;
+    }
+  }
     std::string GetExpression() const override {
         std::ostringstream out;      // string-based output stream
         ast_.PrintFormula(out);      // print the AST into it
         return out.str();            // extract the string
     }
+    /*
     std::vector<Position> GetReferencedCells() const override {
         //std::vector<Position> vec(ast_.GetCells().begin(), ast_.GetCells().end());
         return {ast_.GetCells().begin(), ast_.GetCells().end()};
     }
+    */
+
+  std::vector<Position> GetReferencedCells() const override {
+    std::vector<Position> result;
+    Position prev = Position::NONE;
+
+    for (auto cell : ast_.GetCells()) {
+      if (cell.IsValid() && !(cell == prev)) {
+        result.push_back(cell);
+        prev = cell;
+      }
+    }
+
+    return result;
+  }
+
 private:
     FormulaAST ast_;
 };
 }  // namespace
-
+/*
 std::unique_ptr<FormulaInterface> ParseFormula(std::string expression) {
     return std::make_unique<Formula>(std::move(expression));
+}
+*/
+std::unique_ptr<FormulaInterface> ParseFormula(std::string expression) {
+    try {
+        return std::make_unique<Formula>(std::move(expression));
+    } catch (FormulaException &fe) {
+        throw fe;
+    }
 }

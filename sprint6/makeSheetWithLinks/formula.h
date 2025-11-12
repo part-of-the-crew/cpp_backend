@@ -4,7 +4,7 @@
 
 #include <memory>
 #include <vector>
-
+#include <optional>
 // Формула, позволяющая вычислять и обновлять арифметическое выражение.
 // Поддерживаемые возможности:
 // * Простые бинарные операции и числа, скобки: 1+2*3, 2.5*(2+3.5/7)
@@ -39,3 +39,5 @@ public:
 // Парсит переданное выражение и возвращает объект формулы.
 // Бросает FormulaException в случае, если формула синтаксически некорректна.
 std::unique_ptr<FormulaInterface> ParseFormula(std::string expression);
+
+std::optional <double> GetNumber(const std::string& s);

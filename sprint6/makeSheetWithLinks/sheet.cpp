@@ -12,8 +12,7 @@ using namespace std::literals;
 Sheet::~Sheet() = default;
 
 void Sheet::SetCell(Position pos, std::string text) {
-    if (!pos.IsValid())
-        throw InvalidPositionException("");
+    IsValidPosition(pos);
 
     if (pos.col > printableSize_.cols - 1){
         printableSize_.cols = pos.col + 1;
@@ -27,7 +26,7 @@ void Sheet::SetCell(Position pos, std::string text) {
         row[pos.col] = std::make_unique<Cell>(*this);
     }
     row[pos.col]->Set(std::move(text));
-    cellPtr_.emplace(row[pos.col].get(), pos);
+    //cellPtr_.emplace(row[pos.col].get(), pos);
 
 
 /*
@@ -52,9 +51,7 @@ void Sheet::SetCell(Position pos, std::string text) {
 }
 
 const CellInterface* Sheet::GetCell(Position pos) const {
-    if (!pos.IsValid()) {
-        throw InvalidPositionException("");
-    }
+    IsValidPosition(pos);
 
     auto row_it = sheet_.find(pos.row);
     if (row_it == sheet_.end()) {
@@ -70,9 +67,7 @@ const CellInterface* Sheet::GetCell(Position pos) const {
 }
 
 CellInterface* Sheet::GetCell(Position pos) {
-    if (!pos.IsValid()) {
-        throw InvalidPositionException("");
-    }
+    IsValidPosition(pos);
 
     auto row_it = sheet_.find(pos.row);
     if (row_it == sheet_.end()) {
@@ -120,9 +115,7 @@ void Sheet::ClearCell(Position pos) {
 */
 
 void Sheet::ClearCell(Position pos) {
-
-    if (!pos.IsValid())
-        throw InvalidPositionException("");
+    IsValidPosition(pos);
 
     auto row_it = sheet_.find(pos.row);
     if (row_it == sheet_.end()) {
@@ -177,12 +170,19 @@ void Sheet::PrintTexts(std::ostream& output) const {
         output << cell.GetText();
     });
 }
-
+/*
 Position Sheet::GetCellByPtr(const Cell *cell) const {
     const auto it = cellPtr_.find(cell);
     return it->second;
 }
+*/
+void Sheet::IsValidPosition(Position pos) const {
+  using std::string_literals::operator""s;
 
+  if (!pos.IsValid()) {
+    throw InvalidPositionException{"InvalidPosition"s};
+  }
+}
 std::unique_ptr<SheetInterface> CreateSheet() {
     return std::make_unique<Sheet>();
 }

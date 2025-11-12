@@ -32,7 +32,15 @@ run() {
     echo "🚀 Running program..."
     "$EXECUTABLE" "$@"
 }
-
+runv() {
+    if [[ ! -x "$EXECUTABLE" ]]; then
+        echo "❌ Executable not found! Run ./build.sh build first."
+        exit 1
+    fi
+    echo "🚀 Running program..."
+    valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out$i.txt \
+        "$EXECUTABLE" 2>&1
+}
 
 # --- Main logic ---
 case "$1" in
@@ -48,6 +56,14 @@ case "$1" in
     run)
         shift
         run "$@"
+        ;;
+    runv)
+        shift
+        runv "$@"
+        ;;
+    vrun)
+        shift
+        runv "$@"
         ;;
     *)
         clean

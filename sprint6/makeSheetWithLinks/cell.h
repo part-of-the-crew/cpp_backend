@@ -2,7 +2,7 @@
 
 
 #include <unordered_set>
-#include <optional>
+
 
 #include "common.h"
 //#include "sheet.h"
@@ -14,7 +14,7 @@ class Sheet;
 class Cell : public CellInterface {
 public:
     Cell(Sheet &sheet);
-    ~Cell();
+    ~Cell() override;
     Cell(Cell&&) noexcept = default;
     Cell& operator=(Cell&&) noexcept = default;
 
@@ -25,17 +25,20 @@ public:
     CellInterface::Value GetValue();
     std::string GetText() const override;
     std::vector<Position> GetReferencedCells() const override;
-    std::unordered_set<Cell*> GetDownstream();
-    std::unordered_set<Cell*> GetDownstream() const;
+    bool IsReferenced() const;
+    std::unordered_set<Cell*> GetParents();
+    //std::unordered_set<Cell*> GetDownstream() const;
 private:
-    bool IsCircularDependencyDFS();
-
+    bool IsCircularDependencyDFS(const std::vector<Position>& positions);
+    void SetImpl(std::string text);
     //Set dependencies for cache invalidation
-    void SetDependencies(std::unordered_set<Cell*> dep);
+    //void SetDependencies(std::unordered_set<Cell*> dep);
     //Get dependencies for cache invalidation
-    std::unordered_set<Cell*> GetDependencies();   
+    //std::unordered_set<Cell*> GetDependencies();   
 
+    void AddToStack(std::stack<Position> &destination, const std::vector<Position> &source);
 
+    std::stack<Position> CreateStack(const std::vector<Position> &referenced_cells);
     Sheet &sheet_;
 
     class Impl;
@@ -43,10 +46,13 @@ private:
     class TextImpl;
     class FormulaImpl;
 
-    mutable std::unordered_set<Cell*> updeps_;   //for Cache
-    mutable std::unordered_set<Cell*> downdeps_; //for Circular
+    std::unordered_set<Cell*> parents_;   //for Cache
+    std::unordered_set<Cell*> children_;  //for Circular
     std::unique_ptr<Impl> impl_;
     mutable std::optional<FormulaInterface::Value> cache_;
+
+    CellInterface *CreateEmptyCell(const Position &pos) const;
+    void SetParents();
 };
 
 std::ostream& operator<<(std::ostream& out, const CellInterface::Value& value);
