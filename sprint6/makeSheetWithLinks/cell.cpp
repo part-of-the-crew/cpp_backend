@@ -64,7 +64,6 @@ public:
             return text_.substr(1);  // skip escape char
         }
         return text_;
-
     }
     Value GetValue(const SheetInterface& sheet) {
         if (!text_.empty() && text_.front() == ESCAPE_SIGN) {
@@ -107,6 +106,7 @@ public:
         }
         return std::get<FormulaError>(result);
         */
+
         auto formula_evaluate = formula_->Evaluate(sheet);      
         if (std::holds_alternative<double>(formula_evaluate)) {
             return std::get<double>(formula_evaluate);
@@ -115,10 +115,15 @@ public:
         }
     }
     Value GetValue(const SheetInterface& sheet) override {
-        auto formula_evaluate = formula_->Evaluate(sheet);      
+        
+        auto formula_evaluate = formula_->Evaluate(sheet);   
+
         if (std::holds_alternative<double>(formula_evaluate)) {
             return std::get<double>(formula_evaluate);
         } else {
+            //auto e =  std::get<FormulaError>(formula_evaluate);
+            //return std::string(e.ToString());(
+
             return std::get<FormulaError>(formula_evaluate);
         }
     }
@@ -185,7 +190,7 @@ void Cell::Set(std::string text) {
     // Optionally clear our children_ before notifying them so they don't try to erase us
     children_.clear();
     for (auto child : children_copy) {
-        if (child) child->Clear();
+        if (child) child->cache_.reset();//child->Clear();
     }
 }
 
@@ -281,25 +286,16 @@ void Cell::Clear() {
 }
 
 Cell::Value Cell::GetValue() const {
-    Value value;
-    try {
-        value = impl_->GetValue(sheet_);
-    } catch (const FormulaException& error ){
-        throw error;
-    }
-    return value;
+    //auto e = impl_->GetValue(sheet_);
+    //return std::to_string(e.index());
+    //            return FormulaError(FormulaError::Category::Value);
+    return impl_->GetValue(sheet_);
 }
-
+/*
 Cell::Value Cell::GetValue() {
-    Value value;
-    try {
-        value = impl_->GetValue(sheet_);
-    } catch (const FormulaException& error ){
-        throw error;
-    }
-    return value;
+    return impl_->GetValue(sheet_);
 }
-
+*/
 std::string Cell::GetText() const {
     return impl_->GetText();
 }
@@ -421,13 +417,15 @@ bool FormulaError::operator==(FormulaError rhs) const {
 }
 
 std::string_view FormulaError::ToString() const {
+    using std::string_view_literals::operator""sv;
+    
     switch (category_) {
         case Category::Ref:
-            return "#REF!";
+            return "#REF!"sv;
         case Category::Value:
-            return "#VALUE!";
+            return "#VALUE!"sv;
         case Category::Arithmetic:
-            return "#DIV/0!";
+            return "#DIV/0!"sv;
     }
     return "#ERROR!";  // fallback for unexpected cases
 }

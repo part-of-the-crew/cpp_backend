@@ -22,7 +22,7 @@ public:
     void Clear();
 
     CellInterface::Value GetValue() const override;
-    CellInterface::Value GetValue();
+    //CellInterface::Value GetValue();
     std::string GetText() const override;
     std::vector<Position> GetReferencedCells() const override;
     bool IsReferenced() const;
