@@ -147,4 +147,3 @@ void Sheet::IsValidPosition(Position pos) const {
 std::unique_ptr<SheetInterface> CreateSheet() {
     return std::make_unique<Sheet>();
 }
-

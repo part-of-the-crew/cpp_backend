@@ -142,41 +142,7 @@ public:
                 return static_cast<ExprPrecedence>(INT_MAX);
         }
     }
-/*
-    double Evaluate(CB cb) const override {
-        auto rhs = rhs_->Evaluate(cb);
-        auto lhs = lhs_->Evaluate(cb);
-        double result{};
-        switch (type_)
-        {
-        case Add:
-            if (!std::isfinite(lhs+rhs))
-                throw FormulaError(FormulaError::Category::Arithmetic);
-            return lhs + rhs;
-            break;
-        case Subtract:
-            if (!std::isfinite(lhs-rhs))
-                throw FormulaError(FormulaError::Category::Arithmetic);
-            return lhs - rhs;
-            break;
-        case Multiply:
-            if (!std::isfinite(lhs*rhs))
-                throw FormulaError(FormulaError::Category::Arithmetic);
-            return lhs * rhs;
-            break;
-        case Divide:
-            if (rhs == 0)
-                throw FormulaError(FormulaError::Category::Arithmetic);
-            if (!std::isfinite(lhs/rhs))
-                throw FormulaError(FormulaError::Category::Arithmetic); 
-            return lhs/rhs;
-            break;
-        default:
-            // have to do this because VC++ has a buggy warning
-            assert(false);
-        }
-        return static_cast<ExprPrecedence>(INT_MAX);
-    }*/
+
 // При делении на 0 выбрасывайте ошибку вычисления FormulaError
     double Evaluate(CB cb) const override {
         auto rhs = rhs_->Evaluate(cb);
@@ -194,9 +160,7 @@ public:
             result = lhs * rhs;
             break;
         case Divide:
-            if (rhs == 0)
-                throw FormulaError(FormulaError::Category::Arithmetic);
-            result = lhs/rhs;
+            result = lhs / rhs;
             break;
         default:
             // have to do this because VC++ has a buggy warning
@@ -244,19 +208,10 @@ public:
 
 // Реализуйте метод Evaluate(SheetInterface& sheet) для унарных операций.
     double Evaluate(CB cb) const override {
-        switch (type_)
-        {
-        case UnaryPlus:
+        if (type_ == UnaryPlus){
             return operand_->Evaluate(cb);
-            break;
-        case UnaryMinus:
-            return -operand_->Evaluate(cb);
-            break;
-        default:
-            // have to do this because VC++ has a buggy warning
-            assert(false);
         }
-        return static_cast<ExprPrecedence>(INT_MAX);
+        return -operand_->Evaluate(cb);
     }
 
 private:

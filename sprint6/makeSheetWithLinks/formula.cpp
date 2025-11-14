@@ -32,7 +32,8 @@ class Formula : public FormulaInterface {
 public:
 
     explicit Formula(const std::string &expression)
-        : ast_{ParseFormulaAST(expression)} {}
+        : ast_{ParseFormulaAST(expression)} 
+        {}
 
     Value Evaluate(const SheetInterface &sheet) const override {
 
@@ -74,7 +75,7 @@ public:
                 result.push_back(cell);
                 prev = cell;
             }
-        } 
+        }
         return result;
     }
 
