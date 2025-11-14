@@ -22,20 +22,16 @@ public:
     void Clear();
 
     CellInterface::Value GetValue() const override;
-    //CellInterface::Value GetValue();
+
     std::string GetText() const override;
     std::vector<Position> GetReferencedCells() const override;
     bool IsReferenced() const;
     std::unordered_set<Cell*> GetParents();
-    //std::unordered_set<Cell*> GetDownstream() const;
+
 private:
     bool IsCircularDependencyDFS(const std::vector<Position>& positions);
-    void SetImpl(std::string text);
-    //Set dependencies for cache invalidation
-    //void SetDependencies(std::unordered_set<Cell*> dep);
-    //Get dependencies for cache invalidation
-    //std::unordered_set<Cell*> GetDependencies();   
 
+    void SetImpl(std::string text);
     void AddToStack(std::stack<Position> &destination, const std::vector<Position> &source);
 
     std::stack<Position> CreateStack(const std::vector<Position> &referenced_cells);
@@ -46,8 +42,8 @@ private:
     class TextImpl;
     class FormulaImpl;
 
-    std::unordered_set<Cell*> parents_;   //for Cache
-    std::unordered_set<Cell*> children_;  //for Circular
+    std::unordered_set<Cell*> parents_;   //for Circular
+    std::unordered_set<Cell*> children_;  //for Cache
     std::unique_ptr<Impl> impl_;
     mutable std::optional<FormulaInterface::Value> cache_;
 

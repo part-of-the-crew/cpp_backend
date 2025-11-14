@@ -90,23 +90,6 @@ public:
     }
 
     Value GetValue(const SheetInterface& sheet) const override {
-        /*
-        FormulaInterface::Value result;
-        try {
-            result = formula_->Evaluate(sheet);
-        } catch (const FormulaError& e) {
-            return e;
-        }
-
-        if (std::holds_alternative<double>(result)) {
-            return std::get<double>(result);
-        }
-        if (std::holds_alternative<FormulaError>(result)) {
-            return std::get<FormulaError>(result);
-        }
-        return std::get<FormulaError>(result);
-        */
-
         auto formula_evaluate = formula_->Evaluate(sheet);      
         if (std::holds_alternative<double>(formula_evaluate)) {
             return std::get<double>(formula_evaluate);
@@ -121,9 +104,6 @@ public:
         if (std::holds_alternative<double>(formula_evaluate)) {
             return std::get<double>(formula_evaluate);
         } else {
-            //auto e =  std::get<FormulaError>(formula_evaluate);
-            //return std::string(e.ToString());(
-
             return std::get<FormulaError>(formula_evaluate);
         }
     }
@@ -159,7 +139,7 @@ void Cell::SetImpl(std::string text) {
         }
 
         auto referenced_cells = temp_impl->GetReferencedCells();
-        //CheckForCircularDependencies(referenced_cells);
+
         if (IsCircularDependencyDFS(referenced_cells)){
             throw CircularDependencyException{"Circular dependency"};
         }
@@ -200,32 +180,31 @@ CellInterface *Cell::CreateEmptyCell(const Position &pos) const {
 }
 
 void Cell::SetParents() {
-  for (const auto &parent_pos : GetReferencedCells()) {
-    auto *parent = sheet_.GetCell(parent_pos);
-    if (parent == nullptr) {
-      parent = CreateEmptyCell(parent_pos);
-    }
+    for (const auto &parent_pos : GetReferencedCells()) {
+        auto *parent = sheet_.GetCell(parent_pos);
+        if (parent == nullptr) {
+            parent = CreateEmptyCell(parent_pos);
+        }
 
-    static_cast<Cell*>(parent)->children_.insert(this);
-    parents_.insert(static_cast<Cell *>(parent));
-  }
+        static_cast<Cell*>(parent)->children_.insert(this);
+        parents_.insert(static_cast<Cell *>(parent));
+    }
 }
 
 void Cell::Clear() {
     impl_ = std::make_unique<EmptyImpl>();
 
-    // remove this from all parents' children_ sets
     for (auto parent : parents_)
         parent->children_.erase(this);
     parents_.clear();
 
     cache_.reset();
 
-    // Copy children pointers to avoid iterator invalidation when child->Clear() mutates parents/children
     std::vector<Cell*> children_copy(children_.begin(), children_.end());
-    children_.clear(); // remove all children before telling them to clear
+    children_.clear();
     for (auto child : children_copy) {
-        if (child) child->Clear();
+        if (child) 
+            child->Clear();
     }
 }
 
@@ -238,86 +217,51 @@ std::string Cell::GetText() const {
 }
 
 bool Cell::IsReferenced() const {
-  return !children_.empty();
+    return !children_.empty();
 }
 
 std::unordered_set<Cell*> Cell::GetParents(){
     return parents_;
 }
-void Cell::AddToStack(std::stack<Position> &destination, const std::vector<Position> &source) {
-  for (Position pos : source) {
-    destination.push(pos);
-  }
+void Cell::AddToStack(std::stack<Position> &dest, const std::vector<Position> &src) {
+    for (auto pos: src) {
+        dest.push(pos);
+    }
 }
 
-std::stack<Position> Cell::CreateStack(const std::vector<Position> &referenced_cells) {
-  std::stack<Position> stack_positions;
-  AddToStack(stack_positions, referenced_cells);
+struct PositionHasher {
+    size_t operator()(const Position& p) const noexcept {
+        // 64-bit mix
+        size_t h1 = std::hash<int>{}(p.row);
+        size_t h2 = std::hash<int>{}(p.col);
 
-  return stack_positions;
-}
+        return h1 ^ (h2 << 15);
+    }
+};
+
 bool Cell::IsCircularDependencyDFS(const std::vector<Position>& positions) {
-  std::stack<Position> stack_positions = CreateStack(positions);
-  std::map<Position, bool> visited_cells;
-
-  while (!stack_positions.empty()) {
-    Position current_pos = stack_positions.top();
-    stack_positions.pop();
-    bool check_pos = visited_cells[current_pos];
-
-    if (check_pos) {
-      continue;
-    }
-
-    visited_cells[current_pos] = true;
-    const CellInterface *current_cell = sheet_.GetCell(current_pos);
-
-    if (current_cell == this) {
-      return true;//throw CircularDependencyException{"Circular dependency"};
-    }
-
-    if (current_cell == nullptr) {
-      current_cell = CreateEmptyCell(current_pos);
-    }
-
-    AddToStack(stack_positions, current_cell->GetReferencedCells());
-  }
-  return false;
-}
-/*
-bool Cell::IsCircularDependencyDFS(const std::vector<Position>& positions) {
-    std::unordered_set<CellInterface*> downdeps;
-    for (auto pos: positions){
-        auto pCell = sheet_.GetCell(pos);
-        downdeps.insert(pCell);
-    }
-
-    enum class State { Unvisited, Visiting, Done };
-    std::unordered_map<const CellInterface*, State> state;
-    std::stack<std::pair<const CellInterface*, std::unordered_set<CellInterface*>::const_iterator>> stack;
-    state[this] = State::Visiting;
-    stack.push({this, downdeps.begin()});
+    std::stack<Position> stack;
+    AddToStack(stack, positions);
+    std::unordered_map<Position, bool, PositionHasher> visited; 
     while (!stack.empty()) {
-        auto& [node, it] = stack.top();
-        // finished exploring all dependencies
-        if (it == node->GetChildren().end()) {
-            state[node] = State::Done;
-            stack.pop();
+        Position current_pos = stack.top();
+        stack.pop();
+        bool check_pos = visited[current_pos];  
+        if (check_pos) {
             continue;
         }
-        const CellInterface* next = *it;
-        ++it; // move to next dependency
-        if (state[next] == State::Unvisited) {
-            state[next] = State::Visiting;
-            stack.push({next, next->GetChildren().begin()});
-        } else if (state[next] == State::Visiting) {
-            // back edge → cycle detected
+        visited[current_pos] = true;
+        const CellInterface *current_cell = sheet_.GetCell(current_pos);  
+        if (current_cell == this) {
             return true;
         }
+        if (current_cell == nullptr) {
+            current_cell = CreateEmptyCell(current_pos);
+        }
+        AddToStack(stack, current_cell->GetReferencedCells());
     }
     return false;
 }
-*/
 
 std::vector<Position> Cell::GetReferencedCells() const {
     return impl_->GetReferencedCells();

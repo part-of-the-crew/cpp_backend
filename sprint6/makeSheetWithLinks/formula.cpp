@@ -30,77 +30,53 @@ std::optional<double> GetNumber(const std::string& s) {
 namespace {
 class Formula : public FormulaInterface {
 public:
-// Реализуйте следующие методы:
 
-    /*
-    explicit Formula(std::string expression)
-    try
-        : ast_(ParseFormulaAST(expression)) {
-    } catch (const std::runtime_error& error) {
-        throw error;
-    }
-*/
     explicit Formula(const std::string &expression)
-    : ast_{ParseFormulaAST(expression)} {}
-/*
-    Value Evaluate(const SheetInterface& sheet) const override {
+        : ast_{ParseFormulaAST(expression)} {}
+
+    Value Evaluate(const SheetInterface &sheet) const override {
+
+        auto lambda = [&sheet](Position pos) -> double {
+            auto cell = sheet.GetCell(pos);
+            auto value = cell ? cell->GetValue() : 0.0;
+            if (std::holds_alternative<double>(value)) {
+                return std::get<double>(value);
+            }
+            if (std::holds_alternative<std::string>(value)) {
+                std::string str_value = std::get<std::string>(value); 
+                if (str_value.empty()) {
+                    return 0;
+                }
+                auto res = GetNumber(str_value);
+                if (res.has_value()){
+                    return *res;
+                }
+                throw FormulaError(FormulaError::Category::Value);
+            }
+            throw std::get<FormulaError>(value);
+        };
         try {
-            return ast_.Execute(sheet);
-        } catch (FormulaError error){
-            return error;
+            return ast_.Execute(lambda);
+        } catch (FormulaError &fe) {
+            return fe;
         }
     }
-*/
- Value Evaluate(const SheetInterface &sheet) const override {
-
-    auto lambda = [&sheet](Position pos) -> double {
-      auto cell = sheet.GetCell(pos);
-      auto value = cell ? cell->GetValue() : 0.0;
-
-      if (std::holds_alternative<double>(value)) {
-        return std::get<double>(value);
-      } else if (std::holds_alternative<std::string>(value)) {
-        std::string str_value = std::get<std::string>(value);
-
-        if (str_value.empty()) {
-          return 0;
-        }
-
-        auto res = GetNumber(str_value);
-        if (res.has_value()){
-            return *res;
-        }
-        throw FormulaError(FormulaError::Category::Value);
-      } else {
-        throw std::get<FormulaError>(value);
-      }
-    };
-
-    try {
-      return ast_.Execute(lambda);
-    } catch (FormulaError &fe) {
-      return fe;
-    }
-  }
     std::string GetExpression() const override {
         std::ostringstream out;      // string-based output stream
         ast_.PrintFormula(out);      // print the AST into it
         return out.str();            // extract the string
+    } 
+    std::vector<Position> GetReferencedCells() const override {
+        std::vector<Position> result;
+        Position prev = Position::NONE; 
+        for (auto cell : ast_.GetCells()) {
+            if (cell.IsValid() && !(cell == prev)) {
+                result.push_back(cell);
+                prev = cell;
+            }
+        } 
+        return result;
     }
-
-  std::vector<Position> GetReferencedCells() const override {
-    std::vector<Position> result;
-    Position prev = Position::NONE;
-
-    for (auto cell : ast_.GetCells()) {
-      if (cell.IsValid() && !(cell == prev)) {
-        result.push_back(cell);
-        prev = cell;
-      }
-    }
-
-    return result;
-  }
 
 private:
     FormulaAST ast_;

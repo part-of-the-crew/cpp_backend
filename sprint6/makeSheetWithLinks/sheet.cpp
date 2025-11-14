@@ -138,11 +138,11 @@ void Sheet::PrintTexts(std::ostream& output) const {
 }
 
 void Sheet::IsValidPosition(Position pos) const {
-  using std::string_literals::operator""s;
+    using std::string_literals::operator""s;
 
-  if (!pos.IsValid()) {
-    throw InvalidPositionException{"InvalidPosition"s};
-  }
+    if (!pos.IsValid()) {
+        throw InvalidPositionException{"InvalidPosition"s};
+    }
 }
 std::unique_ptr<SheetInterface> CreateSheet() {
     return std::make_unique<Sheet>();
