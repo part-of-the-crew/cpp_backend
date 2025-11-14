@@ -142,32 +142,70 @@ public:
                 return static_cast<ExprPrecedence>(INT_MAX);
         }
     }
-
-// При делении на 0 выбрасывайте ошибку вычисления FormulaError
+/*
     double Evaluate(CB cb) const override {
         auto rhs = rhs_->Evaluate(cb);
         auto lhs = lhs_->Evaluate(cb);
+        double result{};
         switch (type_)
         {
         case Add:
+            if (!std::isfinite(lhs+rhs))
+                throw FormulaError(FormulaError::Category::Arithmetic);
             return lhs + rhs;
             break;
         case Subtract:
+            if (!std::isfinite(lhs-rhs))
+                throw FormulaError(FormulaError::Category::Arithmetic);
             return lhs - rhs;
             break;
         case Multiply:
+            if (!std::isfinite(lhs*rhs))
+                throw FormulaError(FormulaError::Category::Arithmetic);
             return lhs * rhs;
             break;
         case Divide:
-            if (!std::isfinite(lhs/rhs))
+            if (rhs == 0)
                 throw FormulaError(FormulaError::Category::Arithmetic);
-            return lhs/(rhs);
+            if (!std::isfinite(lhs/rhs))
+                throw FormulaError(FormulaError::Category::Arithmetic); 
+            return lhs/rhs;
             break;
         default:
             // have to do this because VC++ has a buggy warning
             assert(false);
         }
         return static_cast<ExprPrecedence>(INT_MAX);
+    }*/
+// При делении на 0 выбрасывайте ошибку вычисления FormulaError
+    double Evaluate(CB cb) const override {
+        auto rhs = rhs_->Evaluate(cb);
+        auto lhs = lhs_->Evaluate(cb);
+        double result{};
+        switch (type_)
+        {
+        case Add:
+            result = lhs + rhs;
+            break;
+        case Subtract:
+            result = lhs - rhs;
+            break;
+        case Multiply:
+            result = lhs * rhs;
+            break;
+        case Divide:
+            if (rhs == 0)
+                throw FormulaError(FormulaError::Category::Arithmetic);
+            result = lhs/rhs;
+            break;
+        default:
+            // have to do this because VC++ has a buggy warning
+            assert(false);
+        }
+
+        if (!std::isfinite(result))
+            throw FormulaError(FormulaError::Category::Arithmetic);
+        return result;
     }
 
 private:
@@ -247,50 +285,6 @@ public:
     ExprPrecedence GetPrecedence() const override {
         return EP_ATOM;
     }
-/*
-    double Evaluate(SheetInterface& sheet) const override {
-        CellInterface::Value value;
-        try {
-            value = sheet.GetCell(*cell_)->GetValue();
-            if (std::holds_alternative<double>(value))
-                throw FormulaError(FormulaError::Category::Value);
-        } catch (FormulaError error){
-            throw error;
-        }
-        return std::get<double>(value);
-    }
-
-    double Evaluate(SheetInterface& sheet) const override {
-    if (!cell_->IsValid()) {
-        throw FormulaError(FormulaError::Category::Ref);
-        
-    }
-    
-    CellInterface* cell = sheet.GetCell(*cell_);
-    if (!cell) {
-        return 0.0;  // или бросить исключение, в зависимости от логики
-    }
-    
-    // Получаем значение ячейки (может быть double, string, FormulaError)
-    auto value = cell->GetValue();
-    
-    // Обрабатываем разные типы значений
-    if (std::holds_alternative<double>(value)) {
-        return std::get<double>(value);
-    } else if (std::holds_alternative<std::string>(value)) {
-        // Пытаемся преобразовать строку в число
-        try {
-            return std::stod(std::get<std::string>(value));
-        } catch (...) {
-            throw FormulaError(FormulaError::Category::Value);
-        }
-    } else if (std::holds_alternative<FormulaError>(value)) {
-        throw std::get<FormulaError>(value);
-    }
-    
-    return 0.0;  // fallback
-}
-    */
     double Evaluate(CB cb) const override {
         return cb(*cell_);
     }

@@ -194,51 +194,6 @@ void Cell::Set(std::string text) {
     }
 }
 
-/*
-void Cell::Set(std::string text) {
-    if (text == impl_->GetText()) {
-        return;
-    }   
-    SetImpl(std::move(text));
-
-    for (auto parent : parents_)
-        parent->children_.erase(this);
-
-    parents_.clear();
-    SetParents();
-    cache_.reset();
-
-    for (auto child : children_)
-        child->Clear();
-}
-/*
-void Cell::Set(std::string text) {
-    /*
-    if (text.front() == FORMULA_SIGN && text.size() > 1){
-        impl_ = std::make_unique<FormulaImpl>(text.substr(1));
-        return;
-    }
-    if (text.size() == 0){
-        impl_ = std::make_unique<EmptyImpl>(EmptyImpl{});
-        return;    
-    }
-    if (true || text.front() == ESCAPE_SIGN){
-        impl_ = std::make_unique<TextImpl>(text);
-        return;    
-    }
-    /*
-    if (!text.empty() && text[0] == '=' && text.size() > 1) {
-        impl_ = std::make_unique<FormulaImpl>(sheet_);
-    } else {
-        impl_ = std::make_unique<TextImpl>(sheet_);
-    }
-    DeleteDependences();
-    AddDependences();
-    impl_->Set(std::move(text));
-    
-    return;
-}
-*/
 CellInterface *Cell::CreateEmptyCell(const Position &pos) const {
   sheet_.SetCell(pos, "");
   return sheet_.GetCell(pos);
@@ -255,18 +210,7 @@ void Cell::SetParents() {
     parents_.insert(static_cast<Cell *>(parent));
   }
 }
-/*
-void Cell::Clear() {
-  impl_ = std::make_unique<EmptyImpl>();
-  for (auto parent : parents_)
-    parent->children_.erase(this);
-  parents_.clear();
-  //impl_->ClearCache();
-  cache_.reset();
-  for (auto child : children_)
-    child->Clear();
-}
-*/
+
 void Cell::Clear() {
     impl_ = std::make_unique<EmptyImpl>();
 
@@ -286,16 +230,9 @@ void Cell::Clear() {
 }
 
 Cell::Value Cell::GetValue() const {
-    //auto e = impl_->GetValue(sheet_);
-    //return std::to_string(e.index());
-    //            return FormulaError(FormulaError::Category::Value);
     return impl_->GetValue(sheet_);
 }
-/*
-Cell::Value Cell::GetValue() {
-    return impl_->GetValue(sheet_);
-}
-*/
+
 std::string Cell::GetText() const {
     return impl_->GetText();
 }
@@ -381,29 +318,11 @@ bool Cell::IsCircularDependencyDFS(const std::vector<Position>& positions) {
     return false;
 }
 */
-/*
-std::unordered_set<Cell*> Cell::GetDownstream(){
-    return downdeps_;
-}
 
-std::unordered_set<Cell*> Cell::GetDownstream() const {
-    return downdeps_;
-}
-*/
 std::vector<Position> Cell::GetReferencedCells() const {
     return impl_->GetReferencedCells();
 }
-/*
-    //Set dependencies for cache invalidation
-void Cell::SetDependencies(std::unordered_set<Position> dep){
-    updeps_ = dep;
-    
-}
-    //Get dependencies for cache invalidation
-std::unordered_set<Cell*> Cell::GetDependencies() {
-    return updeps_;
-}
-*/
+
 //----------------------------------------------------------
 FormulaError::FormulaError(Category category)
     : category_(category) {}
@@ -425,7 +344,7 @@ std::string_view FormulaError::ToString() const {
         case Category::Value:
             return "#VALUE!"sv;
         case Category::Arithmetic:
-            return "#DIV/0!"sv;
+            return "#ARITHM!"sv;
     }
     return "#ERROR!";  // fallback for unexpected cases
 }

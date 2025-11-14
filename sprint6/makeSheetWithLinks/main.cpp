@@ -196,12 +196,25 @@ void TestErrorValue() {
     auto sheet = CreateSheet();
     sheet->SetCell("E2"_pos, "A1");
     sheet->SetCell("E4"_pos, "=E2");
+    //sheet->SetCell("E2"_pos, "S2");
+    //std::cout << sheet->GetCell("E4"_pos)->GetText() << std::endl;
+    //return;
+    ASSERT_EQUAL(sheet->GetCell("E4"_pos)->GetValue(),
+                   CellInterface::Value(FormulaError::Category::Value));
+
+    sheet->SetCell("E2"_pos, "3D");
+    //std::cout << std::get<std::string>(sheet->GetCell("E4"_pos)->GetValue()) << std::endl;
+    /*
+    Cell::GetValue -> FormulaImpl::GetValue -> FormulaInteffase->Evaluate -> 
+    FormulaAST->Execute -> root_expr_->Evaluate(cb) -> ExprCell::Evaluate - double cb(*cell_) ->
+    cell->GetValue()
+
+    */
+    //auto v = sheet->GetCell("E4"_pos)->GetValue();
+    //std::cout << v.index() << std::endl;
     ASSERT_EQUAL(sheet->GetCell("E4"_pos)->GetValue(),
                     CellInterface::Value(FormulaError::Category::Value));
 
-    sheet->SetCell("E2"_pos, "3D");
-    ASSERT_EQUAL(sheet->GetCell("E4"_pos)->GetValue(),
-                    CellInterface::Value(FormulaError::Category::Value));
 }
 
 void TestErrorArithmetic() {
@@ -288,6 +301,17 @@ void TestPrint() {
     ASSERT_EQUAL(values.str(), "\t\nmeow\t35\n");
 }
 
+void TestPrint1() {
+    auto sheet = CreateSheet();
+    //sheet->SetCell("A2"_pos, "meow");
+    sheet->SetCell("B2"_pos, "=1+2");
+    sheet->SetCell("A1"_pos, "1");
+    ASSERT_EQUAL(sheet->GetPrintableSize(), (Size{2, 2}));
+
+    sheet->ClearCell("B2"_pos);
+    ASSERT_EQUAL(sheet->GetPrintableSize(), (Size{1, 1}));
+}
+
 void TestCellReferences() {
     auto sheet = CreateSheet();
     sheet->SetCell("A1"_pos, "1");
@@ -361,12 +385,13 @@ int main() {
     RUN_TEST(tr, TestFormulaReferences);
     RUN_TEST(tr, TestFormulaExpressionFormatting);
     RUN_TEST(tr, TestFormulaReferencedCells);
-    RUN_TEST(tr, TestErrorValue);//
+    RUN_TEST(tr, TestErrorValue);
     RUN_TEST(tr, TestErrorArithmetic);//
     RUN_TEST(tr, TestEmptyCellTreatedAsZero);
     RUN_TEST(tr, TestFormulaInvalidPosition);
     RUN_TEST(tr, TestPrint);
+    RUN_TEST(tr, TestPrint1);
     RUN_TEST(tr, TestCellReferences);
     RUN_TEST(tr, TestFormulaIncorrect);
-    RUN_TEST(tr, TestCellCircularReferences);//
+    RUN_TEST(tr, TestCellCircularReferences);
 }

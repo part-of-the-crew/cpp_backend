@@ -1,7 +1,7 @@
 #include "formula.h"
 
 #include "FormulaAST.h"
-
+#include <cmath>
 #include <algorithm>
 #include <cassert>
 #include <cctype>
@@ -21,7 +21,7 @@ std::optional<double> GetNumber(const std::string& s) {
     double res = std::strtod(s.c_str(), &end);
 
     // Check if the whole string was parsed as a number
-    if (end == s.c_str() + s.size()) 
+    if (end == (s.c_str() + s.size())) 
         return res;
     else 
         return std::nullopt;
@@ -31,14 +31,15 @@ namespace {
 class Formula : public FormulaInterface {
 public:
 // Реализуйте следующие методы:
-/*
+
+    /*
     explicit Formula(std::string expression)
     try
         : ast_(ParseFormulaAST(expression)) {
-    } catch (const FormulaException& error) {
+    } catch (const std::runtime_error& error) {
         throw error;
     }
-        */
+*/
     explicit Formula(const std::string &expression)
     : ast_{ParseFormulaAST(expression)} {}
 /*
@@ -51,6 +52,7 @@ public:
     }
 */
  Value Evaluate(const SheetInterface &sheet) const override {
+
     auto lambda = [&sheet](Position pos) -> double {
       auto cell = sheet.GetCell(pos);
       auto value = cell ? cell->GetValue() : 0.0;
@@ -63,34 +65,12 @@ public:
         if (str_value.empty()) {
           return 0;
         }
-        
+
         auto res = GetNumber(str_value);
         if (res.has_value()){
             return *res;
         }
         throw FormulaError(FormulaError::Category::Value);
-        /*
-        char *endptr;
-        errno = 0;
-        auto res = std::strtod(str_value.c_str(), &endptr);
-
-        if ((errno == ERANGE && res == 9999999999.9)//HUGE_VAL)
-            || (errno != 0 && res == 0)) {
-          throw FormulaError(FormulaError::Category::Value);
-        }
-
-        // Цифры отсутствуют
-        if (endptr == str_value.c_str()) {
-          throw FormulaError(FormulaError::Category::Value);
-        }
-
-        // После числа есть ещё символы
-        if (*endptr != '\0') {
-          throw FormulaError(FormulaError::Category::Value);
-        }
-
-        return *res;
-        */
       } else {
         throw std::get<FormulaError>(value);
       }
@@ -107,12 +87,6 @@ public:
         ast_.PrintFormula(out);      // print the AST into it
         return out.str();            // extract the string
     }
-    /*
-    std::vector<Position> GetReferencedCells() const override {
-        //std::vector<Position> vec(ast_.GetCells().begin(), ast_.GetCells().end());
-        return {ast_.GetCells().begin(), ast_.GetCells().end()};
-    }
-    */
 
   std::vector<Position> GetReferencedCells() const override {
     std::vector<Position> result;
@@ -132,11 +106,7 @@ private:
     FormulaAST ast_;
 };
 }  // namespace
-/*
-std::unique_ptr<FormulaInterface> ParseFormula(std::string expression) {
-    return std::make_unique<Formula>(std::move(expression));
-}
-*/
+
 std::unique_ptr<FormulaInterface> ParseFormula(std::string expression) {
     try {
         return std::make_unique<Formula>(std::move(expression));

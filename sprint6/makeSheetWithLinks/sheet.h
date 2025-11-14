@@ -21,7 +21,6 @@ public:
 
     void PrintValues(std::ostream& output) const override;
     void PrintTexts(std::ostream& output) const override;
-    //Position GetCellByPtr(const Cell* cell) const;
 
 
 private:

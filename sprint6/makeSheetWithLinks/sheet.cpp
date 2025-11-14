@@ -22,32 +22,10 @@ void Sheet::SetCell(Position pos, std::string text) {
     }
 
     auto& row = sheet_[pos.row];
-    if (!row.contains(pos.col)) {
+    if (row.find(pos.col) == row.end()) {
         row[pos.col] = std::make_unique<Cell>(*this);
     }
     row[pos.col]->Set(std::move(text));
-    //cellPtr_.emplace(row[pos.col].get(), pos);
-
-
-/*
-    Cell cell;
-    cell.Set(text);
-    sheet_[pos.row][pos.col] = std::move(cell);
-
-
-
-    auto it = sheet_.find(pos.row);
-    if (it == sheet_.end()){
-        sheet_.emplace();
-    } else {
-        auto it1 = it->second.find(pos.col);
-        if (it1 == it->second.end()){
-            it->second.emplace();
-        } else {
-            it1->second.Set(text);
-        }
-    }
-        */
 }
 
 const CellInterface* Sheet::GetCell(Position pos) const {
@@ -102,17 +80,6 @@ void Sheet::UpdatePrintableSize() {
 
     printableSize_ = {max_row, max_col};
 }
-/*
-void Sheet::ClearCell(Position pos) {
-
-    if (sheet_.contains(pos.row) && sheet_.at(pos.row).contains(pos.col)){
-        sheet_.at(pos.row).at(pos.col).Clear();//sheet.at(2).erase(3);
-    }
-    if (pos.col < printableSize_.cols && pos.row < printableSize_.rows){
-        return;
-    }
-}
-*/
 
 void Sheet::ClearCell(Position pos) {
     IsValidPosition(pos);
@@ -128,11 +95,10 @@ void Sheet::ClearCell(Position pos) {
         return; // Cell not found
     }
     Cell* ptr = row_it->second.at(pos.col).get();
-    cellPtr_.erase(ptr);  // remove mapping
+    cellPtr_.erase(ptr);  // remove from map
     // Erase the cell completely (not just clear content)
     row.erase(cell_it);
 
-    // If row becomes empty, erase it too
     if (row.empty()) {
         sheet_.erase(row_it);
     }
@@ -146,10 +112,10 @@ Size Sheet::GetPrintableSize() const {
 }
 
 void Sheet::PrintCells(std::ostream& output,
-            const std::function<void(const CellInterface&)>& printCell) const {
+    const std::function<void(const CellInterface&)>& printCell) const {
     for (int r = 0; r < printableSize_.rows; ++r) {
         for (int c = 0; c < printableSize_.cols; ++c) {
-            if (sheet_.contains(r) && sheet_.at(r).contains(c)) {
+            if (sheet_.find(r) != sheet_.end() && sheet_.at(r).find(c) != sheet_.at(r).end()) {
                 printCell(*sheet_.at(r).at(c));
             }
             if (c < printableSize_.cols - 1) {
@@ -170,12 +136,7 @@ void Sheet::PrintTexts(std::ostream& output) const {
         output << cell.GetText();
     });
 }
-/*
-Position Sheet::GetCellByPtr(const Cell *cell) const {
-    const auto it = cellPtr_.find(cell);
-    return it->second;
-}
-*/
+
 void Sheet::IsValidPosition(Position pos) const {
   using std::string_literals::operator""s;
 
