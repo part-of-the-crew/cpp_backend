@@ -21,7 +21,7 @@ build() {
 clean() {
     echo "🧹 Cleaning build directory..."
     rm -rf "$BUILD_DIR" "$GENERATED_DIR"
-    rm -rf dist build
+    rm -rf dist build tidy_errors.txt
 }
 
 run() {
@@ -42,6 +42,10 @@ runv() {
         "$EXECUTABLE" 2>&1
 }
 
+format(){
+    clang-tidy *.cpp *.h -fix  > tidy_errors.txt
+    clang-format -i *.cpp *.h
+}
 # --- Main logic ---
 case "$1" in
     configure)
@@ -65,6 +69,9 @@ case "$1" in
         shift
         runv "$@"
         ;;
+    format)
+        format
+        ;;    
     *)
         clean
         configure

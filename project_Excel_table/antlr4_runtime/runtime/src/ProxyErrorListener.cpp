@@ -4,6 +4,11 @@
  */
 
 #include "ProxyErrorListener.h"
+#include "ANTLRErrorListener.h"
+#include "support/Declarations.h"
+#include <cstddef>
+#include <string>
+#include <exception>
 
 using namespace antlr4;
 

@@ -1,8 +1,11 @@
-#include "common.h"
-
+#include <algorithm>
 #include <cctype>
 #include <sstream>
-#include <algorithm>
+#include <string>
+#include <string_view>
+#include <tuple>
+
+#include "common.h"
 
 const int LETTERS = 26;
 const int MAX_POSITION_LENGTH = 17;
@@ -41,9 +44,8 @@ std::string Position::ToString() const {
 }
 
 Position Position::FromString(std::string_view str) {
-    auto it = std::find_if(str.begin(), str.end(), [](const char c) {
-        return !(std::isalpha(c) && std::isupper(c));
-    });
+    const auto* it = std::find_if(str.begin(), str.end(),
+                                  [](const char c) { return !((std::isalpha(c) != 0) && (std::isupper(c) != 0)); });
     auto letters = str.substr(0, it - str.begin());
     auto digits = str.substr(it - str.begin());
 
@@ -54,18 +56,18 @@ Position Position::FromString(std::string_view str) {
         return Position::NONE;
     }
 
-    if (!std::isdigit(digits[0])) {
+    if (std::isdigit(digits[0]) == 0) {
         return Position::NONE;
     }
 
-    int row;
+    int row = 0;
     std::istringstream row_in{std::string{digits}};
     if (!(row_in >> row) || !row_in.eof()) {
         return Position::NONE;
     }
 
     int col = 0;
-    for (char ch : letters) {
+    for (char const ch : letters) {
         col *= LETTERS;
         col += ch - 'A' + 1;
     }

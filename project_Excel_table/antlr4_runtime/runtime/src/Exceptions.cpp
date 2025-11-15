@@ -5,9 +5,13 @@
 
 #include "Exceptions.h"
 
+#include <utility>
+#include <string>
+#include <exception>
+
 using namespace antlr4;
 
-RuntimeException::RuntimeException(const std::string &msg) : std::exception(), _message(msg) {
+RuntimeException::RuntimeException(std::string msg) :  _message(std::move(msg)) {
 }
 
 const char* RuntimeException::what() const noexcept {
@@ -16,7 +20,7 @@ const char* RuntimeException::what() const noexcept {
 
 //------------------ IOException ---------------------------------------------------------------------------------------
 
-IOException::IOException(const std::string &msg) : std::exception(), _message(msg) {
+IOException::IOException(std::string msg) :  _message(std::move(msg)) {
 }
 
 const char* IOException::what() const noexcept {
@@ -25,40 +29,32 @@ const char* IOException::what() const noexcept {
 
 //------------------ IllegalStateException -----------------------------------------------------------------------------
 
-IllegalStateException::~IllegalStateException() {
-}
+IllegalStateException::~IllegalStateException() = default;
 
 //------------------ IllegalArgumentException --------------------------------------------------------------------------
 
-IllegalArgumentException::~IllegalArgumentException() {
-}
+IllegalArgumentException::~IllegalArgumentException() = default;
 
 //------------------ NullPointerException ------------------------------------------------------------------------------
 
-NullPointerException::~NullPointerException() {
-}
+NullPointerException::~NullPointerException() = default;
 
 //------------------ IndexOutOfBoundsException -------------------------------------------------------------------------
 
-IndexOutOfBoundsException::~IndexOutOfBoundsException() {
-}
+IndexOutOfBoundsException::~IndexOutOfBoundsException() = default;
 
 //------------------ UnsupportedOperationException ---------------------------------------------------------------------
 
-UnsupportedOperationException::~UnsupportedOperationException() {
-}
+UnsupportedOperationException::~UnsupportedOperationException() = default;
 
 //------------------ EmptyStackException -------------------------------------------------------------------------------
 
-EmptyStackException::~EmptyStackException() {
-}
+EmptyStackException::~EmptyStackException() = default;
 
 //------------------ CancellationException -----------------------------------------------------------------------------
 
-CancellationException::~CancellationException() {
-}
+CancellationException::~CancellationException() = default;
 
 //------------------ ParseCancellationException ------------------------------------------------------------------------
 
-ParseCancellationException::~ParseCancellationException() {
-}
+ParseCancellationException::~ParseCancellationException() = default;

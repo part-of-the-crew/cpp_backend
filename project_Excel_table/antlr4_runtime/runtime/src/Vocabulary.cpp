@@ -6,6 +6,12 @@
 #include "Token.h"
 
 #include "Vocabulary.h"
+#include <vector>
+#include <string>
+#include <utility>
+#include <algorithm>
+#include <string_view>
+#include <cstddef>
 
 using namespace antlr4::dfa;
 
@@ -44,18 +50,18 @@ std::string_view Vocabulary::getSymbolicName(size_t tokenType) const {
 
 std::string Vocabulary::getDisplayName(size_t tokenType) const {
   if (tokenType < _displayNames.size()) {
-    std::string_view displayName = _displayNames[tokenType];
+    std::string_view const displayName = _displayNames[tokenType];
     if (!displayName.empty()) {
       return std::string(displayName);
     }
   }
 
-  std::string_view literalName = getLiteralName(tokenType);
+  std::string_view const literalName = getLiteralName(tokenType);
   if (!literalName.empty()) {
     return std::string(literalName);
   }
 
-  std::string_view symbolicName = getSymbolicName(tokenType);
+  std::string_view const symbolicName = getSymbolicName(tokenType);
   if (!symbolicName.empty()) {
     return std::string(symbolicName);
   }

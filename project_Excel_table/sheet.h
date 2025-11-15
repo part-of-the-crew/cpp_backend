@@ -1,10 +1,10 @@
 #pragma once
 
+#include <functional>
+#include <unordered_map>
+
 #include "cell.h"
 #include "common.h"
-
-#include <unordered_map>
-#include <functional>
 
 class Sheet : public SheetInterface {
 public:
@@ -22,15 +22,13 @@ public:
     void PrintValues(std::ostream& output) const override;
     void PrintTexts(std::ostream& output) const override;
 
-
 private:
     Size printableSize_;
     void UpdatePrintableSize();
-    void PrintCells(std::ostream& output,
-                    const std::function<void(const CellInterface&)>& printCell) const;
+    void PrintCells(std::ostream& output, const std::function<void(const CellInterface&)>& printCell) const;
 
     void IsValidPosition(Position pos) const;
-    
+
     std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Cell>>> sheet_;
     std::unordered_map<const Cell*, Position> cellPtr_;
 };

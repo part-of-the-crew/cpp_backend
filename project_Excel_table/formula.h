@@ -1,10 +1,10 @@
 #pragma once
 
-#include "common.h"
-
 #include <memory>
-#include <vector>
 #include <optional>
+#include <vector>
+
+#include "common.h"
 // Формула, позволяющая вычислять и обновлять арифметическое выражение.
 // Поддерживаемые возможности:
 // * Простые бинарные операции и числа, скобки: 1+2*3, 2.5*(2+3.5/7)
@@ -18,7 +18,7 @@ public:
 
     virtual ~FormulaInterface() = default;
 
-    // Обратите внимание, что в метод Evaluate() ссылка на таблицу передаётся 
+    // Обратите внимание, что в метод Evaluate() ссылка на таблицу передаётся
     // в качестве аргумента.
     // Возвращает вычисленное значение формулы для переданного листа либо ошибку.
     // Если вычисление какой-то из указанных в формуле ячеек приводит к ошибке, то
@@ -40,4 +40,4 @@ public:
 // Бросает FormulaException в случае, если формула синтаксически некорректна.
 std::unique_ptr<FormulaInterface> ParseFormula(std::string expression);
 
-std::optional <double> GetNumber(const std::string& s);
+std::optional<double> GetNumber(const std::string& s);

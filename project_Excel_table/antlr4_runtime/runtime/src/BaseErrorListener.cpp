@@ -4,7 +4,10 @@
  */
 
 #include "BaseErrorListener.h"
-#include "RecognitionException.h"
+#include <cstddef>
+#include <string>
+#include <exception>
+#include "support/Declarations.h"
 
 using namespace antlr4;
 

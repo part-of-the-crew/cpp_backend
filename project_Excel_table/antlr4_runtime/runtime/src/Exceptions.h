@@ -14,7 +14,7 @@ namespace antlr4 {
   private:
     std::string _message;
   public:
-    RuntimeException(const std::string &msg = "");
+    RuntimeException(std::string msg = "");
 
     virtual const char* what() const noexcept override;
   };
@@ -75,7 +75,7 @@ namespace antlr4 {
     std::string _message;
 
   public:
-    IOException(const std::string &msg = "");
+    IOException(std::string msg = "");
 
     virtual const char* what() const noexcept override;
   };

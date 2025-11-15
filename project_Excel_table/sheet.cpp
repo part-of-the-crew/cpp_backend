@@ -1,11 +1,11 @@
 #include "sheet.h"
 
-#include "common.h"
-
 #include <algorithm>
 #include <functional>
 #include <iostream>
 #include <optional>
+
+#include "common.h"
 
 using namespace std::literals;
 
@@ -14,11 +14,11 @@ Sheet::~Sheet() = default;
 void Sheet::SetCell(Position pos, std::string text) {
     IsValidPosition(pos);
 
-    if (pos.col > printableSize_.cols - 1){
+    if (pos.col > printableSize_.cols - 1) {
         printableSize_.cols = pos.col + 1;
     }
-    if (pos.row > printableSize_.rows  - 1){
-        printableSize_.rows = pos.row  + 1;
+    if (pos.row > printableSize_.rows - 1) {
+        printableSize_.rows = pos.row + 1;
     }
 
     auto& row = sheet_[pos.row];
@@ -60,7 +60,6 @@ CellInterface* Sheet::GetCell(Position pos) {
     return col_it->second.get();
 }
 
-
 void Sheet::UpdatePrintableSize() {
     if (sheet_.empty()) {
         printableSize_ = {0, 0};
@@ -71,7 +70,8 @@ void Sheet::UpdatePrintableSize() {
     int max_col = 0;
 
     for (const auto& [r, row_map] : sheet_) {
-        if (row_map.empty()) continue;
+        if (row_map.empty())
+            continue;
         max_row = std::max(max_row, r + 1);
         for (const auto& [c, _] : row_map) {
             max_col = std::max(max_col, c + 1);
@@ -86,13 +86,13 @@ void Sheet::ClearCell(Position pos) {
 
     auto row_it = sheet_.find(pos.row);
     if (row_it == sheet_.end()) {
-        return; // Row not found
+        return;  // Row not found
     }
 
     auto& row = row_it->second;
     auto cell_it = row.find(pos.col);
     if (cell_it == row.end()) {
-        return; // Cell not found
+        return;  // Cell not found
     }
     Cell* ptr = row_it->second.at(pos.col).get();
     cellPtr_.erase(ptr);  // remove from map
@@ -111,8 +111,7 @@ Size Sheet::GetPrintableSize() const {
     return printableSize_;
 }
 
-void Sheet::PrintCells(std::ostream& output,
-    const std::function<void(const CellInterface&)>& printCell) const {
+void Sheet::PrintCells(std::ostream& output, const std::function<void(const CellInterface&)>& printCell) const {
     for (int r = 0; r < printableSize_.rows; ++r) {
         for (int c = 0; c < printableSize_.cols; ++c) {
             if (sheet_.find(r) != sheet_.end() && sheet_.at(r).find(c) != sheet_.at(r).end()) {
@@ -127,14 +126,10 @@ void Sheet::PrintCells(std::ostream& output,
 }
 
 void Sheet::PrintValues(std::ostream& output) const {
-    PrintCells(output, [&output](const CellInterface& cell) {
-        output << cell.GetValue();
-    });
+    PrintCells(output, [&output](const CellInterface& cell) { output << cell.GetValue(); });
 }
 void Sheet::PrintTexts(std::ostream& output) const {
-    PrintCells(output, [&output](const CellInterface& cell) {
-        output << cell.GetText();
-    });
+    PrintCells(output, [&output](const CellInterface& cell) { output << cell.GetText(); });
 }
 
 void Sheet::IsValidPosition(Position pos) const {

@@ -4,6 +4,11 @@
  */
 
 #include "RuntimeMetaData.h"
+#include <string>
+#include <iostream>
+#include <ostream>
+#include <cstddef>
+#include <algorithm>
 #include "Version.h"
 
 using namespace antlr4;
@@ -15,11 +20,11 @@ std::string RuntimeMetaData::getRuntimeVersion() {
 }
 
 void RuntimeMetaData::checkVersion(const std::string &generatingToolVersion, const std::string &compileTimeVersion) {
-  std::string runtimeVersion = VERSION;
+  std::string const runtimeVersion = VERSION;
   bool runtimeConflictsWithGeneratingTool = false;
   bool runtimeConflictsWithCompileTimeTool = false;
 
-  if (generatingToolVersion != "") {
+  if (!generatingToolVersion.empty()) {
     runtimeConflictsWithGeneratingTool = runtimeVersion != generatingToolVersion
       && getMajorMinorVersion(runtimeVersion) != getMajorMinorVersion(generatingToolVersion);
   }
@@ -29,18 +34,18 @@ void RuntimeMetaData::checkVersion(const std::string &generatingToolVersion, con
 
   if (runtimeConflictsWithGeneratingTool) {
     std::cerr << "ANTLR Tool version " << generatingToolVersion << " used for code generation does not match "
-      "the current runtime version " << runtimeVersion << std::endl;
+      "the current runtime version " << runtimeVersion << '\n';
   }
   if (runtimeConflictsWithCompileTimeTool) {
     std::cerr << "ANTLR Runtime version " << compileTimeVersion << " used for parser compilation does not match "
-      "the current runtime version " << runtimeVersion << std::endl;
+      "the current runtime version " << runtimeVersion << '\n';
   }
 }
 
 std::string RuntimeMetaData::getMajorMinorVersion(const std::string &version) {
-  size_t firstDot = version.find('.');
-  size_t secondDot = firstDot != std::string::npos ? version.find('.', firstDot + 1) : std::string::npos;
-  size_t firstDash = version.find('-');
+  size_t const firstDot = version.find('.');
+  size_t const secondDot = firstDot != std::string::npos ? version.find('.', firstDot + 1) : std::string::npos;
+  size_t const firstDash = version.find('-');
   size_t referenceLength = version.size();
   if (secondDot != std::string::npos) {
     referenceLength = std::min(referenceLength, secondDot);

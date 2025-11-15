@@ -3,9 +3,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+#include "BufferedTokenStream.h"
 #include "Token.h"
+#include "support/Declarations.h"
 
 #include "CommonTokenStream.h"
+#include <cstddef>
+#include <sys/types.h>
 
 using namespace antlr4;
 
@@ -25,7 +29,7 @@ Token* CommonTokenStream::LB(size_t k) {
     return nullptr;
   }
 
-  ssize_t i = static_cast<ssize_t>(_p);
+  auto i = static_cast<ssize_t>(_p);
   size_t n = 1;
   // find k good tokens looking backwards
   while (n <= k) {
@@ -65,8 +69,8 @@ Token* CommonTokenStream::LT(ssize_t k) {
 int CommonTokenStream::getNumberOfOnChannelTokens() {
   int n = 0;
   fill();
-  for (size_t i = 0; i < _tokens.size(); i++) {
-    Token *t = _tokens[i].get();
+  for (const auto & _token : _tokens) {
+    Token *t = _token.get();
     if (t->getChannel() == channel) {
       n++;
     }

@@ -1,23 +1,21 @@
 #include "cell.h"
-#include "sheet.h"
 
+#include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <iostream>
-#include <string>
+#include <map>
 #include <optional>
+#include <stack>
+#include <string>
 #include <utility>
 #include <variant>
-
-#include <map>
 #include <vector>
-#include <stack>
-#include <algorithm>
-#include <cctype>
+
+#include "sheet.h"
 
 std::ostream& operator<<(std::ostream& out, const CellInterface::Value& value) {
-    std::visit([&out](const auto& v) {
-        out << v;
-    }, value);
+    std::visit([&out](const auto& v) { out << v; }, value);
     return out;
 }
 
@@ -35,29 +33,18 @@ Cell::Impl::~Impl() = default;
 // ---------- EmptyImpl ----------
 class Cell::EmptyImpl : public Cell::Impl {
 public:
-    std::string GetText() const override {
-        return "";
-    }
-    Value GetValue(const SheetInterface& sheet) const override {
-        return std::string("");
-    }
-    Value GetValue(const SheetInterface& sheet) override {
-        return std::string("");
-    }
-    std::vector<Position> GetReferencedCells() const override {
-        return {};
-    }
+    std::string GetText() const override { return ""; }
+    Value GetValue(const SheetInterface& sheet) const override { return std::string(""); }
+    Value GetValue(const SheetInterface& sheet) override { return std::string(""); }
+    std::vector<Position> GetReferencedCells() const override { return {}; }
 };
 
 // ---------- TextImpl ----------
 class Cell::TextImpl : public Cell::Impl {
 public:
-    explicit TextImpl(std::string text)
-        : text_(std::move(text)) {}
+    explicit TextImpl(std::string text) : text_(std::move(text)) {}
 
-    std::string GetText() const override {
-        return text_;
-    }
+    std::string GetText() const override { return text_; }
 
     Value GetValue(const SheetInterface& sheet) const {
         if (!text_.empty() && text_.front() == ESCAPE_SIGN) {
@@ -71,9 +58,7 @@ public:
         }
         return text_;
     }
-    std::vector<Position> GetReferencedCells() const override {
-        return {};
-    }
+    std::vector<Position> GetReferencedCells() const override { return {}; }
 
 private:
     std::string text_;
@@ -82,15 +67,12 @@ private:
 // ---------- FormulaImpl ----------
 class Cell::FormulaImpl : public Cell::Impl {
 public:
-    explicit FormulaImpl(std::string expression)
-        : formula_(ParseFormula(expression)) {}
+    explicit FormulaImpl(std::string expression) : formula_(ParseFormula(expression)) {}
 
-    std::string GetText() const override {
-        return "=" + formula_->GetExpression();
-    }
+    std::string GetText() const override { return "=" + formula_->GetExpression(); }
 
     Value GetValue(const SheetInterface& sheet) const override {
-        auto formula_evaluate = formula_->Evaluate(sheet);      
+        auto formula_evaluate = formula_->Evaluate(sheet);
         if (std::holds_alternative<double>(formula_evaluate)) {
             return std::get<double>(formula_evaluate);
         } else {
@@ -98,8 +80,7 @@ public:
         }
     }
     Value GetValue(const SheetInterface& sheet) override {
-        
-        auto formula_evaluate = formula_->Evaluate(sheet);   
+        auto formula_evaluate = formula_->Evaluate(sheet);
 
         if (std::holds_alternative<double>(formula_evaluate)) {
             return std::get<double>(formula_evaluate);
@@ -107,19 +88,15 @@ public:
             return std::get<FormulaError>(formula_evaluate);
         }
     }
-    std::vector<Position> GetReferencedCells() const override {
-        return formula_->GetReferencedCells();
-    }
+    std::vector<Position> GetReferencedCells() const override { return formula_->GetReferencedCells(); }
+
 private:
     std::unique_ptr<FormulaInterface> formula_;
 };
 
 // ====================== Cell Implementation ======================
 
-
-Cell::Cell(Sheet &sheet)
-    : sheet_(sheet)
-    , impl_(std::make_unique<EmptyImpl>()) {}
+Cell::Cell(Sheet& sheet) : sheet_(sheet), impl_(std::make_unique<EmptyImpl>()) {}
 
 Cell::~Cell() = default;
 
@@ -134,13 +111,13 @@ void Cell::SetImpl(std::string text) {
 
         try {
             temp_impl = std::make_unique<FormulaImpl>(text.substr(1));
-        } catch (std::exception &e) {
+        } catch (std::exception& e) {
             throw FormulaException("Formula error");
         }
 
         auto referenced_cells = temp_impl->GetReferencedCells();
 
-        if (IsCircularDependencyDFS(referenced_cells)){
+        if (IsCircularDependencyDFS(referenced_cells)) {
             throw CircularDependencyException{"Circular dependency"};
         }
 
@@ -149,7 +126,6 @@ void Cell::SetImpl(std::string text) {
     }
 
     impl_ = std::make_unique<TextImpl>(std::move(text));
-
 }
 void Cell::Set(std::string text) {
     if (text == impl_->GetText()) {
@@ -170,24 +146,25 @@ void Cell::Set(std::string text) {
     // Optionally clear our children_ before notifying them so they don't try to erase us
     children_.clear();
     for (auto child : children_copy) {
-        if (child) child->cache_.reset();//child->Clear();
+        if (child)
+            child->cache_.reset();  // child->Clear();
     }
 }
 
-CellInterface *Cell::CreateEmptyCell(const Position &pos) const {
-  sheet_.SetCell(pos, "");
-  return sheet_.GetCell(pos);
+CellInterface* Cell::CreateEmptyCell(const Position& pos) const {
+    sheet_.SetCell(pos, "");
+    return sheet_.GetCell(pos);
 }
 
 void Cell::SetParents() {
-    for (const auto &parent_pos : GetReferencedCells()) {
-        auto *parent = sheet_.GetCell(parent_pos);
+    for (const auto& parent_pos : GetReferencedCells()) {
+        auto* parent = sheet_.GetCell(parent_pos);
         if (parent == nullptr) {
             parent = CreateEmptyCell(parent_pos);
         }
 
         static_cast<Cell*>(parent)->children_.insert(this);
-        parents_.insert(static_cast<Cell *>(parent));
+        parents_.insert(static_cast<Cell*>(parent));
     }
 }
 
@@ -203,7 +180,7 @@ void Cell::Clear() {
     std::vector<Cell*> children_copy(children_.begin(), children_.end());
     children_.clear();
     for (auto child : children_copy) {
-        if (child) 
+        if (child)
             child->Clear();
     }
 }
@@ -220,11 +197,11 @@ bool Cell::IsReferenced() const {
     return !children_.empty();
 }
 
-std::unordered_set<Cell*> Cell::GetParents(){
+std::unordered_set<Cell*> Cell::GetParents() {
     return parents_;
 }
-void Cell::AddToStack(std::stack<Position> &dest, const std::vector<Position> &src) {
-    for (auto pos: src) {
+void Cell::AddToStack(std::stack<Position>& dest, const std::vector<Position>& src) {
+    for (auto pos : src) {
         dest.push(pos);
     }
 }
@@ -242,16 +219,16 @@ struct PositionHasher {
 bool Cell::IsCircularDependencyDFS(const std::vector<Position>& positions) {
     std::stack<Position> stack;
     AddToStack(stack, positions);
-    std::unordered_map<Position, bool, PositionHasher> visited; 
+    std::unordered_map<Position, bool, PositionHasher> visited;
     while (!stack.empty()) {
         Position current_pos = stack.top();
         stack.pop();
-        bool check_pos = visited[current_pos];  
+        bool check_pos = visited[current_pos];
         if (check_pos) {
             continue;
         }
         visited[current_pos] = true;
-        const CellInterface *current_cell = sheet_.GetCell(current_pos);  
+        const CellInterface* current_cell = sheet_.GetCell(current_pos);
         if (current_cell == this) {
             return true;
         }
@@ -268,8 +245,7 @@ std::vector<Position> Cell::GetReferencedCells() const {
 }
 
 //----------------------------------------------------------
-FormulaError::FormulaError(Category category)
-    : category_(category) {}
+FormulaError::FormulaError(Category category) : category_(category) {}
 
 FormulaError::Category FormulaError::GetCategory() const {
     return category_;
@@ -281,7 +257,7 @@ bool FormulaError::operator==(FormulaError rhs) const {
 
 std::string_view FormulaError::ToString() const {
     using std::string_view_literals::operator""sv;
-    
+
     switch (category_) {
         case Category::Ref:
             return "#REF!"sv;

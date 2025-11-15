@@ -4,6 +4,7 @@
  */
 
 #include "IntStream.h"
+#include <string>
 
 using namespace antlr4;
 
