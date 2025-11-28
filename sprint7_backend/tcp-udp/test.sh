@@ -7,7 +7,7 @@ EXECUTABLE="$BUILD_DIR/bin/hello"  # change this to your target name
 
 # --- Helper functions ---
 configure() {
-    clang-format --style=file --assume-filename=../.clang-format -i ./src/*.cpp  ./src/*.h
+    clang-format --style=file --assume-filename=../.clang-format -i *.cpp *.h #./src/*.cpp  ./src/*.h
     mkdir $BUILD_DIR
     echo "⚙️  Configuring Conan..."$BUILD_DIR"/"
     cd $BUILD_DIR
@@ -56,18 +56,6 @@ case "$1" in
         ;;
     clean)
         clean
-        ;;
-    run)
-        shift
-        run "$@"
-        ;;
-    runv)
-        shift
-        runv "$@"
-        ;;
-    vrun)
-        shift
-        runv "$@"
         ;;
     *)
         clean

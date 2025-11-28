@@ -1,8 +1,7 @@
+#include <boost/asio.hpp>
 #include <iostream>
 #include <string>
 #include <string_view>
-
-#include <boost/asio.hpp>
 
 namespace net = boost::asio;
 using net::ip::tcp;
@@ -29,8 +28,7 @@ int main() {
 
     net::streambuf stream_buf;
     net::read_until(socket, stream_buf, '\n', ec);
-    std::string client_data{std::istreambuf_iterator<char>(&stream_buf),
-                            std::istreambuf_iterator<char>()};
+    std::string client_data{std::istreambuf_iterator<char>(&stream_buf), std::istreambuf_iterator<char>()};
 
     if (ec) {
         std::cout << "Error reading data"sv << std::endl;
@@ -38,7 +36,7 @@ int main() {
     }
 
     std::cout << "Client said: "sv << client_data << std::endl;
-    
+
     socket.write_some(net::buffer("Hello, I'm server!\n"sv), ec);
 
     if (ec) {
