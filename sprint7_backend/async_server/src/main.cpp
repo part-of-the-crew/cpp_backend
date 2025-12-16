@@ -22,23 +22,69 @@ using StringResponse = http::response<http::string_body>;
 struct ContentType {
     ContentType() = delete;
     constexpr static std::string_view TEXT_HTML = "text/html"sv;
+
     // При необходимости внутрь ContentType можно добавить и другие типы контента
 };
 
 // Создаёт StringResponse с заданными параметрами
 StringResponse MakeStringResponse(http::status status, std::string_view body, unsigned http_version, bool keep_alive,
-                                  std::string_view content_type = ContentType::TEXT_HTML) {
+                                  std::string_view allow, std::string_view content_type = ContentType::TEXT_HTML) {
     StringResponse response(status, http_version);
     response.set(http::field::content_type, content_type);
+    if (!allow.empty()) {
+        response.set(http::field::allow, allow);
+    }
     response.body() = body;
-    response.content_length(body.size());
+    response.prepare_payload();
     response.keep_alive(keep_alive);
     return response;
 }
 
 StringResponse HandleRequest(StringRequest&& req) {
     // Подставьте сюда код из синхронной версии HTTP-сервера
-    return MakeStringResponse(http::status::ok, "OK"sv, req.version(), req.keep_alive());
+    http::status status{};
+    std::string body{};
+    std::string allow{};
+    auto target = req.target();
+
+    switch (req.method()) {
+        case http::verb::get:
+            status = http::status::ok;
+            target.remove_prefix(1);
+            body = "Hello, "s;
+            body += target;
+            break;
+
+        case http::verb::head:
+            status = http::status::ok;
+            body.clear();
+            break;
+            /*
+                    case http::verb::post:
+                        // Handle POST
+                        break;
+                    case http::verb::put:
+                        // Handle PUT
+                        break;
+                    case http::verb::delete_:
+                        // Handle DELETE
+                        break;
+                    case http::verb::options:
+                        // Handle OPTIONS
+                        break;
+                    case http::verb::patch:
+                        // Handle PATCH
+                        break;
+            */
+        default:
+            // Method not supported
+            status = http::status::method_not_allowed;
+            allow = "GET, HEAD"sv;
+            body = "Invalid method"s;
+            break;
+    }
+
+    return MakeStringResponse(status, body, req.version(), req.keep_alive(), allow);
 }
 /*
 StringResponse HandleRequest(StringRequest&& req) {
