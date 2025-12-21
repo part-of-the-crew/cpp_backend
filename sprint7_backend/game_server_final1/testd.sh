@@ -19,8 +19,7 @@ configure() {
 
 build() {
     echo "🔨 Building project..."
-    cmake --"$BUILD_DIR" "$BUILD_DIR" -j
-    #setsid cmake --build "$BUILD_DIR" -j >/dev/null 2>&1 &
+    docker build -t my_http_server .
 }
 
 clean() {
@@ -29,12 +28,8 @@ clean() {
 }
 
 run() {
-    if [[ ! -x "$EXECUTABLE" ]]; then
-        echo "❌ Executable not found! Run ./build.sh build first."
-        exit 1
-    fi
-    echo "🚀 Running program..."
-    "$EXECUTABLE" "$@"
+    #docker run --rm -it --entrypoint bash my_http_server 
+    docker run --rm -p 80:8080 my_http_server
 }
 runv() {
     if [[ ! -x "$EXECUTABLE" ]]; then
