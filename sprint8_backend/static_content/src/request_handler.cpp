@@ -2,41 +2,74 @@
 
 namespace http_handler {
 
-namespace json = boost::json;
-
-http::status RequestHandler::HandleAPI(const std::string_view target, std::string& body, std::string& content_type) {
-    http::status status{};
-    bool error{};
-    content_type = ContentType::APP_JSON;
-
-    if (target == "/api/v1/maps") {
-        body = HandleMaps();
-        return http::status::ok;
-    }
-
-    if (target.starts_with("/api/v1/maps/")) {
-        auto parts = SplitTarget(target);
-        if (parts.size() == 4) {
-            auto [response_body, error] = HandleMapId(parts[3]);
-            body = std::move(response_body);
-            if (error)
-                status = http::status::not_found;
-            return http::status::ok;
+std::string UrlDecode(std::string_view text) {
+    std::string res;
+    res.reserve(text.size());
+    for (size_t i = 0; i < text.size(); ++i) {
+        if (text[i] == '%') {
+            if (i + 2 < text.size()) {
+                char hex[] = {text[i + 1], text[i + 2], '\0'};
+                char* endptr;
+                long val = std::strtol(hex, &endptr, 16);
+                if (endptr == hex + 2) {
+                    res += static_cast<char>(val);
+                    i += 2;
+                } else {
+                    res += '%';
+                }
+            } else {
+                res += '%';
+            }
+        } else if (text[i] == '+') {
+            res += ' ';
+        } else {
+            res += text[i];
         }
-        return http::status::bad_request;
     }
-
-    body = HandleErrorRequest("badRequest", "Bad Request");
-    return http::status::bad_request;
+    return res;
 }
 
-http::status RequestHandler::HandleStatic(std::string_view target, std::string& body, std::string& content_type) {
-    http::status status{};
-    bool error{};
-    return http::status::ok;
+std::string_view DefineMIMEType(const std::filesystem::path& path) {
+    using namespace std::literals;
+
+    // Get extension and convert to lowercase for comparison
+    auto ext = path.extension().string();
+    std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) { return std::tolower(c); });
+
+    if (ext == ".htm"sv || ext == ".html"sv)
+        return "text/html"sv;
+    if (ext == ".css"sv)
+        return "text/css"sv;
+    if (ext == ".txt"sv)
+        return "text/plain"sv;
+    if (ext == ".js"sv)
+        return "text/javascript"sv;
+    if (ext == ".json"sv)
+        return "application/json"sv;
+    if (ext == ".xml"sv)
+        return "application/xml"sv;
+    if (ext == ".png"sv)
+        return "image/png"sv;
+    if (ext == ".jpg"sv || ext == ".jpe"sv || ext == ".jpeg"sv)
+        return "image/jpeg"sv;
+    if (ext == ".gif"sv)
+        return "image/gif"sv;
+    if (ext == ".bmp"sv)
+        return "image/bmp"sv;
+    if (ext == ".ico"sv)
+        return "image/vnd.microsoft.icon"sv;
+    if (ext == ".tiff"sv || ext == ".tif"sv)
+        return "image/tiff"sv;
+    if (ext == ".svg"sv || ext == ".svgz"sv)
+        return "image/svg+xml"sv;
+    if (ext == ".mp3"sv)
+        return "audio/mpeg"sv;
+
+    // Default for unknown files
+    return "application/octet-stream"sv;
 }
 
-std::string RequestHandler::HandleMaps() {
+json::value RequestHandler::HandleMaps() {
     json::array json_maps;
     for (const auto& map : game_.GetMaps()) {
         json::object json_map;
@@ -44,20 +77,15 @@ std::string RequestHandler::HandleMaps() {
         json_map["name"] = map.GetName();
         json_maps.emplace_back(std::move(json_map));
     }
-    return json::serialize(json_maps);
+    return json_maps;
 }
 
-std::pair<std::string, bool> RequestHandler::HandleMapId(std::string_view name_map) {
+std::pair<json::value, bool> RequestHandler::HandleMapId(std::string_view name_map) {
     const auto* map = game_.FindMap(model::Map::Id{std::string(name_map)});
     if (!map) {
-        return {HandleErrorRequest("mapNotFound", "Map not found"), true};
+        return {json::value{}, true};
     }
-    return {json::serialize(SerializeMap(*map)), false};
-}
-
-std::string RequestHandler::HandleErrorRequest(std::string_view code, std::string_view message) {
-    json::object error = {{"code", code}, {"message", message}};
-    return json::serialize(error);
+    return {SerializeMap(*map), false};
 }
 
 json::object RequestHandler::SerializeMap(const model::Map& map) {

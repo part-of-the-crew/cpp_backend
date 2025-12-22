@@ -1,3 +1,0 @@
-/home/amente/Desktop/cpp_backend/sprint8_backend/static_content/build/CMakeFiles/game_server.dir
-/home/amente/Desktop/cpp_backend/sprint8_backend/static_content/build/CMakeFiles/edit_cache.dir
-/home/amente/Desktop/cpp_backend/sprint8_backend/static_content/build/CMakeFiles/rebuild_cache.dir
