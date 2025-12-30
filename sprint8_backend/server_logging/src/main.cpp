@@ -1,11 +1,10 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/signal_set.hpp>
-#include <boost/json/src.hpp>  // This "injects" the implementation into this file
-#include <boost/log/trivial.hpp>
 #include <iostream>
 #include <thread>
 
 #include "json_loader.h"
+#include "my_logger.h"
 #include "request_handler.h"
 #include "sdk.h"
 
@@ -30,12 +29,32 @@ void RunWorkers(unsigned n, const Fn& fn) {
 
 }  // namespace
 
+/*
+template <class SomeRequestHandler>
+class LoggingRequestHandler{
+    static void LogRequest(const Request& r);
+    static void LogResponse(const Response& r);
+public:#include <boost/log/trivial.hpp>     // для BOOST_LOG_TRIVIAL
+#include <boost/log/core.hpp>        // для logging::core
+#include <boost/log/expressions.hpp> // для выражения, задающего фильтр
+    Response operator () (Request req) {
+        LogRequest(req);
+        Response resp = decorated_(std::move(req));
+        LogResponse(resp);
+        return resp;
+    }
+
+private:
+    http_handler::RequestHandler& decorated_;
+};
+*/
+
 int main(int argc, const char* argv[]) {
     if (argc != 3) {
         std::cerr << "Usage: game_server <game-config-json>"sv << std::endl;
         return EXIT_FAILURE;
     }
-    BOOST_LOG_TRIVIAL(trace) << "Сообщение уровня trace"sv;
+    logger::InitBoostLogFilter();
     try {
         // 1. Загружаем карту из файла и построить модель игры
         model::Game game = json_loader::LoadGame(argv[1]);
@@ -54,17 +73,17 @@ int main(int argc, const char* argv[]) {
         });
         // 4. Создаём обработчик HTTP-запросов и связываем его с моделью игры
         http_handler::RequestHandler handler{game, argv[2]};
-
-        // 5. Запустить обработчик HTTP-запросов, делегируя их обработчику запросов
+        // LoggingRequestHandler logging_handler{handler};
+        //  5. Запустить обработчик HTTP-запросов, делегируя их обработчику запросов
         const auto address = net::ip::make_address("0.0.0.0");
         constexpr net::ip::port_type port = 8080;
-
+        logger::logServerLaunch({address, port});
         http_server::ServeHttp(ioc, {address, port}, [&handler](auto&& req, auto&& send) {
             handler(std::forward<decltype(req)>(req), std::forward<decltype(send)>(send));
         });
 
         // Эта надпись сообщает тестам о том, что сервер запущен и готов обрабатывать запросы
-        std::cout << "Server has started..."sv << std::endl;
+        //std::cout << "Server has started..."sv << std::endl;
 
         // 6. Запускаем обработку асинхронных операций
         RunWorkers(std::max(1u, num_threads), [&ioc] { ioc.run(); });
