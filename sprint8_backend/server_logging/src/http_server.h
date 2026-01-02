@@ -6,6 +6,7 @@
 #include <boost/beast/http.hpp>
 #include <iostream>
 
+#include "my_logger.h"
 #include "sdk.h"
 
 namespace http_server {
@@ -18,7 +19,8 @@ namespace http = beast::http;
 namespace sys = boost::system;
 
 inline void ReportError(beast::error_code ec, std::string_view what) {
-    std::cerr << what << ": "sv << ec.message() << std::endl;
+    // std::cerr << what << ": "sv << ec.message() << std::endl;
+    logger::LogNetError(ec.value(), ec.message(), what);
 }
 
 class SessionBase {
@@ -94,7 +96,10 @@ private:
     virtual void HandleRequest(HttpRequest&& request) = 0;
 
     // tcp_stream содержит внутри себя сокет и добавляет поддержку таймаутов
+protected:
     beast::tcp_stream stream_;
+
+private:
     beast::flat_buffer buffer_;
     HttpRequest request_;
     virtual std::shared_ptr<SessionBase> GetSharedThis() = 0;
@@ -116,22 +121,22 @@ private:
 
     // FIX 2: Implement the pure virtual method to handle the request.
     void HandleRequest(HttpRequest&& request) override {
-        // The user's request_handler expects a sender function.
-        // We provide a lambda as the sender, which calls SessionBase::Write().
-        // We capture 'self' (a shared_ptr to this session) to ensure the Session object
-        // remains alive until the asynchronous Write operation is complete.
+        auto remote = SessionBase::stream_.socket().remote_endpoint();
+        logger::LogServerRequest(remote.address().to_string(), request.target().data(),
+                                 std::string(request.method_string()));
+        // std::chrono::system_clock::time_point start_ts_ = std::chrono::system_clock::now();
+        //  The user's request_handler expects a sender function.
+        //  We provide a lambda as the sender, which calls SessionBase::Write().
+        //  We capture 'self' (a shared_ptr to this session) to ensure the Session object
+        //  remains alive until the asynchronous Write operation is complete.
         request_handler_(std::move(request), [self = this->shared_from_this()](auto&& response) {
             self->Write(std::forward<decltype(response)>(response));
         });
-    }
+        // std::chrono::system_clock::time_point end_ts = std::chrono::system_clock::now();
 
-    // The AsyncRunSession method is redundant here, as the Listener should manage session creation.
-    // It's okay to remove it entirely, but keeping it commented out is harmless.
-    /*
-    void AsyncRunSession(tcp::socket&& socket) {
-        std::make_shared<Session<RequestHandler>>(std::move(socket), request_handler_)->Run();
+        // logger::LogServerResponse(std::to_string((end_ts - start_ts_).count()),
+        //                         http::response<T>::result_int(), request.method_string());
     }
-    */
 
     RequestHandler request_handler_;
 };

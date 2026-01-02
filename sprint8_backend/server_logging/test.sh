@@ -3,7 +3,7 @@
 
 # --- Configuration ---
 BUILD_DIR="build"
-EXECUTABLE="$BUILD_DIR/game_server"  # change this to your target name
+EXECUTABLE="$BUILD_DIR/bin/game_server"  # change this to your target name
 ARGS="data/config.json static"
 # --- Helper functions ---
 configure() {
@@ -19,7 +19,7 @@ configure() {
 
 build() {
     echo "🔨 Building project..."
-    cmake --"$BUILD_DIR" "$BUILD_DIR" -j 2>&1
+    cmake --"$BUILD_DIR" "$BUILD_DIR" -- -j 2>&1
     #setsid cmake --build "$BUILD_DIR" -j >/dev/null 2>&1 &
 }
 
@@ -70,9 +70,10 @@ case "$1" in
         runv "$@"
         ;;
     *)
-        clean
+        #clean
         configure
         #echo "cmake --build ./$BUILD_DIR"
-        build
+        build || exit 1
+        run
         ;;
 esac

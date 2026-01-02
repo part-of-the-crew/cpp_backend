@@ -19,7 +19,9 @@ configure() {
 
 build() {
     echo "🔨 Building project..."
-    docker build -t my_http_server .
+    docker build -t server_logging .
+    #docker build -t server_logging ${SOLUTION_FOLDER}
+    #docker build --no-cache -t server_logging ${SOLUTION_FOLDER}
 }
 
 clean() {
