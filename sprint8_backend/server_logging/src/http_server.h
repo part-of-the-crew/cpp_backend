@@ -122,7 +122,7 @@ private:
     // FIX 2: Implement the pure virtual method to handle the request.
     void HandleRequest(HttpRequest&& request) override {
         auto remote = SessionBase::stream_.socket().remote_endpoint();
-        logger::LogServerRequest(remote.address().to_string(), request.target().data(),
+        logger::LogServerRequest(remote.address().to_string(), std::string(request.target()),
                                  std::string(request.method_string()));
         // std::chrono::system_clock::time_point start_ts_ = std::chrono::system_clock::now();
         //  The user's request_handler expects a sender function.

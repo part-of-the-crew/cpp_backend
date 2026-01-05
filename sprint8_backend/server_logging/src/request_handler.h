@@ -180,9 +180,8 @@ private:
         if (fs::is_directory(full_path)) {
             full_path /= "index.html";
         }
-
         if (!fs::exists(full_path)) {
-            return responses::MakeTextError(http::status::not_found, "File not found", req);
+            return responses::MakeTextError(http::status::not_found, "File not found"s, req);
         }
 
         // Use Boost.Beast to open the file
@@ -190,9 +189,8 @@ private:
         beast::error_code ec;
         file.open(full_path.string().c_str(), beast::file_mode::read, ec);
         if (ec) {
-            return responses::MakeTextError(http::status::not_found, "File not found", req);
+            return responses::MakeTextError(http::status::forbidden, "Couldn't open file"s, req);
         }
-
         return responses::MakeFile(http::status::ok, std::move(file), DefineMIMEType(full_path), req);
     }
 

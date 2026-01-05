@@ -1,9 +1,8 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/signal_set.hpp>
+#include <chrono>
 #include <iostream>
 #include <thread>
-// #include <exception>
-//?
 
 #include "http_server.h"
 #include "json_loader.h"
@@ -60,14 +59,13 @@ private:
 
     template <class Response>
     void LogResponse(const Response& resp) {
-        auto elapsed = std::chrono::system_clock::now() - start_ts_;
-
+        auto ms = duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_ts_);
         std::string content_type = "unknown";
         if (resp.find(boost::beast::http::field::content_type) != resp.end()) {
             content_type = std::string(resp[boost::beast::http::field::content_type]);
         }
 
-        logger::LogServerResponse(std::to_string(elapsed.count()), resp.result_int(), content_type);
+        logger::LogServerResponse(ms.count(), resp.result_int(), content_type);
     }
 };
 

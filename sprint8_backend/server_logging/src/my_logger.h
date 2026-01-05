@@ -108,9 +108,9 @@ inline void LogServerRequest(std::string ip, std::string URI, std::string_view m
     };
     BOOST_LOG_TRIVIAL(info) << logging::add_value(json_data, data) << "request received"sv;
 }
-inline void LogServerResponse(std::string logging_handler, int code, std::string_view content_type) {
+inline void LogServerResponse(int64_t ms, int code, std::string_view content_type) {
     json::value data = {
-        {"response_time", std::move(logging_handler)},
+        {"response_time", ms},
         {"code", code},
         {"content_type", content_type.empty() ? "null"s : std::string(content_type)},
     };
