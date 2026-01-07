@@ -80,7 +80,24 @@ std::string_view DefineMIMEType(const std::filesystem::path& path) {
     return "application/octet-stream"sv;
 }
 
-json::value RequestHandler::HandleMaps() {
+std::optional<app::AuthRequest> HandleAPI::ParseJSONAuthReq(std::string body){
+    json::value content;
+    try {
+        content = json::parse(body);
+    } catch (const std::exception& ex) {
+        return std::nullopt;
+    }
+    const auto& desc = content.as_object();
+    const auto& name = desc.at("userName").as_string();
+    const auto& map = desc.at("mapId").as_string();
+    return app::AuthRequest{std::string(name), std::string(map)};
+}
+
+ResponseVariant HandleAPI::HandleAuthBody(app::AuthRequest authReq){
+    if (authReq.PlayerName.empty())
+}
+
+json::value HandleAPI::HandleMaps() {
     json::array json_maps;
     for (const auto& map : game_.GetMaps()) {
         json::object json_map;
@@ -91,7 +108,7 @@ json::value RequestHandler::HandleMaps() {
     return json_maps;
 }
 
-std::pair<json::value, bool> RequestHandler::HandleMapId(std::string_view name_map) {
+std::pair<json::value, bool> HandleAPI::HandleMapId(std::string_view name_map) {
     const auto* map = game_.FindMap(model::Map::Id{std::string(name_map)});
     if (!map) {
         return {json::value{}, true};
@@ -99,7 +116,7 @@ std::pair<json::value, bool> RequestHandler::HandleMapId(std::string_view name_m
     return {SerializeMap(*map), false};
 }
 
-json::object RequestHandler::SerializeMap(const model::Map& map) {
+json::object HandleAPI::SerializeMap(const model::Map& map) {
     json::object map_obj;
     map_obj["id"] = *map.GetId();
     map_obj["name"] = map.GetName();
@@ -122,7 +139,7 @@ json::object RequestHandler::SerializeMap(const model::Map& map) {
     return map_obj;
 }
 
-json::object RequestHandler::SerializeRoad(const model::Road& road) {
+json::object HandleAPI::SerializeRoad(const model::Road& road) {
     json::object obj;
     const auto& start = road.GetStart();
     const auto& end = road.GetEnd();
@@ -135,17 +152,14 @@ json::object RequestHandler::SerializeRoad(const model::Road& road) {
     return obj;
 }
 
-json::object RequestHandler::SerializeBuilding(const model::Building& b) {
+json::object HandleAPI::SerializeBuilding(const model::Building& b) {
     const auto& bounds = b.GetBounds();
     return {{"x", bounds.position.x}, {"y", bounds.position.y}, {"w", bounds.size.width}, {"h", bounds.size.height}};
 }
 
-json::object RequestHandler::SerializeOffice(const model::Office& o) {
-    return {{"id", *o.GetId()},
-            {"x", o.GetPosition().x},
-            {"y", o.GetPosition().y},
-            {"offsetX", o.GetOffset().dx},
-            {"offsetY", o.GetOffset().dy}};
+json::object HandleAPI::SerializeOffice(const model::Office& o) {
+    return {{"id", *o.GetId()}, {"x", o.GetPosition().x}, {"y", o.GetPosition().y}, {"offsetX", o.GetOffset().dx},
+        {"offsetY", o.GetOffset().dy}};
 }
 
 }  // namespace http_handler

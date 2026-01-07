@@ -28,14 +28,14 @@ model::Road ParseRoad(const json::object& obj) {
 }
 
 model::Building ParseBuilding(const json::object& obj) {
-    return model::Building{model::Rectangle{.position = {coord(obj.at("x"s)), coord(obj.at("y"s))},
-                                            .size = {coord(obj.at("w"s)), coord(obj.at("h"s))}}};
+    return model::Building{model::Rectangle{
+        .position = {coord(obj.at("x"s)), coord(obj.at("y"s))}, .size = {coord(obj.at("w"s)), coord(obj.at("h"s))}}};
 }
 
 model::Office ParseOffice(const json::object& obj) {
     return model::Office{model::Office::Id{std::string(obj.at("id"s).as_string())},
-                         model::Point{coord(obj.at("x"s)), coord(obj.at("y"s))},
-                         model::Offset{coord(obj.at("offsetX"s)), coord(obj.at("offsetY"s))}};
+        model::Point{coord(obj.at("x"s)), coord(obj.at("y"s))},
+        model::Offset{coord(obj.at("offsetX"s)), coord(obj.at("offsetY"s))}};
 }
 
 model::Map ParseMap(const json::value& map_json) {

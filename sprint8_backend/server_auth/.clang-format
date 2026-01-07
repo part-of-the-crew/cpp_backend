@@ -11,6 +11,20 @@ AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 
+
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerIndentWidth: 4
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+
+AlignAfterOpenBracket: DontAlign
+AllowAllConstructorInitializersOnNextLine: true
+
+BraceWrapping:
+  AfterFunction: true
+  AfterClass: true
+
+
+
 SpacesBeforeTrailingComments: 2
 # === BRACE STYLE ===
 BreakBeforeBraces: Attach        # ← THIS KEEPS '{' ON SAME LINE

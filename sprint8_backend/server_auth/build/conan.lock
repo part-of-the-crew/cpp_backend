@@ -1,0 +1,24 @@
+{
+ "graph_lock": {
+  "nodes": {
+   "0": {
+    "options": "boost:asio_no_deprecated=False\nboost:buildid=None\nboost:bzip2=True\nboost:debug_level=0\nboost:diagnostic_definitions=False\nboost:error_code_header_only=False\nboost:extra_b2_flags=None\nboost:fPIC=True\nboost:filesystem_no_deprecated=False\nboost:filesystem_use_std_fs=False\nboost:filesystem_version=None\nboost:header_only=False\nboost:i18n_backend=deprecated\nboost:layout=system\nboost:lzma=False\nboost:magic_autolink=False\nboost:multithreading=True\nboost:namespace=boost\nboost:namespace_alias=False\nboost:pch=True\nboost:python_executable=None\nboost:python_version=None\nboost:segmented_stacks=False\nboost:shared=False\nboost:system_no_deprecated=False\nboost:system_use_utf8=False\nboost:visibility=hidden\nboost:without_atomic=False\nboost:without_chrono=False\nboost:without_container=False\nboost:without_context=True\nboost:without_contract=True\nboost:without_coroutine=True\nboost:without_date_time=False\nboost:without_exception=False\nboost:without_fiber=True\nboost:without_filesystem=False\nboost:without_graph=True\nboost:without_graph_parallel=True\nboost:without_iostreams=True\nboost:without_json=False\nboost:without_locale=True\nboost:without_log=False\nboost:without_math=True\nboost:without_mpi=True\nboost:without_nowide=True\nboost:without_program_options=True\nboost:without_python=True\nboost:without_random=False\nboost:without_regex=False\nboost:without_serialization=True\nboost:without_stacktrace=True\nboost:without_system=False\nboost:without_test=True\nboost:without_thread=False\nboost:without_timer=True\nboost:without_type_erasure=True\nboost:without_wave=True\nboost:zlib=True\nboost:zstd=False",
+    "requires": [
+     "1"
+    ],
+    "path": "../conanfile.txt",
+    "context": "host"
+   },
+   "1": {
+    "ref": "boost/1.78.0",
+    "options": "asio_no_deprecated=False\nbuildid=None\nbzip2=True\ndebug_level=0\ndiagnostic_definitions=False\nerror_code_header_only=False\nextra_b2_flags=None\nfPIC=True\nfilesystem_no_deprecated=False\nfilesystem_use_std_fs=False\nfilesystem_version=None\nheader_only=False\ni18n_backend=deprecated\nlayout=system\nlzma=False\nmagic_autolink=False\nmultithreading=True\nnamespace=boost\nnamespace_alias=False\npch=True\npython_executable=None\npython_version=None\nsegmented_stacks=False\nshared=False\nsystem_no_deprecated=False\nsystem_use_utf8=False\nvisibility=hidden\nwithout_atomic=False\nwithout_chrono=False\nwithout_container=False\nwithout_context=True\nwithout_contract=True\nwithout_coroutine=True\nwithout_date_time=False\nwithout_exception=False\nwithout_fiber=True\nwithout_filesystem=False\nwithout_graph=True\nwithout_graph_parallel=True\nwithout_iostreams=True\nwithout_json=False\nwithout_locale=True\nwithout_log=False\nwithout_math=True\nwithout_mpi=True\nwithout_nowide=True\nwithout_program_options=True\nwithout_python=True\nwithout_random=False\nwithout_regex=False\nwithout_serialization=True\nwithout_stacktrace=True\nwithout_system=False\nwithout_test=True\nwithout_thread=False\nwithout_timer=True\nwithout_type_erasure=True\nwithout_wave=True\nzlib=True\nzstd=False",
+    "package_id": "cc24399b423c79610d2a299913a1f8439a3a0146",
+    "prev": "0",
+    "context": "host"
+   }
+  },
+  "revisions_enabled": false
+ },
+ "version": "0.4",
+ "profile_host": "[settings]\narch=x86_64\narch_build=x86_64\nbuild_type=Debug\ncompiler=gcc\ncompiler.libcxx=libstdc++11\ncompiler.version=13\nos=Linux\nos_build=Linux\n[options]\n[build_requires]\n[env]\n"
+}

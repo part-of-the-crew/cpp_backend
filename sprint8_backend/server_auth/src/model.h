@@ -122,6 +122,19 @@ private:
     Offices offices_;
 };
 
+class Dog {
+public:
+    std::string name;
+    std::uint64_t id;
+};
+
+class GameSession {
+public:
+private:
+    Map* map;
+    std::unordered_map<std::uint64_t, Dog> Dogs;
+};
+
 class Game {
 public:
     using Maps = std::vector<Map>;
@@ -142,6 +155,7 @@ private:
     using MapIdToIndex = std::unordered_map<Map::Id, size_t, MapIdHasher>;
 
     std::vector<Map> maps_;
+    std::vector<GameSession> sessions;
     MapIdToIndex map_id_to_index_;
 };
 
