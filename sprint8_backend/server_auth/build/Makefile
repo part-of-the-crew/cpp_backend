@@ -129,6 +129,30 @@ game_server/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/game_server.dir/build.make CMakeFiles/game_server.dir/build
 .PHONY : game_server/fast
 
+src/api_handler.o: src/api_handler.cpp.o
+.PHONY : src/api_handler.o
+
+# target to build an object file
+src/api_handler.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/game_server.dir/build.make CMakeFiles/game_server.dir/src/api_handler.cpp.o
+.PHONY : src/api_handler.cpp.o
+
+src/api_handler.i: src/api_handler.cpp.i
+.PHONY : src/api_handler.i
+
+# target to preprocess a source file
+src/api_handler.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/game_server.dir/build.make CMakeFiles/game_server.dir/src/api_handler.cpp.i
+.PHONY : src/api_handler.cpp.i
+
+src/api_handler.s: src/api_handler.cpp.s
+.PHONY : src/api_handler.s
+
+# target to generate assembly for a file
+src/api_handler.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/game_server.dir/build.make CMakeFiles/game_server.dir/src/api_handler.cpp.s
+.PHONY : src/api_handler.cpp.s
+
 src/http_server.o: src/http_server.cpp.o
 .PHONY : src/http_server.o
 
@@ -258,6 +282,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... game_server"
+	@echo "... src/api_handler.o"
+	@echo "... src/api_handler.i"
+	@echo "... src/api_handler.s"
 	@echo "... src/http_server.o"
 	@echo "... src/http_server.i"
 	@echo "... src/http_server.s"

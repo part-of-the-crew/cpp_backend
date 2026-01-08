@@ -11,8 +11,8 @@
 #include <variant>
 #include <vector>
 
+#include "api_handler.h"
 #include "http_server.h"
-#include "app.h"
 
 namespace http_handler {
 
@@ -24,61 +24,10 @@ namespace net = boost::asio;
 using tcp = net::ip::tcp;
 using namespace std::literals;
 
-// Helper remains inline because it's simple and used by the template operator()
-inline std::vector<std::string_view> SplitTarget(std::string_view target) {
-    std::vector<std::string_view> result;
-    while (!target.empty()) {
-        if (target.front() == '/') {
-            target.remove_prefix(1);
-            continue;
-        }
-        auto pos = target.find('/');
-        result.push_back(target.substr(0, pos));
-        if (pos == std::string_view::npos)
-            break;
-        target.remove_prefix(pos + 1);
-    }
-    return result;
-}
-
 // Возвращает true, если каталог p содержится внутри base_path.
-inline bool IsSubPath(fs::path path, fs::path base) {
-    // Приводим оба пути к каноничному виду (без . и ..)
-    path = fs::weakly_canonical(path);
-    base = fs::weakly_canonical(base);
-
-    // Проверяем, что все компоненты base содержатся внутри path
-    for (auto b = base.begin(), p = path.begin(); b != base.end(); ++b, ++p) {
-        if (p == path.end() || *p != *b) {
-            return false;
-        }
-    }
-    return true;
-}
-
-struct ContentType {
-    ContentType() = delete;
-    constexpr static std::string_view TEXT_HTML = "text/html"sv;
-    constexpr static std::string_view APP_JSON = "application/json"sv;
-    constexpr static std::string_view TEXT_PLAIN = "text/plain"sv;
-
-    constexpr static std::string_view IMAGE_PNG = "image/png"sv;
-    constexpr static std::string_view APP_OCT_STREAM = "application/octet-stream"sv;
-};
-
+bool IsSubPath(fs::path path, fs::path base);
 std::string UrlDecode(std::string_view text);
 std::string_view DefineMIMEType(const std::filesystem::path& path);
-
-template <class Request>
-http::response<http::string_body> MakeTextResponse(
-    http::status status, std::string body, const Request& req, std::string_view content_type) {
-    http::response<http::string_body> res{status, req.version()};
-    res.set(http::field::content_type, content_type);
-    res.body() = std::move(body);
-    res.prepare_payload();
-    res.keep_alive(req.keep_alive());
-    return res;
-}
 
 template <typename Send>
 struct ResponseSender {
@@ -94,120 +43,6 @@ struct ResponseSender {
         }
         send(std::move(res));
     }
-};
-
-using ResponseVariant = std::variant<http::response<http::string_body>, http::response<http::file_body>>;
-
-namespace responses {
-
-template <typename Request>
-ResponseVariant MakeJSON(http::status status, json::value&& body, const Request& req, std::string cache_control = "no-cache"s) {
-    http::response<http::string_body> res{status, req.version()};
-    res.set(http::field::content_type, ContentType::APP_JSON);
-    res.set(http::field::cache_control, cache_control);
-    res.body() = json::serialize(body);
-    res.prepare_payload();
-    res.keep_alive(req.keep_alive());
-    
-    return res;
-}
-template <typename Request>
-ResponseVariant MakeError(http::status status, std::string_view code, std::string_view message, 
-                        const Request& req, std::string cache_control = "no-cache"s) {
-    return MakeJSON(status, json::object{{"code", code}, {"message", message}}, req, cache_control);
-}
-template <typename Request>
-ResponseVariant MakeTextError(http::status status, std::string_view message, const Request& req) {
-    http::response<http::string_body> res{status, req.version()};
-    res.set(http::field::content_type, ContentType::TEXT_PLAIN);
-    res.body() = message;
-    res.prepare_payload();
-    res.keep_alive(req.keep_alive());
-    return res;
-}
-template <typename Request>
-ResponseVariant MakeFile(
-    http::status status, http::file_body::value_type&& file, std::string_view mime_type, const Request& req) {
-    http::response<http::file_body> res{status, req.version()};
-    res.set(http::field::content_type, mime_type);
-    res.body() = std::move(file);
-    res.prepare_payload();
-    res.keep_alive(req.keep_alive());
-    return res;
-}
-
-}  // namespace responses
-
-class HandleAPI {
-public:
-    HandleAPI (model::Game game): game_{game}{}
-
-    template<class Body, class Allocator>
-    ResponseVariant HandleAuth(http::request<Body, http::basic_fields<Allocator>>&& req) {
-
-        if constexpr (std::is_same_v<Body, http::string_body>) {
-            if (req.method() != http::verb::post){
-                return responses::MakeError(http::status::method_not_allowed, 
-                                            "invalidMethod"s, 
-                                            "Only POST method is expected"s, 
-                                            req);
-            }
-            auto AuthReq = ParseJSONAuthReq(req.body());
-            if (!AuthReq.has_value())    
-                return responses::MakeError(http::status::method_not_allowed, 
-                                            "invalidArgument"s, 
-                                            "Join game request parse error"s, 
-                                            req);
-            return HandleAuthBody(*AuthReq);
-
-        } else if constexpr (std::is_same_v<Body, http::empty_body>) {
-            static_assert(true);
-        } else if constexpr (std::is_same_v<Body, http::file_body>) {
-            static_assert(true);
-        } else {
-            static_assert(std::is_same_v<Body, void>, "Unsupported Body type");
-        }
-        return responses::MakeError(http::status::bad_request, "bad_request"s, "bad_request"s, req);
-    }
-
-
-    template <typename Request>
-    ResponseVariant operator()(const Request& req) {
-        const auto& target = req.target();
-
-        if (target == "/api/v1/game/join") {
-            return HandleAuth(req);
-        }
-
-        if (target == "/api/v1/maps") {
-            return responses::MakeJSON(http::status::ok, std::move(HandleMaps()), req);
-        }
-
-        if (target.starts_with("/api/v1/maps/")) {
-            auto parts = SplitTarget(target);
-            if (parts.size() == 4) {
-                auto [response_body, error] = HandleMapId(parts[3]);
-                if (error) {
-                    return responses::MakeError(http::status::not_found, "mapNotFound", "map Not Found", req);
-                }
-                return responses::MakeJSON(http::status::ok, std::move(response_body), req);
-            }
-        }
-
-        return responses::MakeError(http::status::bad_request, "badRequest", "Invalid API path", req);
-    }
-
-private:
-    model::Game game_;
-    json::value HandleMaps();
-    std::optional<app::AuthRequest> ParseJSONAuthReq(std::string body);
-    ResponseVariant HandleAuthBody(app::AuthRequest authReq);
-    std::pair<json::value, bool> HandleMapId(std::string_view name_map);
-    boost::json::object SerializeMap(const model::Map& map);
-    boost::json::object SerializeRoad(const model::Road& road);
-    boost::json::object SerializeBuilding(const model::Building& b);
-    boost::json::object SerializeOffice(const model::Office& o);
-
 };
 
 class RequestHandler {
@@ -238,7 +73,7 @@ public:
 
         if (req.method() != http::verb::get && req.method() != http::verb::head) {
             return std::visit(visitor,
-                responses::MakeError(http::status::method_not_allowed, "invalidMethod", "Only GET/HEAD allowed", req));
+                response::MakeError(http::status::method_not_allowed, "invalidMethod", "Only GET/HEAD allowed", req));
         }
 
         return std::visit(visitor, HandleStatic(req));
@@ -247,17 +82,17 @@ public:
 private:
     fs::path path_to_static_;
     Strand api_strand_;
-    HandleAPI handleAPI_;
+    api_handler::HandleAPI handleAPI_;
 
     template <typename Request>
-    ResponseVariant HandleStatic(const Request& req) {
+    response::ResponseVariant HandleStatic(const Request& req) {
         std::string decoded_target = UrlDecode(req.target());
         fs::path rel_path{decoded_target.substr(1)};
         fs::path full_path = fs::weakly_canonical(path_to_static_ / rel_path);
 
         // check if this path is safe
         if (!IsSubPath(full_path, path_to_static_)) {
-            return responses::MakeTextError(http::status::bad_request, "Request is badly formed", req);
+            return response::MakeTextError(http::status::bad_request, "Request is badly formed", req);
         }
 
         // Default to index.html
@@ -265,7 +100,7 @@ private:
             full_path /= "index.html";
         }
         if (!fs::exists(full_path)) {
-            return responses::MakeTextError(http::status::not_found, "File not found"s, req);
+            return response::MakeTextError(http::status::not_found, "File not found"s, req);
         }
 
         // Use Boost.Beast to open the file
@@ -273,11 +108,10 @@ private:
         beast::error_code ec;
         file.open(full_path.string().c_str(), beast::file_mode::read, ec);
         if (ec) {
-            return responses::MakeTextError(http::status::forbidden, "Couldn't open file"s, req);
+            return response::MakeTextError(http::status::forbidden, "Couldn't open file"s, req);
         }
-        return responses::MakeFile(http::status::ok, std::move(file), DefineMIMEType(full_path), req);
+        return response::MakeFile(http::status::ok, std::move(file), DefineMIMEType(full_path), req);
     }
-
 };
 
 }  // namespace http_handler

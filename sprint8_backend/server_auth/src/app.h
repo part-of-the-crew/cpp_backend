@@ -28,7 +28,7 @@ private:
         std::uniform_int_distribution<std::mt19937_64::result_type> dist;
         return dist(random_device_);
     }()};
-    std::string GetToken() { std::string result{std::to_string(generator1_()) + std::to_string(generator2_())}; }
+    std::string GetToken() { return std::to_string(generator1_()) + std::to_string(generator2_()); }
 
     // Чтобы сгенерировать токен, получите из generator1_ и generator2_
     // два 64-разрядных числа и, переведя их в hex-строки, склейте в одну.
@@ -52,7 +52,7 @@ private:
         std::uniform_int_distribution<std::mt19937_64::result_type> dist;
         return dist(random_device_);
     }()};
-    std::string SetToken() { std::string result{std::to_string(generator1_()) + std::to_string(generator2_())}; }
+    std::string SetToken() { return std::to_string(generator1_()) + std::to_string(generator2_()); }
 
     model::GameSession* session_;
     model::Dog* dog_;

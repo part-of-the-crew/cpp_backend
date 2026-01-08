@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/game_server.dir/src/api_handler.cpp.o"
+  "CMakeFiles/game_server.dir/src/api_handler.cpp.o.d"
   "CMakeFiles/game_server.dir/src/http_server.cpp.o"
   "CMakeFiles/game_server.dir/src/http_server.cpp.o.d"
   "CMakeFiles/game_server.dir/src/json_loader.cpp.o"

@@ -1142,6 +1142,15 @@ CMakeFiles/game_server.dir/src/request_handler.cpp.o: \
  /usr/include/c++/13/filesystem /usr/include/c++/13/bits/fs_fwd.h \
  /usr/include/c++/13/bits/fs_path.h /usr/include/c++/13/codecvt \
  /usr/include/c++/13/bits/fs_dir.h /usr/include/c++/13/bits/fs_ops.h \
+ /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/api_handler.h \
+ /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/app.h \
+ /usr/include/c++/13/random /usr/include/c++/13/bits/random.h \
+ /usr/include/x86_64-linux-gnu/c++/13/bits/opt_random.h \
+ /usr/include/c++/13/bits/random.tcc /usr/include/c++/13/numeric \
+ /usr/include/c++/13/bits/stl_numeric.h \
+ /usr/include/c++/13/pstl/glue_numeric_defs.h \
+ /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/model.h \
+ /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/tagged.h \
  /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/http_server.h \
  /home/amente/.conan/data/boost/1.78.0/_/_/package/cc24399b423c79610d2a299913a1f8439a3a0146/include/boost/asio/ip/tcp.hpp \
  /home/amente/.conan/data/boost/1.78.0/_/_/package/cc24399b423c79610d2a299913a1f8439a3a0146/include/boost/asio/basic_socket_acceptor.hpp \
@@ -2802,5 +2811,4 @@ CMakeFiles/game_server.dir/src/request_handler.cpp.o: \
  /home/amente/.conan/data/boost/1.78.0/_/_/package/cc24399b423c79610d2a299913a1f8439a3a0146/include/boost/log/keywords/enable_final_rotation.hpp \
  /home/amente/.conan/data/boost/1.78.0/_/_/package/cc24399b423c79610d2a299913a1f8439a3a0146/include/boost/log/keywords/scan_method.hpp \
  /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/sdk.h \
- /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/model.h \
- /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/tagged.h
+ /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/responses.h

@@ -2818,4 +2818,12 @@ CMakeFiles/game_server.dir/src/main.cpp.o: \
  /usr/include/c++/13/bits/fs_dir.h /usr/include/c++/13/bits/fs_ops.h \
  /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/model.h \
  /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/tagged.h \
- /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/request_handler.h
+ /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/request_handler.h \
+ /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/api_handler.h \
+ /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/app.h \
+ /usr/include/c++/13/random /usr/include/c++/13/bits/random.h \
+ /usr/include/x86_64-linux-gnu/c++/13/bits/opt_random.h \
+ /usr/include/c++/13/bits/random.tcc /usr/include/c++/13/numeric \
+ /usr/include/c++/13/bits/stl_numeric.h \
+ /usr/include/c++/13/pstl/glue_numeric_defs.h \
+ /home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/responses.h

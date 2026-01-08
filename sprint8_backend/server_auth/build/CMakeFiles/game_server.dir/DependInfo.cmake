@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/api_handler.cpp" "CMakeFiles/game_server.dir/src/api_handler.cpp.o" "gcc" "CMakeFiles/game_server.dir/src/api_handler.cpp.o.d"
   "/home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/http_server.cpp" "CMakeFiles/game_server.dir/src/http_server.cpp.o" "gcc" "CMakeFiles/game_server.dir/src/http_server.cpp.o.d"
   "/home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/json_loader.cpp" "CMakeFiles/game_server.dir/src/json_loader.cpp.o" "gcc" "CMakeFiles/game_server.dir/src/json_loader.cpp.o.d"
   "/home/amente/Desktop/cpp_backend/sprint8_backend/server_auth/src/main.cpp" "CMakeFiles/game_server.dir/src/main.cpp.o" "gcc" "CMakeFiles/game_server.dir/src/main.cpp.o.d"

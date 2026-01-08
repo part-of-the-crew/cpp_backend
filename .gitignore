@@ -1,3 +1,5 @@
 *.pdf
 *.o
 val*.txt
+*.log
+/build
