@@ -20,6 +20,7 @@ add_executable(game_server
     src/json_loader.cpp
     src/request_handler.cpp
     src/api_handler.cpp
+    src/app.cpp
 )
 
 target_link_libraries(game_server PRIVATE 

@@ -35,22 +35,52 @@ std::optional<app::AuthRequest> HandleAPI::ParseJSONAuthReq(std::string body) {
 }
 
 JoinOutcome HandleAPI::ProcessJoinGame(const app::AuthRequest& authReq) {
-    if (authReq.PlayerName.empty())
+    if (authReq.playerName.empty())
         return JoinError::InvalidName;
-
-    if (game_.FindMap(model::Map::Id{authReq.map}) == NULL)
+    auto result = app_.JoinGame(authReq);
+    if (!result)
         return JoinError::MapNotFound;
 
-    return JoinGameResult{"6516861d89ebfff147bf2eb2b5153ae1", 0};
+    json::object resp;
+    resp["authToken"] = result->token;
+    resp["playerId"] = result->playerId;
+    return resp;
 }
 
-std::optional<boost::json::value> HandleAPI::GetPlayers(std::string token) {
-    return std::nullopt;
+/*
+std::string HandleAPI::ProcessJoinGame(const std::string& body) {
+    json::value json_val = json::parse(body);
+    std::string userName{json_val.at("userName").as_string()};
+    std::string mapId{json_val.at("mapId").as_string()};
+
+    // Call Application Facade
+    // This is the key change: No direct model access
+    auto result = app_.JoinGame(mapId, userName);
+
+    json::object resp;
+    resp["authToken"] = result.token;
+    resp["playerId"] = result.playerId;
+    return json::serialize(resp);
+}
+*/
+std::string HandleAPI::ProcessPlayers(const std::string& token) {
+    // Call Application Facade
+    auto players = app_.GetPlayers(token);
+
+    json::object list;
+    for (const auto& p : players) {
+        json::object p_json;
+        p_json["name"] = p.GetName();
+        list[std::to_string(p.GetId())] = p_json;
+    }
+
+    // According to spec, it might be an object {"id": {"name":"..."}, ...}
+    return json::serialize(list);
 }
 
 json::value HandleAPI::HandleMaps() {
     json::array json_maps;
-    for (const auto& map : game_.GetMaps()) {
+    for (const auto& map : app_.GetGame().GetMaps()) {
         json::object json_map;
         json_map["id"] = *map.GetId();
         json_map["name"] = map.GetName();
@@ -60,7 +90,7 @@ json::value HandleAPI::HandleMaps() {
 }
 
 std::pair<json::value, bool> HandleAPI::HandleMapId(std::string_view name_map) {
-    const auto* map = game_.FindMap(model::Map::Id{std::string(name_map)});
+    const auto* map = app_.GetGame().FindMap(model::Map::Id{std::string(name_map)});
     if (!map) {
         return {json::value{}, true};
     }

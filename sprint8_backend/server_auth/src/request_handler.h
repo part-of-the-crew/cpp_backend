@@ -49,8 +49,8 @@ class RequestHandler {
 public:
     using Strand = net::strand<net::io_context::executor_type>;
 
-    RequestHandler(fs::path path_to_static, Strand api_strand, model::Game& game)
-        : path_to_static_{std::move(path_to_static)}, handleAPI_{game}, api_strand_{api_strand} {}
+    RequestHandler(fs::path path_to_static, Strand api_strand, app::Application& application)
+        : path_to_static_{std::move(path_to_static)}, handleAPI_{application}, api_strand_{api_strand} {}
 
     RequestHandler(const RequestHandler&) = delete;
     RequestHandler& operator=(const RequestHandler&) = delete;
@@ -59,15 +59,15 @@ public:
     void operator()(
         [[maybe_unused]] tcp::endpoint ep, http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send) {
         ResponseSender<Send> visitor{send, req.method()};
-
         if (req.target().starts_with("/api/")) {
+            if constexpr (!std::is_same_v<Body, http::string_body>)
+                static_assert(true);
             // We must capture 'req' by value (move it) because this lambda
             // might execute after the current function returns.
             auto task = [this, req = std::move(req), send = std::forward<Send>(send)]() mutable {
                 ResponseSender<Send> visitor{send, req.method()};
                 std::visit(visitor, handleAPI_(req));
             };
-
             return net::dispatch(api_strand_, std::move(task));
         }
 

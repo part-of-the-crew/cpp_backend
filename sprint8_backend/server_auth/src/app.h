@@ -1,67 +1,78 @@
 #pragma once
+#include <memory>
+#include <optional>
 #include <random>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "model.h"
-#include "tagged.h"
-
-namespace detail {
-struct TokenTag {};
-}  // namespace detail
 
 namespace app {
 
-using namespace model;
-using Token = util::Tagged<std::string, detail::TokenTag>;
-
-class PlayerTokens {
-    //...
-private:
-    std::random_device random_device_;
-    std::mt19937_64 generator1_{[this] {
-        std::uniform_int_distribution<std::mt19937_64::result_type> dist;
-        return dist(random_device_);
-    }()};
-    std::mt19937_64 generator2_{[this] {
-        std::uniform_int_distribution<std::mt19937_64::result_type> dist;
-        return dist(random_device_);
-    }()};
-    std::string GetToken() { return std::to_string(generator1_()) + std::to_string(generator2_()); }
-
-    // Чтобы сгенерировать токен, получите из generator1_ и generator2_
-    // два 64-разрядных числа и, переведя их в hex-строки, склейте в одну.
-    // Вы можете поэкспериментировать с алгоритмом генерирования токенов,
-    // чтобы сделать их подбор ещё более затруднительным
-};
+using Token = std::string;
 
 class Player {
 public:
-    Player(model::GameSession* session, model::Dog* dog) : session_{session}, dog_{dog}, token_{SetToken()} {}
+    Player(model::GameSession* session, model::Dog* dog) : session_(session), dog_(dog) {}
 
-    std::string GetToken() { return *token_; }
+    const std::string& GetName() const { return dog_->GetName(); }
+    const model::GameSession* GetSession() const { return session_; }
+    int GetId() const { return dog_->GetId(); }
 
 private:
-    std::random_device random_device_;
-    std::mt19937_64 generator1_{[this] {
-        std::uniform_int_distribution<std::mt19937_64::result_type> dist;
-        return dist(random_device_);
-    }()};
-    std::mt19937_64 generator2_{[this] {
-        std::uniform_int_distribution<std::mt19937_64::result_type> dist;
-        return dist(random_device_);
-    }()};
-    std::string SetToken() { return std::to_string(generator1_()) + std::to_string(generator2_()); }
-
     model::GameSession* session_;
     model::Dog* dog_;
-    Token token_;
+};
+
+class PlayerTokens {
+public:
+    // Generate a new token and store the player
+    Token AddPlayer(Player player);
+
+    // Find a player by token
+    Player* FindPlayer(Token token);
+
+private:
+    std::unordered_map<Token, Player> token_to_player_;
+
+    std::random_device random_device_;
+    std::mt19937_64 generator1_{random_device_()};
+    std::mt19937_64 generator2_{random_device_()};
+
+    Token GenerateToken();
+};
+
+struct JoinGameResult {
+    Token token;
+    int playerId;
 };
 
 struct AuthRequest {
-    std::string PlayerName;
+    std::string playerName;
     std::string map;
+};
+
+class Application {
+public:
+    explicit Application(model::Game game) : game_(std::move(game)) {}
+
+    const model::Game& GetGame() const { return game_; }
+
+    // Use Case: Join Game
+    // Returns {token, id} on success
+    // Throws exceptions or returns nullopt on failure
+    std::optional<JoinGameResult> JoinGame(const AuthRequest& authReq);
+
+    // Use Case: List Players
+    // Returns list of players in the session associated with the token
+    std::vector<Player> GetPlayers(const Token& token);
+
+    const model::Map* FindMap(const model::Map::Id& id) const { return game_.FindMap(id); }
+
+private:
+    model::Game game_;
+    PlayerTokens player_tokens_;
 };
 
 }  // namespace app
