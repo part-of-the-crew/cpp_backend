@@ -34,7 +34,7 @@ std::optional<app::AuthRequest> HandleAPI::ParseJSONAuthReq(std::string body) {
     }
 }
 
-HandleAPI::JoinOutcome HandleAPI::ProcessJoinGame(const app::AuthRequest& authReq) {
+JoinOutcome HandleAPI::ProcessJoinGame(const app::AuthRequest& authReq) {
     if (authReq.PlayerName.empty())
         return JoinError::InvalidName;
 
@@ -42,6 +42,10 @@ HandleAPI::JoinOutcome HandleAPI::ProcessJoinGame(const app::AuthRequest& authRe
         return JoinError::MapNotFound;
 
     return JoinGameResult{"6516861d89ebfff147bf2eb2b5153ae1", 0};
+}
+
+std::optional<boost::json::value> HandleAPI::GetPlayers(std::string token) {
+    return std::nullopt;
 }
 
 json::value HandleAPI::HandleMaps() {
