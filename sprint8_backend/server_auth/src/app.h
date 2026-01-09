@@ -59,13 +59,8 @@ public:
 
     const model::Game& GetGame() const { return game_; }
 
-    // Use Case: Join Game
-    // Returns {token, id} on success
-    // Throws exceptions or returns nullopt on failure
     std::optional<JoinGameResult> JoinGame(const AuthRequest& authReq);
 
-    // Use Case: List Players
-    // Returns list of players in the session associated with the token
     std::vector<Player> GetPlayers(const Token& token);
 
     const model::Map* FindMap(const model::Map::Id& id) const { return game_.FindMap(id); }

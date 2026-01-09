@@ -10,7 +10,14 @@ using namespace std::literals;
 
 Token PlayerTokens::GenerateToken() {
     std::stringstream ss;
-    ss << std::hex << std::setfill('0') << std::setw(16) << generator1_() << generator2_();
+    ss << std::hex << std::setfill('0');
+
+    // Apply setw for the first number
+    ss << std::setw(16) << generator1_();
+
+    // Apply setw for the second number
+    ss << std::setw(16) << generator2_();
+
     return ss.str();
 }
 
@@ -64,24 +71,8 @@ std::vector<Player> Application::GetPlayers(const Token& token) {
     const auto& dogs = player->GetSession()->GetDogs();
 
     std::vector<Player> result;
-    // We construct players on the fly for the view,
-    // but typically you might just return structs with name/id.
-    // For now, let's just use the Player class or simpler structs.
-    // Actually, looking at the request, we just need to list them.
-    // Let's return the dogs directly or wrap them.
-
-    // Important: The list of players logic usually requires returning
-    // names and IDs. The Player class has accessors for that.
-
-    // Re-constructing Player objects might be weird if they don't have tokens,
-    // but strictly speaking, "GetPlayers" returns data about OTHER players.
-    // Let's change the return type to be simpler in a real app,
-    // but here we will return the subset of data needed.
 
     for (const auto& dog : dogs) {
-        // We create temporary Player views for the dogs in the session
-        // Note: These temporary players don't have their own tokens tracked here
-        // This is sufficient for reading data (GetName, GetId)
         result.emplace_back(const_cast<model::GameSession*>(player->GetSession()), const_cast<model::Dog*>(&dog));
     }
     return result;
