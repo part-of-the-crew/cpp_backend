@@ -1,7 +1,8 @@
 #include "model.h"
 
-#include <algorithm>  // Для std::min, std::max
-#include <random>     // Для генерации случайных чисел
+#include <algorithm>  // For std::min, std::max
+#include <cmath>
+#include <random>
 #include <stdexcept>
 
 namespace model {
@@ -19,6 +20,29 @@ void Map::AddOffice(Office office) {
         offices_.pop_back();
         throw;
     }
+}
+
+void Map::AddRoad(const Road& road) {
+    roads_.emplace_back(road);
+
+    // Build spatial index
+    if (road.IsHorizontal()) {
+        roads_by_y_[road.GetStart().y].push_back(road);
+    } else {
+        roads_by_x_[road.GetStart().x].push_back(road);
+    }
+}
+
+const Map::Roads& Map::GetRoadsByX(Coord x) const {
+    static const Roads empty;
+    auto it = roads_by_x_.find(x);
+    return it != roads_by_x_.end() ? it->second : empty;
+}
+
+const Map::Roads& Map::GetRoadsByY(Coord y) const {
+    static const Roads empty;
+    auto it = roads_by_y_.find(y);
+    return it != roads_by_y_.end() ? it->second : empty;
 }
 
 void Game::AddMap(Map map) {
@@ -58,49 +82,18 @@ GameSession* Game::FindSession(const Map::Id& id) {
     return session.get();
 }
 
-// -------------------------------------------------------------
-// Реализация логики появления пса
-// -------------------------------------------------------------
-
 Dog* GameSession::AddDog(std::string_view name) {
     const auto& roads = map_->GetRoads();
     if (roads.empty()) {
         throw std::runtime_error("Map has no roads to spawn a dog");
     }
 
-    // Инициализируем генератор случайных чисел
-    static thread_local std::random_device rd;
-    static thread_local std::mt19937 gen(rd());
-
-    // 1. Выбираем случайную дорогу (равномерное распределение по индексу)
-    std::uniform_int_distribution<size_t> road_dist(0, roads.size() - 1);
-    const auto& road = roads[road_dist(gen)];
-
-    // 2. Генерируем случайную точку на этой дороге
+    // Determine spawn point: start of the first road
+    const auto& first_road = roads[0];
     Position start_pos;
+    start_pos.x = static_cast<double>(first_road.GetStart().x);
+    start_pos.y = static_cast<double>(first_road.GetStart().y);
 
-    if (road.IsHorizontal()) {
-        // Дорога горизонтальная: Y фиксирован, X меняется
-        start_pos.y = static_cast<double>(road.GetStart().y);
-
-        double min_x = std::min(road.GetStart().x, road.GetEnd().x);
-        double max_x = std::max(road.GetStart().x, road.GetEnd().x);
-
-        std::uniform_real_distribution<double> coord_dist(min_x, max_x);
-        start_pos.x = coord_dist(gen);
-    } else {
-        // Дорога вертикальная: X фиксирован, Y меняется
-        start_pos.x = static_cast<double>(road.GetStart().x);
-
-        double min_y = std::min(road.GetStart().y, road.GetEnd().y);
-        double max_y = std::max(road.GetStart().y, road.GetEnd().y);
-
-        std::uniform_real_distribution<double> coord_dist(min_y, max_y);
-        start_pos.y = coord_dist(gen);
-    }
-
-    // Создаем пса с вычисленными координатами
-    // Начальная скорость (0,0) и направление (NORTH) задаются в конструкторе Dog
     dogs_.emplace_back(std::string(name), next_dog_id_++, start_pos);
 
     return &dogs_.back();

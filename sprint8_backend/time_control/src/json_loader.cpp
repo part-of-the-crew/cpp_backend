@@ -67,7 +67,7 @@ model::Game LoadGame(const std::filesystem::path& json_path) {
     if (!root.contains("maps"s)) {
         throw std::runtime_error("JSON has no 'maps'");
     }
-    if (!root.contains("defaultDogSpeed"s)) {
+    if (root.contains("defaultDogSpeed"s)) {
         game.SetSpeed(root.at("defaultDogSpeed"s).as_double());
     }
     for (const auto& map_json : root.at("maps"s).as_array()) {

@@ -1,7 +1,7 @@
 #include "api_handler.h"
 
 #include <charconv>  // For std::from_chars
-
+//cd server_logging && ./build.sh && ./run.sh && cd .. && cd game_state && ./build.sh && ./run.sh && cd .. && cd server_logging && ./build.sh && ./run.sh && cd .. &&cd join_game && ./build.sh && ./run.sh && cd .. && cd move_players && ./build.sh && ./run.sh && cd .. && cd time_control && ./build.sh && ./run.sh && cd ..
 namespace api_handler {
 
 // Helper remains inline because it's simple and used by the template operator()
@@ -48,6 +48,7 @@ std::optional<model::Direction> StringToDirection(std::string_view dir_str) {
 
 response::ResponseVariant HandleAPI::operator()(const http::request<http::string_body>& req) {
     const auto& target = req.target();
+
     if (target == "/api/v1/game/join") {
         return HandleJoin(req);
     }
@@ -69,19 +70,7 @@ response::ResponseVariant HandleAPI::operator()(const http::request<http::string
     if (target.starts_with("/api/v1/maps/")) {
         return HandleMapId(req);
     }
-    /*
-        if (target.starts_with("/api/v1/maps/")) {
-            auto parts = SplitTarget(target);
-            if (parts.size() == 4) {
-                auto [response_body, error] = HandleMapId(parts[3]);
-                if (error) {
-                    return response::MakeError(http::status::not_found, "mapNotFound", "map Not Found", req);
-                }
-                return response::MakeJSON(http::status::ok, std::move(response_body), req);
-            }
-        }
-    */
-    return response::MakeError(http::status::bad_request, "badRequest", "Invalid API path", req);
+    return response::MakeError(http::status::conflict, "badRequest", "Invalid API path", req);
 }
 
 response::ResponseVariant HandleAPI::HandleJoin(const http::request<http::string_body>& req) {
@@ -121,7 +110,7 @@ response::ResponseVariant HandleAPI::HandlePlayers(const http::request<http::str
 }
 
 response::ResponseVariant HandleAPI::HandleState(const http::request<http::string_body>& req) {
-    if (req.method() != http::verb::get && req.method() != http::verb::head) {
+    if (req.method() != http::verb::get && req.method() != http::verb::head && req.method() != http::verb::post) {
         return response::MakeMethodNotAllowedError("Invalid method"s, "GET, HEAD"s, req);
     }
     auto token = ExtractToken(req);
@@ -137,8 +126,8 @@ response::ResponseVariant HandleAPI::HandleState(const http::request<http::strin
 }
 
 response::ResponseVariant HandleAPI::HandlePlayerAction(const http::request<http::string_body>& req) {
-    if (req.method() != http::verb::get && req.method() != http::verb::head) {
-        return response::MakeMethodNotAllowedError("Invalid method"s, "GET, HEAD"s, req);
+    if (req.method() != http::verb::post) {
+        return response::MakeMethodNotAllowedError("Invalid method"s, "POST"s, req);
     }
     auto token = ExtractToken(req);
     if (!token)
@@ -181,17 +170,17 @@ response::ResponseVariant HandleAPI::HandleTick(const http::request<http::string
     boost::system::error_code ec;
     auto body = json::parse(req.body(), ec);
     if (ec.failed() || !body.is_object() || !body.as_object().contains("timeDelta")) {
-        return response::MakeError(http::status::bad_request, "invalidArgument", "Failed to parse tick request JSON"sv, req);
+        return response::MakeError(
+            http::status::bad_request, "invalidArgument", "Failed to parse tick request JSON"sv, req);
     }
 
     auto timeDelta = body.as_object().at("timeDelta");
 
-    if (!timeDelta.is_uint64()) {
+    if (!timeDelta.is_int64() || timeDelta.as_int64() <= 0) {
         return response::MakeError(
             http::status::bad_request, "invalidArgument"sv, "Failed to parse tick request JSON"sv, req);
     }
-
-    app_.MakeTick(timeDelta.as_uint64());
+    app_.MakeTick(timeDelta.as_int64());
 
     return response::MakeJSON(http::status::ok, json::object{}, req);
 }

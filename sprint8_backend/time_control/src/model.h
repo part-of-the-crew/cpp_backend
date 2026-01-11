@@ -1,9 +1,9 @@
 #pragma once
+#include <cmath>
 #include <deque>
 #include <memory>
 #include <string>
 #include <unordered_map>
-// #include <optional>
 #include <vector>
 
 #include "tagged.h"
@@ -53,6 +53,9 @@ class Road {
 public:
     constexpr static HorizontalTag HORIZONTAL{};
     constexpr static VerticalTag VERTICAL{};
+    constexpr static double WIDTH = 0.8;
+    constexpr static double HALF_WIDTH = WIDTH / 2.0;
+
     Road(HorizontalTag, Point start, Coord end_x) noexcept : start_{start}, end_{end_x, start.y} {}
     Road(VerticalTag, Point start, Coord end_y) noexcept : start_{start}, end_{start.x, end_y} {}
     bool IsHorizontal() const noexcept { return start_.y == end_.y; }
@@ -101,19 +104,29 @@ public:
     const Roads& GetRoads() const noexcept { return roads_; }
     const Buildings& GetBuildings() const noexcept { return buildings_; }
     const Offices& GetOffices() const noexcept { return offices_; }
-    void AddRoad(const Road& road) { roads_.emplace_back(road); }
+
+    void AddRoad(const Road& road);
     void AddBuilding(const Building& building) { buildings_.emplace_back(building); }
     void AddOffice(Office office);
 
     void SetDogSpeed(double speed) { dog_speed_ = speed; }
     double GetDogSpeed() const { return dog_speed_; }
 
+    // Fast lookup for roads
+    const Roads& GetRoadsByX(Coord x) const;
+    const Roads& GetRoadsByY(Coord y) const;
+
 private:
     using OfficeIdToIndex = std::unordered_map<Office::Id, size_t, util::TaggedHasher<Office::Id>>;
     double dog_speed_ = 0.0;
     Id id_;
     std::string name_;
+
     Roads roads_;
+    // Map coordinate -> List of roads on that line
+    std::unordered_map<Coord, Roads> roads_by_x_;
+    std::unordered_map<Coord, Roads> roads_by_y_;
+
     Buildings buildings_;
     OfficeIdToIndex warehouse_id_to_index_;
     Offices offices_;
@@ -121,24 +134,16 @@ private:
 
 class Dog {
 public:
-    // Конструктор теперь принимает начальную позицию
     Dog(std::string name, int id, Position pos)
-        : name_(std::move(name))
-        , id_(id)
-        , position_(pos)
-        , speed_{0.0, 0.0}              // Скорость по умолчанию 0
-        , direction_(Direction::NORTH)  // Направление по умолчанию Север
-    {}
+        : name_(std::move(name)), id_(id), position_(pos), speed_{0.0, 0.0}, direction_(Direction::NORTH) {}
 
     const std::string& GetName() const { return name_; }
     int GetId() const { return id_; }
 
-    // Геттеры для новых полей
     Position GetPosition() const { return position_; }
     Speed GetSpeed() const { return speed_; }
     Direction GetDirection() const { return direction_; }
 
-    // Сеттеры (понадобятся для механики движения)
     void SetPosition(Position pos) { position_ = pos; }
     void SetSpeed(Speed speed) { speed_ = speed; }
     void SetDirection(Direction dir) { direction_ = dir; }
@@ -156,11 +161,12 @@ class GameSession {
 public:
     explicit GameSession(const Map* map) : map_(map) {}
 
-    // AddDog внутри будет вычислять случайные координаты
     Dog* AddDog(std::string_view name);
 
     const Map* GetMap() const { return map_; }
     const std::deque<Dog>& GetDogs() const { return dogs_; }
+    // Non-const getter for updating state
+    std::deque<Dog>& GetDogs() { return dogs_; }
 
 private:
     const Map* map_;

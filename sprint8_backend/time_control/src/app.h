@@ -36,6 +36,10 @@ public:
     // Find a player by token
     Player* FindPlayer(Token token);
 
+    // Allow iterating over players
+    auto begin() { return token_to_player_.begin(); }
+    auto end() { return token_to_player_.end(); }
+
 private:
     std::unordered_map<Token, Player> token_to_player_;
 
