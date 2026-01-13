@@ -46,6 +46,7 @@ private:
     response::ResponseVariant HandleState(const http::request<http::string_body>& req);
     response::ResponseVariant HandlePlayers(const http::request<http::string_body>& req);
     response::ResponseVariant HandlePlayerAction(const http::request<http::string_body>& req);
+    response::ResponseVariant HandleTick(const http::request<http::string_body>& req);
     std::optional<std::string> ExtractToken(const http::request<http::string_body>& req);
     app::Application& app_;
 
@@ -54,7 +55,7 @@ private:
     JoinOutcome ProcessJoinGame(const app::AuthRequest& params);
     std::string ProcessPlayers(const std::string& token);
     std::optional<std::string> ProcessState(const app::Token& token);
-    //std::optional<std::string> ProcessPlayerAction(const app::Token& token);
+    // std::optional<std::string> ProcessPlayerAction(const app::Token& token);
 
     boost::json::object SerializeMap(const model::Map& map);
     boost::json::object SerializeRoad(const model::Road& road);

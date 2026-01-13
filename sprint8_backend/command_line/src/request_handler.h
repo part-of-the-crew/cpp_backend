@@ -58,7 +58,6 @@ public:
     template <typename Body, typename Allocator, typename Send>
     void operator()(
         [[maybe_unused]] tcp::endpoint ep, http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send) {
-        ResponseSender<Send> visitor{send, req.method()};
         if (req.target().starts_with("/api/")) {
             if constexpr (!std::is_same_v<Body, http::string_body>)
                 static_assert(true);
@@ -70,7 +69,7 @@ public:
             };
             return net::dispatch(api_strand_, std::move(task));
         }
-
+        ResponseSender<Send> visitor{send, req.method()};
         if (req.method() != http::verb::get && req.method() != http::verb::head) {
             return std::visit(visitor,
                 response::MakeError(http::status::method_not_allowed, "invalidMethod", "Only GET/HEAD allowed", req));

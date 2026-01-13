@@ -4,7 +4,7 @@
 # --- Configuration ---
 BUILD_DIR="build"
 EXECUTABLE="$BUILD_DIR/bin/game_server"  # change this to your target name
-ARGS="data/config.json static"
+ARGS="-c data/config.json -w static"
 # --- Helper functions ---
 configure() {
     clang-format --style=file --assume-filename=../.clang-format -i ./src/*.cpp  ./src/*.h
@@ -43,7 +43,7 @@ runv() {
     fi
     echo "🚀 Running program..."
     valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out$i.txt \
-        "$EXECUTABLE" $ARGS 2>&1
+        "$EXECUTABLE" 2>&1
 }
 
 # --- Main logic ---
