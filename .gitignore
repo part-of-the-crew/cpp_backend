@@ -3,3 +3,4 @@
 val*.txt
 *.log
 build/
+.cache/

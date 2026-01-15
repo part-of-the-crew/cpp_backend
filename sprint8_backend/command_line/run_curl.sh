@@ -28,12 +28,21 @@ do
     echo "ITERATION: $i"
     echo "========================================"
 
-    printf "${GREEN}___action___${NC}\n"
+    printf "${GREEN}___action1___${NC}\n"
+    curl -s POST http://localhost:8080/api/v1/game/player/action \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer $TOKEN1" \
+        -d '{"move":"D"}' &
+    echo ""
+
+    printf "${GREEN}___action2___${NC}\n"
     curl -s POST http://localhost:8080/api/v1/game/player/action \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer $TOKEN1" \
         -d '{"move":"D"}'
     echo ""
+
+    wait
 
     printf "${GREEN}___tick___${NC}\n"
     curl -s POST http://localhost:8080/api/v1/game/tick  \
