@@ -69,6 +69,31 @@ case "$1" in
         shift
         runv "$@"
         ;;
+    prof)
+        cmake -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DEXTRA_CXX_FLAGS="-pg -g -O2" \
+                    -B "$BUILD_DIR"  2>&1
+        build || exit 1
+        "$EXECUTABLE" $ARG
+        PID=$!
+        ./run_curl.sh 
+        kill $PID
+        gprof "$EXECUTABLE" | gprof2dot | dot -Tpng -o output.png &
+        ;;
+    perfsh)
+        cmake -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DEXTRA_CXX_FLAGS="-g -O2" \
+                    -B "$BUILD_DIR"  2>&1
+        build || exit 1
+        perf record -g -o perf.data "$EXECUTABLE" $ARGS &
+        ./run_curl.sh 
+        perf script | ~/Downloads/FlameGraph/stackcollapse-perf.pl | ~/Downloads/FlameGraph/flamegraph.pl > flame.svg
+        ;;
+    perfp)
+        cmake -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DEXTRA_CXX_FLAGS="-g -O2" \
+                    -B "$BUILD_DIR"  2>&1
+        build || exit 1
+        git clone https://github.com/brendangregg/FlameGraph
+        python3 shoot.py ""$EXECUTABLE" $ARGS"
+        ;;
     *)
         #clean
         configure
