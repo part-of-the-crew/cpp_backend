@@ -21,6 +21,12 @@ add_executable(game_server
     src/request_handler.cpp
     src/api_handler.cpp
     src/app.cpp
+    src/my_logger.cpp
+)
+
+target_compile_options(game_server PRIVATE
+    -fdiagnostics-color=always
+    #-Wall -Wextra -Wpedantic
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")

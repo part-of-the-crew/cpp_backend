@@ -6,6 +6,7 @@
 
 #include "http_server.h"
 #include "json_loader.h"
+#include "logger_handler.h"
 #include "my_logger.h"
 #include "request_handler.h"
 #include "ticker.h"
@@ -95,7 +96,7 @@ int main(int argc, const char* argv[]) {
 
         // http_handler::RequestHandler handler{args->pathToStatic, api_strand, application};
         auto handler = std::make_shared<http_handler::RequestHandler>(args->pathToStatic, api_strand, application);
-        logger::LoggingRequestHandler logging_handler{handler};
+        logger_handler::LoggingRequestHandler logging_handler{handler};
 
         http_server::ServeHttp(ioc, {address, port}, logging_handler);
 
@@ -125,18 +126,16 @@ int main(int argc, const char* argv[]) {
                         reason = "Unknown termination signal";
                         break;
                 }
-                logger::LogServerStop(signal_number, reason);
-                boost::log::core::get()->flush();  // Force write to console
+                logger::LogServerStop(signal_number, std::string_view(reason));
                 ioc.stop();
             }
         });
 
-        logger::LogServerLaunch({address, port});
+        logger::LogServerLaunch(address.to_string(), port);
         // 6. Запускаем обработку асинхронных операций
         RunWorkers(num_threads, [&ioc] { ioc.run(); });
     } catch (const std::exception& ex) {
         logger::LogServerStop(EXIT_FAILURE, ex.what());
-        boost::log::core::get()->flush();  // Force write to console
         return EXIT_FAILURE;
     }
 }

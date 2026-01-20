@@ -19,8 +19,7 @@ configure() {
 
 build() {
     echo "🔨 Building project..."
-    cmake --"$BUILD_DIR" "$BUILD_DIR" -- -j 2>&1
-    #setsid cmake --build "$BUILD_DIR" -j >/dev/null 2>&1 &
+    cmake --build "$BUILD_DIR" --parallel $(nproc)  2>&1
 }
 
 clean() {

@@ -4,7 +4,6 @@
 #include <boost/asio/strand.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
-#include <iostream>
 
 #include "my_logger.h"
 
@@ -18,7 +17,6 @@ namespace http = beast::http;
 namespace sys = boost::system;
 
 inline void ReportError(beast::error_code ec, std::string_view what) {
-    // std::cerr << what << ": "sv << ec.message() << std::endl;
     logger::LogNetError(ec.value(), ec.message(), what);
 }
 
