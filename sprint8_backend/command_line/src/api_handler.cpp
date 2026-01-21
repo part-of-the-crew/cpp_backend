@@ -97,8 +97,7 @@ response::ResponseVariant HandleAPI::HandleJoin(const http::request<http::string
         }
         return response::MakeError(http::status::bad_request, "invalidArgument", "Invalid name", req);
     }
-    const auto& success = std::get<json::object>(outcome);
-    return response::MakeJSON(http::status::ok, std::move(success), req);
+    return response::MakeJSON(http::status::ok, std::get<json::object>(outcome), req);
 }
 
 response::ResponseVariant HandleAPI::HandlePlayers(const http::request<http::string_body>& req) {

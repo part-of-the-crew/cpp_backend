@@ -4,3 +4,7 @@ val*.txt
 *.log
 build/
 .cache/
+perf.data*
+*.svg
+*.out
+*.png

@@ -43,7 +43,7 @@ public:
     using Strand = net::strand<net::io_context::executor_type>;
 
     RequestHandler(fs::path path_to_static, Strand& api_strand, app::Application& application)
-        : path_to_static_{std::move(path_to_static)}, handleAPI_{application}, api_strand_{api_strand} {}
+        : path_to_static_{std::move(path_to_static)}, api_strand_{api_strand}, handleAPI_{application} {}
 
     RequestHandler(const RequestHandler&) = delete;
     RequestHandler& operator=(const RequestHandler&) = delete;
