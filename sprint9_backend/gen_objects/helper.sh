@@ -5,6 +5,8 @@
 BUILD_DIR="build"
 EXECUTABLE="$BUILD_DIR/bin/game_server"  # change this to your target name
 ARGS="-c data/config.json -w static"
+"${TEST_EXECUTABLE:=${EXECUTABLE}_tests}"
+
 # --- Helper functions ---
 configure() {
     clang-format --style=file --assume-filename=../.clang-format -i ./src/*.cpp  ./src/*.h
@@ -28,6 +30,19 @@ clean() {
 }
 
 run() {
+    # First: if tests exist, run them and abort on failure.
+    if [[ -x "$TEST_EXECUTABLE" ]]; then
+        echo "🧪 Running tests..."
+        if "$TEST_EXECUTABLE"; then
+            echo "✅ Tests passed."
+        else
+            echo "❌ Tests failed — aborting."
+            exit 1
+        fi
+    else
+        echo "⚠️  No test executable found at: $TEST_EXECUTABLE"
+        echo "➡️  Skipping tests."
+    fi
     if [[ ! -x "$EXECUTABLE" ]]; then
         echo "❌ Executable not found! Run ./build.sh build first."
         exit 1
@@ -36,12 +51,12 @@ run() {
     "$EXECUTABLE" $ARGS
 }
 runt() {
-    if [[ ! -x "$EXECUTABLE"_tests ]]; then
+    if [[ ! -x "$TEST_EXECUTABLE" ]]; then
         echo "❌ Executable not found! Run ./build.sh build first."
         exit 1
     fi
     echo "🚀 Running program..."
-    "$EXECUTABLE"_tests
+    "$EXECUTABLE"_tests || exit 1
 }
 runv() {
     if [[ ! -x "$EXECUTABLE" ]]; then

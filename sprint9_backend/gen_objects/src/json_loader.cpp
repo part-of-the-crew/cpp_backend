@@ -1,6 +1,8 @@
 #include "json_loader.h"
 
 #include <boost/json.hpp>
+#include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <stdexcept>
 
@@ -11,12 +13,14 @@ namespace json = boost::json;
 
 auto coord = [](const boost::json::value& v) { return model::Coord(v.as_int64()); };
 
-std::string ReadFile(const std::filesystem::path& path) {
-    std::ifstream in(path, std::ios::binary);
-    if (!in) {
-        throw std::runtime_error("Failed to open file: " + path.string());
+std::string ReadFile(const std::filesystem::path& json_path) {
+    std::ifstream file(json_path);
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open loot configuration file: "s + json_path.string());
     }
-    return {std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
+
+    // Read the entire file into a string
+    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 }
 
 model::Road ParseRoad(const json::object& obj) {
@@ -76,6 +80,92 @@ model::Game LoadGame(const std::filesystem::path& json_path) {
         game.AddMap(ParseMap(map_json));
     }
     return game;
+}
+
+loot_gen::LootGenerator LoadGenerator(const std::filesystem::path& json_path) {
+    std::string content = ReadFile(json_path);
+    try {
+        // Parse the JSON string
+        json::value value = json::parse(content);
+
+        // Navigate to the "lootGeneratorConfig" object
+        const auto& config_obj = value.as_object().at("lootGeneratorConfig").as_object();
+
+        // Extract period and probability.
+        // We use to_number<double>() to handle both integer (5) and double (5.0) values.
+        double period_seconds = config_obj.at("period").to_number<double>();
+        double probability = config_obj.at("probability").to_number<double>();
+
+        // Convert seconds to milliseconds for the generator
+        auto period_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::duration<double>(period_seconds));
+
+        return loot_gen::LootGenerator{period_ms, probability};
+
+    } catch (const std::exception& e) {
+        // Re-throw with more context if fields are missing or types are wrong
+        throw std::runtime_error("JSON parsing error in lootGeneratorConfig: "s + e.what());
+    }
+}
+
+// Parse JSON text into boost::json::value. Throws std::runtime_error on parse error.
+inline json::value ParseJsonText(const std::string& txt, const std::string& context) {
+    try {
+        return json::parse(txt);
+    } catch (const json::system_error& e) {
+        std::string msg = "ParseJsonText: JSON parse error";
+        if (!context.empty())
+            msg += " (" + context + ")";
+        msg += ": ";
+        msg += e.what();
+        throw std::runtime_error(msg);
+    }
+}
+
+// If root is an object that contains a "maps" array, returns that array.
+// Otherwise returns std::nullopt.
+inline std::optional<json::array> ExtractMapsArray(const json::value& root) {
+    if (!root.is_object())
+        return std::nullopt;
+    const json::object& obj = root.as_object();
+    auto it = obj.find("maps");
+    if (it == obj.end())
+        return std::nullopt;
+    if (!it->value().is_array())
+        return std::nullopt;
+    return it->value().as_array();
+}
+
+extra_data::ExtraData LoadExtra(const std::filesystem::path& json_path) {
+    const std::string text = ReadFile(json_path);
+    const json::value root = ParseJsonText(text, json_path.string());
+
+    extra_data::ExtraData result;
+
+    auto maps_opt = ExtractMapsArray(root);
+    if (!maps_opt) {
+        // no maps array -> return empty ExtraData
+        return result;
+    }
+
+    const json::array& maps = *maps_opt;
+    for (const json::value& item : maps) {
+        if (!item.is_object())
+            continue;
+        const json::object& obj = item.as_object();
+        auto id_it = obj.find("id");
+        if (id_it == obj.end() || !id_it->value().is_string()) {
+            // skip items without string id
+            continue;
+        }
+        std::string id = std::string(id_it->value().as_string().c_str());
+        // Use the original item (copy) as the info value
+        json::value info_copy = item;
+        // AddMapInfo will set/overwrite the "id" field to ensure consistency
+        result.AddMapInfo(std::move(id), std::move(info_copy));
+    }
+
+    return result;
 }
 
 }  // namespace json_loader

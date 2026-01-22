@@ -48,8 +48,10 @@ int main(int argc, const char* argv[]) {
         // 1. Загружаем карту из файла и построить модель игры
         model::Game game = json_loader::LoadGame(args->pathToConfig);
         game.SetRandomSpawn(args->randomizeSpawnPoints);
+        app::Application application{std::move(game), json_loader::LoadExtra(args->pathToConfig)};
 
-        app::Application application{std::move(game)};
+        loot_gen::LootGenerator gen = json_loader::LoadGenerator(args->pathToConfig);
+
         // 2. Инициализируем io_context
         const unsigned num_threads = std::thread::hardware_concurrency();
         net::io_context ioc(num_threads);
