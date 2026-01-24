@@ -68,7 +68,7 @@ struct LootInMap {
 class Application {
 public:
     explicit Application(model::Game game, const extra_data::ExtraData& extra_data)
-        : game_(std::move(game)), extra_data_(extra_data) {}
+        : game_(std::move(game)), extra_data_(std::move(extra_data)) {}
 
     const model::Game& GetGame() const { return game_; }
 
@@ -87,7 +87,7 @@ public:
 private:
     model::Game game_;
     PlayerTokens player_tokens_;
-    const extra_data::ExtraData& extra_data_;
+    extra_data::ExtraData extra_data_;
     std::unordered_map<unsigned long, LootInMap> Loots;
 };
 

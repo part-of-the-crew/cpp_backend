@@ -15,6 +15,8 @@ struct LootType {
     int rotation = 0;  // degrees
     std::string color = "#000000";
     double scale = 1.0;
+    // Add this so REQUIRE(vector == vector) works
+    bool operator==(const LootType&) const = default;
 };
 
 class ExtraData {

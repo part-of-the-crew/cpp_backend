@@ -1,5 +1,7 @@
 #include "api_handler.h"
 
+#include <boost/json/array.hpp>
+
 #include "extra_data.h"
 
 namespace api_handler {
@@ -360,7 +362,7 @@ json::object HandleAPI::SerializeMap(const model::Map& map) {
         offices.push_back(SerializeOffice(o));
     map_obj["offices"] = std::move(offices);
 
-    map_obj.emplace("lootTypes", SerializeLoots(app_.GetMapValue(map.GetName())));
+    map_obj.emplace("lootTypes", SerializeLoots(app_.GetMapValue(*map.GetId())));
     return map_obj;
 }
 
@@ -388,7 +390,7 @@ json::object HandleAPI::SerializeOffice(const model::Office& o) {
         {"offsetX", o.GetOffset().dx}, {"offsetY", o.GetOffset().dy}};
 }
 
-json::object HandleAPI::SerializeLoots(const std::vector<extra_data::LootType>& loot) {
+json::array HandleAPI::SerializeLoots(const std::vector<extra_data::LootType>& loot) {
     json::array arr;
     arr.reserve(loot.size());
 
@@ -403,10 +405,7 @@ json::object HandleAPI::SerializeLoots(const std::vector<extra_data::LootType>& 
 
         arr.push_back(std::move(obj));
     }
-
-    json::object result;
-    result["lootTypes"] = std::move(arr);
-    return result;
+    return arr;
 }
 
 }  // namespace api_handler

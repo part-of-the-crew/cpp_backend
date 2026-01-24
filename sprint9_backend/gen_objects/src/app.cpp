@@ -222,7 +222,6 @@ void Application::MakeTick(std::uint64_t timeDelta) {
         dog.SetSpeed(speed);
     }
 }
-
 const std::vector<extra_data::LootType>& Application::GetMapValue(const std::string& name) const {
     return extra_data_.GetMapValue(name);
 }

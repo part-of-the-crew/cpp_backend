@@ -1,7 +1,8 @@
 #include "extra_data.h"
 
+#include <cstdio>
+#include <iostream>
 #include <stdexcept>
-
 namespace extra_data {
 
 const std::vector<LootType>& ExtraData::GetMapValue(const std::string& name) const {
@@ -26,7 +27,7 @@ void ExtraData::AddMapLoot(std::string name, std::vector<LootType> v) {
 }
 
 bool ExtraData::Contains(const std::string& name) const {
-    return extra_.find(name) != extra_.end();
+    return extra_.contains(name);
 }
 
 std::size_t ExtraData::Size() const noexcept {

@@ -22,7 +22,7 @@ TOKEN2=$(curl -s POST http://localhost:8080/api/v1/game/join \
 echo ""
 
 
-for i in {1..50}
+for i in {1..2}
 do
     echo "========================================"
     echo "ITERATION: $i"
@@ -45,6 +45,11 @@ do
 
     printf "${GREEN}___state___${NC}\n"
     curl -s GET http://localhost:8080/api/v1/game/state \
+        -H "Authorization: Bearer $TOKEN1"
+    echo -e "\n"
+
+    printf "${GREEN}___state___${NC}\n"
+    curl -s GET http://localhost:8080/api/v1/maps/map1\
         -H "Authorization: Bearer $TOKEN1"
     echo -e "\n"
 

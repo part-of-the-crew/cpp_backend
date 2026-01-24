@@ -26,6 +26,7 @@ add_executable(game_server
     src/ticker.cpp
     src/loot_generator.cpp
     src/extra_data.cpp
+    src/extra_data_serialization.cpp
 )
 
 target_compile_options(game_server PRIVATE
@@ -47,8 +48,11 @@ add_executable(game_server_tests
     src/loot_generator.cpp
     src/tagged.h
     src/extra_data.cpp
+    src/extra_data_serialization.cpp
+    src/json_loader.cpp
     tests/extra_data_tests.cpp
     tests/loot_generator_tests.cpp
+    
 )
 #target_include_directories(game_server_tests PRIVATE CONAN_PKG::boost)
 target_link_libraries(game_server_tests PRIVATE 

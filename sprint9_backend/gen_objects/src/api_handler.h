@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/json/array.hpp>
 #define BOOST_BEAST_USE_STD_STRING_VIEW
 #include <boost/beast/http.hpp>
 #include <boost/json.hpp>
@@ -42,6 +43,7 @@ private:
     response::ResponseVariant HandlePlayers(const http::request<http::string_body>& req);
     response::ResponseVariant HandlePlayerAction(const http::request<http::string_body>& req);
     response::ResponseVariant HandleTick(const http::request<http::string_body>& req);
+
     std::optional<std::string> ExtractToken(const http::request<http::string_body>& req);
     app::Application& app_;
 
@@ -56,7 +58,7 @@ private:
     json::object SerializeRoad(const model::Road& road);
     json::object SerializeBuilding(const model::Building& b);
     json::object SerializeOffice(const model::Office& o);
-    json::object SerializeLoots(const std::vector<extra_data::LootType>& loot);
+    json::array SerializeLoots(const std::vector<extra_data::LootType>& loot);
 };
 
 }  // namespace api_handler
