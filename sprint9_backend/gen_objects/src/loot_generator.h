@@ -17,8 +17,11 @@ public:
      * probability - вероятность появления трофея в течение базового интервала времени
      * random_generator - генератор псевдослучайных чисел в диапазоне от [0 до 1]
      */
-    LootGenerator(TimeInterval base_interval, double probability, RandomGenerator random_gen = DefaultGenerator)
-        : base_interval_{base_interval}, probability_{probability}, random_generator_{std::move(random_gen)} {}
+    LootGenerator(
+        TimeInterval base_interval, double probability, RandomGenerator random_gen = DefaultGenerator)
+        : base_interval_{base_interval}
+        , probability_{probability}
+        , random_generator_{std::move(random_gen)} {}
 
     /*
      * Возвращает количество трофеев, которые должны появиться на карте спустя

@@ -16,7 +16,8 @@ namespace options {
     add("tick-period,t", po::value(&args.tickPeriod)->value_name("milliseconds"s), "set tick period");
     add("config-file,c", po::value(&args.pathToConfig)->value_name("file"s), "set config file path");
     add("www-root,w", po::value(&args.pathToStatic)->value_name("dir"s), "set static files root");
-    add("randomize-spawn-points", po::bool_switch(&args.randomizeSpawnPoints), "spawn dogs at random positions");
+    add("randomize-spawn-points", po::bool_switch(&args.randomizeSpawnPoints),
+        "spawn dogs at random positions");
 
     po::variables_map vm;
     try {

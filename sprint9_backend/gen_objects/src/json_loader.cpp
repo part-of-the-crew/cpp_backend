@@ -32,8 +32,8 @@ model::Road ParseRoad(const json::object& obj) {
 }
 
 model::Building ParseBuilding(const json::object& obj) {
-    return model::Building{model::Rectangle{
-        .position = {coord(obj.at("x"s)), coord(obj.at("y"s))}, .size = {coord(obj.at("w"s)), coord(obj.at("h"s))}}};
+    return model::Building{model::Rectangle{.position = {coord(obj.at("x"s)), coord(obj.at("y"s))},
+        .size = {coord(obj.at("w"s)), coord(obj.at("h"s))}}};
 }
 
 model::Office ParseOffice(const json::object& obj) {
@@ -44,7 +44,8 @@ model::Office ParseOffice(const json::object& obj) {
 
 model::Map ParseMap(const json::value& map_json) {
     const auto& desc = map_json.as_object();
-    model::Map map(model::Map::Id{std::string(desc.at("id"s).as_string())}, std::string(desc.at("name"s).as_string()));
+    model::Map map(
+        model::Map::Id{std::string(desc.at("id"s).as_string())}, std::string(desc.at("name"s).as_string()));
 
     if (const auto it = desc.find("dogSpeed"s); it != desc.cend())
         map.SetDogSpeed(it->value().as_double());
@@ -97,8 +98,8 @@ loot_gen::LootGenerator LoadGenerator(const std::filesystem::path& json_path) {
         double probability = config_obj.at("probability").to_number<double>();
 
         // Convert seconds to milliseconds for the generator
-        auto period_ms =
-            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::duration<double>(period_seconds));
+        auto period_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::duration<double>(period_seconds));
 
         return loot_gen::LootGenerator{period_ms, probability};
 
@@ -122,47 +123,83 @@ inline json::value ParseJsonText(const std::string& txt, const std::string& cont
     }
 }
 
-// If root is an object that contains a "maps" array, returns that array.
-// Otherwise returns std::nullopt.
-inline std::optional<json::array> ExtractMapsArray(const json::value& root) {
-    if (!root.is_object())
-        return std::nullopt;
-    const json::object& obj = root.as_object();
-    auto it = obj.find("maps");
-    if (it == obj.end())
-        return std::nullopt;
-    if (!it->value().is_array())
-        return std::nullopt;
-    return it->value().as_array();
+static extra_data::LootType ParseLootType(const json::value& v) {
+    if (!v.is_object()) {
+        throw std::invalid_argument("extra_data::LootType must be an object");
+    }
+
+    const auto& obj = v.as_object();
+
+    extra_data::LootType lt;
+
+    // Required
+    lt.name = json::value_to<std::string>(obj.at("name"));
+    lt.file = json::value_to<std::string>(obj.at("file"));
+    lt.type = json::value_to<std::string>(obj.at("type"));
+
+    // Optional
+    if (auto it = obj.find("rotation"); it != obj.end()) {
+        lt.rotation = json::value_to<int>(it->value());
+    }
+    if (auto it = obj.find("color"); it != obj.end()) {
+        lt.color = json::value_to<std::string>(it->value());
+    }
+    if (auto it = obj.find("scale"); it != obj.end()) {
+        lt.scale = json::value_to<double>(it->value());
+    }
+
+    return lt;
+}
+
+static std::vector<extra_data::LootType> ParseLootArray(const json::value& v) {
+    if (!v.is_array()) {
+        throw std::invalid_argument("lootTypes must be an array");
+    }
+
+    std::vector<extra_data::LootType> res;
+    for (const auto& item : v.as_array()) {
+        res.push_back(ParseLootType(item));
+    }
+    return res;
 }
 
 extra_data::ExtraData LoadExtra(const std::filesystem::path& json_path) {
     const std::string text = ReadFile(json_path);
     const json::value root = ParseJsonText(text, json_path.string());
 
-    extra_data::ExtraData result;
-
-    auto maps_opt = ExtractMapsArray(root);
-    if (!maps_opt) {
-        // no maps array -> return empty ExtraData
-        return result;
+    if (!root.is_object()) {
+        throw std::invalid_argument("Root JSON must be an object");
     }
 
-    const json::array& maps = *maps_opt;
-    for (const json::value& item : maps) {
-        if (!item.is_object())
-            continue;
-        const json::object& obj = item.as_object();
-        auto id_it = obj.find("id");
-        if (id_it == obj.end() || !id_it->value().is_string()) {
-            // skip items without string id
-            continue;
+    const auto& root_obj = root.as_object();
+
+    extra_data::ExtraData result;
+
+    auto it_maps = root_obj.find("maps");
+    if (it_maps == root_obj.end()) {
+        return result;  // no maps -> empty extra_data::ExtraData
+    }
+
+    if (!it_maps->value().is_array()) {
+        throw std::invalid_argument("'maps' must be an array");
+    }
+
+    for (const auto& map_val : it_maps->value().as_array()) {
+        if (!map_val.is_object()) {
+            throw std::invalid_argument("Map entry must be an object");
         }
-        std::string id = std::string(id_it->value().as_string().c_str());
-        // Use the original item (copy) as the info value
-        json::value info_copy = item;
-        // AddMapInfo will set/overwrite the "id" field to ensure consistency
-        result.AddMapInfo(std::move(id), std::move(info_copy));
+
+        const auto& map_obj = map_val.as_object();
+
+        std::string id = json::value_to<std::string>(map_obj.at("id"));
+
+        std::vector<extra_data::LootType> loot;
+
+        if (auto it_loot = map_obj.find("lootTypes"); it_loot != map_obj.end()) {
+            loot = ParseLootArray(it_loot->value());
+        }
+
+        result.AddMapLoot(std::move(id), std::move(loot));
     }
 
     return result;

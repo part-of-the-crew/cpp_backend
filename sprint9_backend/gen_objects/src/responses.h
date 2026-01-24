@@ -67,16 +67,17 @@ ResponseVariant MakeJSON(
 }
 */
 template <typename Request>
-ResponseVariant MakeError(http::status status, std::string_view code, std::string_view message, const Request& req,
-    std::string cache_control = "no-cache"s) {
+ResponseVariant MakeError(http::status status, std::string_view code, std::string_view message,
+    const Request& req, std::string cache_control = "no-cache"s) {
     return MakeJSON(status, json::object{{"code", code}, {"message", message}}, req, cache_control);
 }
 
 template <typename Request>
-ResponseVariant MakeMethodNotAllowedError(std::string_view message, std::string_view allow, const Request& req) {
+ResponseVariant MakeMethodNotAllowedError(
+    std::string_view message, std::string_view allow, const Request& req) {
     // 1. Generate the base JSON response
-    auto variant_res =
-        MakeJSON(http::status::method_not_allowed, json::object{{"code", "invalidMethod"}, {"message", message}}, req);
+    auto variant_res = MakeJSON(
+        http::status::method_not_allowed, json::object{{"code", "invalidMethod"}, {"message", message}}, req);
     // 2. If we need an Allow header, we must extract the response from the variant
     // Since MakeJSON always returns string_body for errors:
     auto& res = std::get<http::response<http::string_body>>(variant_res);

@@ -61,14 +61,15 @@ int main(int argc, const char* argv[]) {
         constexpr net::ip::port_type port = 8080;
 
         // http_handler::RequestHandler handler{args->pathToStatic, api_strand, application};
-        auto handler = std::make_shared<http_handler::RequestHandler>(args->pathToStatic, api_strand, application);
+        auto handler =
+            std::make_shared<http_handler::RequestHandler>(args->pathToStatic, api_strand, application);
         logger_handler::LoggingRequestHandler logging_handler{handler};
 
         http_server::ServeHttp(ioc, {address, port}, logging_handler);
 
         if (args->tickPeriod > 0) {
-            auto ticker = std::make_shared<ticker::Ticker>(
-                api_strand, std::chrono::milliseconds{args->tickPeriod}, [&application](std::chrono::milliseconds ms) {
+            auto ticker = std::make_shared<ticker::Ticker>(api_strand,
+                std::chrono::milliseconds{args->tickPeriod}, [&application](std::chrono::milliseconds ms) {
                     application.MakeTick(static_cast<std::uint64_t>(ms.count()));
                 });
 

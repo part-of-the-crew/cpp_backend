@@ -5,7 +5,7 @@
 BUILD_DIR="build"
 EXECUTABLE="$BUILD_DIR/bin/game_server"  # change this to your target name
 ARGS="-c data/config.json -w static"
-"${TEST_EXECUTABLE:=${EXECUTABLE}_tests}"
+: "${TEST_EXECUTABLE:=${EXECUTABLE}_tests}"
 
 # --- Helper functions ---
 configure() {
@@ -32,16 +32,12 @@ clean() {
 run() {
     # First: if tests exist, run them and abort on failure.
     if [[ -x "$TEST_EXECUTABLE" ]]; then
-        echo "🧪 Running tests..."
-        if "$TEST_EXECUTABLE"; then
-            echo "✅ Tests passed."
-        else
-            echo "❌ Tests failed — aborting."
-            exit 1
-        fi
+        printf "\n🚀 Running tests...\n"
+        "$TEST_EXECUTABLE" || exit 1
+        #echo "✅ Tests passed."
+        #echo "❌ Tests failed — aborting."
     else
-        echo "⚠️  No test executable found at: $TEST_EXECUTABLE"
-        echo "➡️  Skipping tests."
+        echo "⚠️  No test executable found at: $TEST_EXECUTABLE, Skipping tests"
     fi
     if [[ ! -x "$EXECUTABLE" ]]; then
         echo "❌ Executable not found! Run ./build.sh build first."
@@ -52,10 +48,10 @@ run() {
 }
 runt() {
     if [[ ! -x "$TEST_EXECUTABLE" ]]; then
-        echo "❌ Executable not found! Run ./build.sh build first."
+        echo "⚠️  No test executable found at: $TEST_EXECUTABLE"
         exit 1
     fi
-    echo "🚀 Running program..."
+    printf "\n🚀 Running tests...\n"
     "$EXECUTABLE"_tests || exit 1
 }
 runv() {

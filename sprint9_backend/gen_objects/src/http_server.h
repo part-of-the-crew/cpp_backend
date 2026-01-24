@@ -120,8 +120,9 @@ private:
         std::string method(request.method_string());
 
         logger::LogServerRequest(ip, url, method);
-        request_handler_(remote, std::move(request),
-            [self = shared_from_this()](auto&& response) { self->Write(std::forward<decltype(response)>(response)); });
+        request_handler_(remote, std::move(request), [self = shared_from_this()](auto&& response) {
+            self->Write(std::forward<decltype(response)>(response));
+        });
     }
     tcp::endpoint endpoint_;
     RequestHandler& request_handler_;

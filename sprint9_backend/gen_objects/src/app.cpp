@@ -67,7 +67,8 @@ std::vector<Player> Application::GetPlayers(const Token& token) {
 
     std::vector<Player> result;
     for (const auto& dog : dogs) {
-        result.emplace_back(const_cast<model::GameSession*>(player->GetSession()), const_cast<model::Dog*>(&dog));
+        result.emplace_back(
+            const_cast<model::GameSession*>(player->GetSession()), const_cast<model::Dog*>(&dog));
     }
     return result;
 }
@@ -220,6 +221,10 @@ void Application::MakeTick(std::uint64_t timeDelta) {
         dog.SetPosition(new_pos);
         dog.SetSpeed(speed);
     }
+}
+
+const std::vector<extra_data::LootType>& Application::GetMapValue(const std::string& name) const {
+    return extra_data_.GetMapValue(name);
 }
 
 }  // namespace app

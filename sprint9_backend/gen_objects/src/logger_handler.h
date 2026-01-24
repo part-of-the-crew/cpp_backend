@@ -39,8 +39,8 @@ public:
         // Capture start_ts and ip by VALUE so each request has its own copy
         auto logged_send = [start_ts, ip, send = std::forward<Send>(send)](auto&& response) mutable {
             // Calculate duration
-            auto duration =
-                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_ts);
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now() - start_ts);
 
             // Extract response metadata
             int status_code = response.result_int();

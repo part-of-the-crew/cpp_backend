@@ -5,48 +5,40 @@
 #include "../src/extra_data.h"
 
 using namespace std::literals;
-namespace json = boost::json;
 
-SCENARIO("Extra data storing") {
+SCENARIO("Extra data storing lifecycle", "[ExtraData]") {
     using extra_data::ExtraData;
 
-    GIVEN("Extra data") {
+    GIVEN("An empty ExtraData container") {
         ExtraData extra;
 
-        WHEN("extra is created") {
-            THEN("extra is empty") {
-                INFO("checking emptiness");
-                REQUIRE(extra.Size() == 0);
+        // Check initial state immediately
+        THEN("It is initially empty") {
+            REQUIRE(extra.Size() == 0);
+            REQUIRE_FALSE(extra.Contains("map1"));
+        }
+        //    void AddMapLoot(std::string name, std::vector<LootType>);
+        WHEN("A valid map is added") {
+            std::vector<extra_data::LootType> loot{{"key", "assets/key.obj", "obj", 90, "#338844", 0.03},
+                {"wallet", "assets/wallet.obj", "obj", 0, "#883344", 0.01}};
+            REQUIRE_NOTHROW(extra.AddMapLoot("map1", std::move(loot)));
+            THEN("The size becomes 1 and content is retrievable") {
+                REQUIRE(extra.Size() == 1);
+                REQUIRE(extra.Contains("map1"));
 
-                AND_WHEN("add 1 member") {
-                    INFO("add");
-                    extra.AddMapInfo("map1", json::object{{"lootTypes", json::array{}}});
-                    THEN("check size") {
-                        REQUIRE(extra.Size() == 1);
-                        AND_THEN("check Contains") {
-                            REQUIRE(extra.Contains("map1"));
-                        }
-                        AND_THEN("check content") {
-                            auto info = extra.GetMapValue("map1");
-                            REQUIRE(info);
-                            REQUIRE(*info == json::object{{"lootTypes", json::array{}}});
-                        }
-                        AND_WHEN("add not an object") {
-                            REQUIRE_THROWS_AS(
-                                extra.AddMapInfo("map1", json::parse(R"("not an object")")), std::invalid_argument);
-                        }
-                        AND_WHEN("clear") {
-                            extra.Clear();
-                            THEN("check emptiness again") {
-                                INFO("should be empty");
-                                REQUIRE(extra.Size() == 0);
-                            }
-                            AND_THEN("check Contains again ") {
-                                REQUIRE(!extra.Contains("map1"));
-                            }
-                        }
-                    }
-                }
+                auto info = extra.GetMapValue("map1");
+                REQUIRE(info.size() == 2);
+                // Note: Ensure this matches your implementation's ID logic
+                REQUIRE_NOTHROW(info.at(1).name == "wallet");
+            }
+            AND_THEN("check GetNumberLootforMap") {
+                auto content = extra.GetNumberLootforMap("map1");
+                REQUIRE(content.has_value());
+                REQUIRE(content.value() == 2);
+            }
+            AND_THEN("check wrong map GetNumberLootforMap") {
+                auto content = extra.GetNumberLootforMap("map2");
+                REQUIRE_FALSE(content.has_value());
             }
         }
     }

@@ -60,6 +60,11 @@ struct AuthRequest {
     std::string map;
 };
 
+struct LootInMap {
+    unsigned long type;
+    model::Point pos;
+};
+
 class Application {
 public:
     explicit Application(model::Game game, const extra_data::ExtraData& extra_data)
@@ -77,10 +82,13 @@ public:
 
     void MakeTick(std::uint64_t timeDelta);
 
+    const std::vector<extra_data::LootType>& GetMapValue(const std::string& name) const;
+
 private:
     model::Game game_;
     PlayerTokens player_tokens_;
     const extra_data::ExtraData& extra_data_;
+    std::unordered_map<unsigned long, LootInMap> Loots;
 };
 
 }  // namespace app

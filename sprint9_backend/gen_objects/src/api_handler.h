@@ -52,10 +52,11 @@ private:
     std::optional<std::string> ProcessState(const app::Token& token);
     // std::optional<std::string> ProcessPlayerAction(const app::Token& token);
 
-    boost::json::object SerializeMap(const model::Map& map);
-    boost::json::object SerializeRoad(const model::Road& road);
-    boost::json::object SerializeBuilding(const model::Building& b);
-    boost::json::object SerializeOffice(const model::Office& o);
+    json::object SerializeMap(const model::Map& map);
+    json::object SerializeRoad(const model::Road& road);
+    json::object SerializeBuilding(const model::Building& b);
+    json::object SerializeOffice(const model::Office& o);
+    json::object SerializeLoots(const std::vector<extra_data::LootType>& loot);
 };
 
 }  // namespace api_handler

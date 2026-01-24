@@ -49,12 +49,13 @@ public:
     RequestHandler& operator=(const RequestHandler&) = delete;
 
     template <typename Body, typename Allocator, typename Send>
-    void operator()(
-        [[maybe_unused]] tcp::endpoint ep, http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send) {
+    void operator()([[maybe_unused]] tcp::endpoint ep,
+        http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send) {
         // 1. Check for API requests FIRST.
         // We move 'req' and 'send' into the lambda, so we cannot use them afterwards.
         if (req.target().starts_with("/api/")) {
-            auto task = [self = shared_from_this(), req = std::move(req), send = std::forward<Send>(send)]() mutable {
+            auto task = [self = shared_from_this(), req = std::move(req),
+                            send = std::forward<Send>(send)]() mutable {
                 // auto task = [this, req = std::move(req), send = std::forward<Send>(send)]() mutable {
                 //  Re-create the visitor INSIDE the lambda where 'send' is valid
                 ResponseSender<std::decay_t<Send>> visitor{send, req.method()};
@@ -69,8 +70,8 @@ public:
         ResponseSender<Send> visitor{send, req.method()};
 
         if (req.method() != http::verb::get && req.method() != http::verb::head) {
-            return std::visit(visitor,
-                response::MakeError(http::status::method_not_allowed, "invalidMethod", "Only GET/HEAD allowed", req));
+            return std::visit(visitor, response::MakeError(http::status::method_not_allowed, "invalidMethod",
+                                           "Only GET/HEAD allowed", req));
         }
 
         return std::visit(visitor, HandleStatic(req));

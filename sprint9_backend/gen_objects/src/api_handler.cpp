@@ -1,5 +1,7 @@
 #include "api_handler.h"
 
+#include "extra_data.h"
+
 namespace api_handler {
 
 struct APItype {
@@ -117,7 +119,7 @@ response::ResponseVariant HandleAPI::HandlePlayers(const http::request<http::str
 }
 
 response::ResponseVariant HandleAPI::HandleState(const http::request<http::string_body>& req) {
-    if (req.method() != http::verb::get && req.method() != http::verb::head && req.method() != http::verb::post) {
+    if (req.method() != http::verb::get && req.method() != http::verb::head) {
         return response::MakeMethodNotAllowedError("Invalid method"s, "GET, HEAD"s, req);
     }
     auto token = ExtractToken(req);
@@ -127,7 +129,8 @@ response::ResponseVariant HandleAPI::HandleState(const http::request<http::strin
 
     auto result = ProcessState(*token);
     if (!result) {
-        return response::MakeError(http::status::unauthorized, "unknownToken", "Player token has not been found", req);
+        return response::MakeError(
+            http::status::unauthorized, "unknownToken", "Player token has not been found", req);
     }
     try {
         return response::MakeJSON(http::status::ok, json::parse(*result), req);
@@ -155,7 +158,8 @@ response::ResponseVariant HandleAPI::HandlePlayerAction(const http::request<http
 
     try {
         if (!body.as_object().contains("move")) {
-            return response::MakeError(http::status::bad_request, "invalidArgument", "Missing move field", req);
+            return response::MakeError(
+                http::status::bad_request, "invalidArgument", "Missing move field", req);
         }
 
         move = body.as_object().at("move").as_string().c_str();
@@ -172,7 +176,8 @@ response::ResponseVariant HandleAPI::HandlePlayerAction(const http::request<http
     // 3. Конвертация строки в Direction
     auto direction = StringToDirection(move);
     if (!direction) {
-        return response::MakeError(http::status::bad_request, "invalidArgument"sv, "Invalid direction"sv, req);
+        return response::MakeError(
+            http::status::bad_request, "invalidArgument"sv, "Invalid direction"sv, req);
     }
     try {
         if (!app_.SetPlayerAction(*token, direction)) {
@@ -222,6 +227,22 @@ response::ResponseVariant HandleAPI::HandleMaps(const http::request<http::string
     return response::MakeJSON(http::status::ok, std::move(json_maps), req);
 }
 
+response::ResponseVariant HandleAPI::HandleMapId(const http::request<http::string_body>& req) {
+    if (req.method() != http::verb::get && req.method() != http::verb::head) {
+        return response::MakeMethodNotAllowedError("Invalid method"s, "GET, HEAD"s, req);
+    }
+    auto parts = SplitTarget(req.target());
+    if (parts.size() != 4) {
+        return response::MakeError(http::status::bad_request, "invalidArgument"sv, "invalidArgument"sv, req);
+    }
+
+    const auto* map = app_.GetGame().FindMap(model::Map::Id{std::string(parts[3])});
+    if (!map) {
+        return response::MakeError(http::status::not_found, "mapNotFound", "map Not Found", req);
+    }
+    return response::MakeJSON(http::status::ok, SerializeMap(*map), req);
+}
+
 std::optional<std::string> HandleAPI::ProcessState(const app::Token& token) {
     std::vector<app::Player> players;
     try {
@@ -235,7 +256,7 @@ std::optional<std::string> HandleAPI::ProcessState(const app::Token& token) {
         // 2. Итерируемся по игрокам
         for (const auto& player : players) {
             // У игрока есть доступ к его собаке
-            const auto& pdog = player.GetDog();  // Убедитесь, что в классе Player есть GetDog()
+            const auto& pdog = player.GetDog();
 
             json::object dog_state;
 
@@ -319,19 +340,6 @@ std::string HandleAPI::ProcessPlayers(const std::string& token) {
     return json::serialize(list);
 }
 
-response::ResponseVariant HandleAPI::HandleMapId(const http::request<http::string_body>& req) {
-    auto parts = SplitTarget(req.target());
-    if (parts.size() != 4) {
-        return response::MakeError(http::status::bad_request, "invalidArgument"sv, "invalidArgument"sv, req);
-    }
-
-    const auto* map = app_.GetGame().FindMap(model::Map::Id{std::string(parts[3])});
-    if (!map) {
-        return response::MakeError(http::status::not_found, "mapNotFound", "map Not Found", req);
-    }
-    return response::MakeJSON(http::status::ok, SerializeMap(*map), req);
-}
-
 json::object HandleAPI::SerializeMap(const model::Map& map) {
     json::object map_obj;
     map_obj["id"] = *map.GetId();
@@ -352,6 +360,7 @@ json::object HandleAPI::SerializeMap(const model::Map& map) {
         offices.push_back(SerializeOffice(o));
     map_obj["offices"] = std::move(offices);
 
+    map_obj.emplace("lootTypes", SerializeLoots(app_.GetMapValue(map.GetName())));
     return map_obj;
 }
 
@@ -370,12 +379,34 @@ json::object HandleAPI::SerializeRoad(const model::Road& road) {
 
 json::object HandleAPI::SerializeBuilding(const model::Building& b) {
     const auto& bounds = b.GetBounds();
-    return {{"x", bounds.position.x}, {"y", bounds.position.y}, {"w", bounds.size.width}, {"h", bounds.size.height}};
+    return {{"x", bounds.position.x}, {"y", bounds.position.y}, {"w", bounds.size.width},
+        {"h", bounds.size.height}};
 }
 
 json::object HandleAPI::SerializeOffice(const model::Office& o) {
-    return {{"id", *o.GetId()}, {"x", o.GetPosition().x}, {"y", o.GetPosition().y}, {"offsetX", o.GetOffset().dx},
-        {"offsetY", o.GetOffset().dy}};
+    return {{"id", *o.GetId()}, {"x", o.GetPosition().x}, {"y", o.GetPosition().y},
+        {"offsetX", o.GetOffset().dx}, {"offsetY", o.GetOffset().dy}};
+}
+
+json::object HandleAPI::SerializeLoots(const std::vector<extra_data::LootType>& loot) {
+    json::array arr;
+    arr.reserve(loot.size());
+
+    for (const auto& lt : loot) {
+        json::object obj;
+        obj["name"] = lt.name;
+        obj["file"] = lt.file;
+        obj["type"] = lt.type;
+        obj["rotation"] = lt.rotation;
+        obj["color"] = lt.color;
+        obj["scale"] = lt.scale;
+
+        arr.push_back(std::move(obj));
+    }
+
+    json::object result;
+    result["lootTypes"] = std::move(arr);
+    return result;
 }
 
 }  // namespace api_handler

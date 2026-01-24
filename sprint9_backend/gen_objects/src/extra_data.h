@@ -7,26 +7,30 @@
 
 namespace extra_data {
 
-namespace json = boost::json;
+struct LootType {
+    std::string name;
+    std::string file;
+    std::string type;
+
+    int rotation = 0;  // degrees
+    std::string color = "#000000";
+    double scale = 1.0;
+};
 
 class ExtraData {
 public:
     // default constructs an empty object {}
     ExtraData() = default;
 
-    // Find a map by its "id" and return the serialized JSON for that map object.
-    // Returns std::nullopt if not found.
-    std::optional<json::value> GetMapValue(const std::string& name) const;
-
-    // Throws std::invalid_argument if 'info' cannot be parsed as a JSON object.
-    void AddMapInfo(std::string name, json::value info);
+    const std::vector<LootType>& GetMapValue(const std::string& name) const;
+    std::optional<unsigned long> GetNumberLootforMap(const std::string& name) const;
+    void AddMapLoot(std::string name, std::vector<LootType>);
 
     bool Contains(const std::string& name) const;
     std::size_t Size() const noexcept;
-    void Clear() noexcept;
 
 private:
-    std::unordered_map<std::string, json::value> extra_;
+    std::unordered_map<std::string, std::vector<LootType>> extra_;
 };
 
 }  // namespace extra_data
