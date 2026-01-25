@@ -54,6 +54,10 @@ add_executable(game_server_tests
     tests/loot_generator_tests.cpp
     
 )
+target_compile_options(game_server_tests PRIVATE
+    -Wall -Wextra -Wpedantic
+    #-ftime-report
+)
 #target_include_directories(game_server_tests PRIVATE CONAN_PKG::boost)
 target_link_libraries(game_server_tests PRIVATE 
     CONAN_PKG::catch2

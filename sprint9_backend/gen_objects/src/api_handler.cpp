@@ -2,8 +2,6 @@
 
 #include <boost/json/array.hpp>
 
-#include "extra_data.h"
-
 namespace api_handler {
 
 struct APItype {
@@ -390,22 +388,12 @@ json::object HandleAPI::SerializeOffice(const model::Office& o) {
         {"offsetX", o.GetOffset().dx}, {"offsetY", o.GetOffset().dy}};
 }
 
-json::array HandleAPI::SerializeLoots(const std::vector<extra_data::LootType>& loot) {
-    json::array arr;
-    arr.reserve(loot.size());
-
-    for (const auto& lt : loot) {
-        json::object obj;
-        obj["name"] = lt.name;
-        obj["file"] = lt.file;
-        obj["type"] = lt.type;
-        obj["rotation"] = lt.rotation;
-        obj["color"] = lt.color;
-        obj["scale"] = lt.scale;
-
-        arr.push_back(std::move(obj));
+json::array HandleAPI::SerializeLoots(const std::string& loot) {
+    try {
+        return json::array(json::parse(loot).as_array());
+    } catch (const json::system_error& e) {
+        throw std::runtime_error("ParseJsonText: JSON parse error: "s + e.what());
     }
-    return arr;
 }
 
 }  // namespace api_handler

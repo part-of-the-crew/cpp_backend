@@ -82,7 +82,7 @@ public:
 
     void MakeTick(std::uint64_t timeDelta);
 
-    const std::vector<extra_data::LootType>& GetMapValue(const std::string& name) const;
+    std::string GetMapValue(const std::string& name) const;
 
 private:
     model::Game game_;

@@ -58,7 +58,7 @@ private:
     json::object SerializeRoad(const model::Road& road);
     json::object SerializeBuilding(const model::Building& b);
     json::object SerializeOffice(const model::Office& o);
-    json::array SerializeLoots(const std::vector<extra_data::LootType>& loot);
+    json::array SerializeLoots(const std::string& loot);
 };
 
 }  // namespace api_handler

@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 namespace extra_data {
+namespace json = boost::json;
 
 struct LootType {
     std::string name;
@@ -24,15 +25,15 @@ public:
     // default constructs an empty object {}
     ExtraData() = default;
 
-    const std::vector<LootType>& GetMapValue(const std::string& name) const;
+    std::string GetMapValue(const std::string& name) const;
     std::optional<unsigned long> GetNumberLootforMap(const std::string& name) const;
-    void AddMapLoot(std::string name, std::vector<LootType>);
+    void AddMapLoot(std::string name, json::value);
 
     bool Contains(const std::string& name) const;
     std::size_t Size() const noexcept;
 
 private:
-    std::unordered_map<std::string, std::vector<LootType>> extra_;
+    std::unordered_map<std::string, json::value> extra_;
 };
 
 }  // namespace extra_data

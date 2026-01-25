@@ -6,6 +6,7 @@ namespace extra_data_ser {
 
 namespace json = boost::json;
 
+/*
 static extra_data::LootType ParseLootType(const json::value& v) {
     if (!v.is_object()) {
         throw std::invalid_argument("extra_data::LootType must be an object");
@@ -45,7 +46,7 @@ static std::vector<extra_data::LootType> ParseLootArray(const json::value& v) {
     }
     return res;
 }
-
+*/
 extra_data::ExtraData ExtractExtraData(const json::value& root) {
     if (!root.is_object()) {
         throw std::invalid_argument("Root JSON must be an object");
@@ -72,13 +73,12 @@ extra_data::ExtraData ExtractExtraData(const json::value& root) {
         // Safe extraction
         std::string id = json::value_to<std::string>(map_obj.at("id"));
 
-        std::vector<extra_data::LootType> loot;
+        // std::vector<extra_data::LootType> loot;
         if (auto it_loot = map_obj.find("lootTypes"); it_loot != map_obj.end()) {
             // Assuming ParseLootArray exists and works on json::value
-            loot = ParseLootArray(it_loot->value());
+            // loot = ParseLootArray(it_loot->value());
+            result.AddMapLoot(std::move(id), it_loot->value());
         }
-
-        result.AddMapLoot(std::move(id), std::move(loot));
     }
     return result;
 }

@@ -24,8 +24,13 @@ COPY CMakeLists.txt /app/
 
 RUN cd /app/build && \
     cmake -DCMAKE_BUILD_TYPE=Release .. && \
-    cmake --build . --parallel
+    cmake --build . --target game_server_tests --parallel
 
+RUN /app/build/bin/game_server_tests
+
+RUN cd /app/build && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    cmake --build . --target game_server --parallel 
 
 # Второй контейнер в том же докерфайле
 FROM ubuntu:22.04 AS run
