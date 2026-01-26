@@ -173,6 +173,8 @@ public:
     const std::deque<Dog>& GetDogs() const { return dogs_; }
     // Non-const getter for updating state
     std::deque<Dog>& GetDogs() { return dogs_; }
+    std::size_t GetNumberDogs() const { return dogs_.size(); }
+    Position GenerateRamdomPosition(void) const;
 
 private:
     const Map* map_;

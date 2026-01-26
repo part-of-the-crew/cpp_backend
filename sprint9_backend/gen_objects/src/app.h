@@ -1,5 +1,7 @@
 #pragma once
+#include <cstddef>
 #include <cstdint>
+// #include <iostream>
 #include <optional>
 #include <random>
 #include <string>
@@ -7,6 +9,7 @@
 #include <vector>
 
 #include "extra_data.h"
+#include "loot_generator.h"
 #include "model.h"
 
 namespace app {
@@ -36,6 +39,8 @@ public:
     // Find a player by token
     Player* FindPlayer(Token token);
 
+    std::size_t GetPlayerNumber() const;
+
     // Allow iterating over players
     auto begin() { return token_to_player_.begin(); }
     auto end() { return token_to_player_.end(); }
@@ -62,13 +67,18 @@ struct AuthRequest {
 
 struct LootInMap {
     unsigned long type;
-    model::Point pos;
+    model::Position pos;
 };
 
 class Application {
 public:
-    explicit Application(model::Game game, const extra_data::ExtraData& extra_data)
-        : game_(std::move(game)), extra_data_(std::move(extra_data)) {}
+    explicit Application(model::Game game, extra_data::ExtraData extra_data, loot_gen::LootGenerator loot_gen)
+        : game_(std::move(game)), extra_data_(std::move(extra_data)), loot_gen_(std::move(loot_gen)) {
+        // Initialize empty loot lists for all maps immediately
+        for (const auto& map : game_.GetMaps()) {
+            loots_.emplace(*map.GetId(), std::vector<LootInMap>{});
+        }
+    }
 
     const model::Game& GetGame() const { return game_; }
 
@@ -83,12 +93,17 @@ public:
     void MakeTick(std::uint64_t timeDelta);
 
     std::string GetMapValue(const std::string& name) const;
+    std::vector<LootInMap> GetLootInMap(const std::string& name) const;
+    void GenerateOneLoot(std::string idMap, model::GameSession* session, unsigned long numberInMap);
 
 private:
+    void GenerateLoot(std::chrono::milliseconds timeDelta);
+
     model::Game game_;
     PlayerTokens player_tokens_;
     extra_data::ExtraData extra_data_;
-    std::unordered_map<unsigned long, LootInMap> Loots;
+    std::unordered_map<std::string, std::vector<LootInMap>> loots_;
+    loot_gen::LootGenerator loot_gen_;
 };
 
 }  // namespace app

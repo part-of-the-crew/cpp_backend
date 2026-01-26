@@ -1,6 +1,7 @@
 #include "api_handler.h"
 
 #include <boost/json/array.hpp>
+#include <string>
 
 namespace api_handler {
 
@@ -243,6 +244,20 @@ response::ResponseVariant HandleAPI::HandleMapId(const http::request<http::strin
     return response::MakeJSON(http::status::ok, SerializeMap(*map), req);
 }
 
+json::object HandleAPI::SerializeLootInMap(const app::Player& player) const {
+    auto loots = app_.GetLootInMap(*(player.GetSession()->GetMap()->GetId()));
+    json::object result;
+    int n = 0;
+    for (const auto& loot : loots) {
+        json::object json_map;
+        json_map["type"] = loot.type;
+        json_map["pos"] = {loot.pos.x, loot.pos.y};
+        result[std::to_string(n)] = std::move(json_map);
+        n++;
+    }
+    return result;
+}
+
 std::optional<std::string> HandleAPI::ProcessState(const app::Token& token) {
     std::vector<app::Player> players;
     try {
@@ -252,6 +267,8 @@ std::optional<std::string> HandleAPI::ProcessState(const app::Token& token) {
     }
 
     json::object json_players;
+    json::object json_lostObjects;
+    json::object result;
     try {
         // 2. Итерируемся по игрокам
         for (const auto& player : players) {
@@ -271,11 +288,13 @@ std::optional<std::string> HandleAPI::ProcessState(const app::Token& token) {
 
             // Ключ — это ID игрока (строка)
             json_players[std::to_string(player.GetId())] = std::move(dog_state);
+
+            result["lostObjects"] = SerializeLootInMap(player);
         }
     } catch (const std::invalid_argument&) {
         return std::nullopt;
     }
-    json::object result;
+
     result["players"] = std::move(json_players);
 
     return json::serialize(result);

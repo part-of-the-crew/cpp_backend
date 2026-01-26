@@ -94,7 +94,7 @@ const Road& PickRamdomRoad(const model::Map::Roads& roads) {
     return roads[road_dist(gen)];
 }
 
-Position PickRamdomPosition(const model::Road& road) {
+static Position PickRamdomPosition(const model::Road& road) {
     Position start_pos;
     static thread_local std::random_device rd;
     static thread_local std::mt19937 gen(rd());
@@ -119,6 +119,14 @@ Position PickRamdomPosition(const model::Road& road) {
         start_pos.y = coord_dist(gen);
     }
     return start_pos;
+}
+
+Position GameSession::GenerateRamdomPosition(void) const {
+    const auto& roads = map_->GetRoads();
+    if (roads.empty()) {
+        throw std::runtime_error("Map has no roads to spawn a dog");
+    }
+    return PickRamdomPosition(PickRamdomRoad(roads));
 }
 
 Dog* GameSession::AddDog(std::string_view name) {

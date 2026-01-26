@@ -3,9 +3,13 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
+#include <iostream>
 #include <limits>
+#include <ranges>
 #include <sstream>
 #include <stdexcept>
+
+#include "model.h"
 
 namespace app {
 
@@ -36,6 +40,10 @@ Player* PlayerTokens::FindPlayer(Token token) {
         return &it->second;
     }
     return nullptr;
+}
+
+std::size_t PlayerTokens::GetPlayerNumber() const {
+    return token_to_player_.size();
 }
 
 std::optional<JoinGameResult> Application::JoinGame(const AuthRequest& authReq) {
@@ -221,9 +229,46 @@ void Application::MakeTick(std::uint64_t timeDelta) {
         dog.SetPosition(new_pos);
         dog.SetSpeed(speed);
     }
+    GenerateLoot(std::chrono::milliseconds{timeDelta});
 }
 std::string Application::GetMapValue(const std::string& name) const {
     return extra_data_.GetMapValue(name);
+}
+
+void Application::GenerateOneLoot(std::string idMap, model::GameSession* session, unsigned long numberInMap) {
+    static thread_local std::random_device rd;
+    static thread_local std::mt19937 gen(rd());
+
+    std::uniform_int_distribution<size_t> dist(0, numberInMap - 1);
+    loots_.at(idMap).emplace_back(dist(gen), session->GenerateRamdomPosition());
+}
+
+void Application::GenerateLoot(std::chrono::milliseconds timeDelta) {
+    for (auto const& map : game_.GetMaps()) {
+        const auto& id = map.GetId();
+        auto numberInMap = extra_data_.GetNumberLootforMap(*id);
+        if (!numberInMap.has_value())
+            continue;
+        auto game_session = game_.FindSession(id);
+        if (game_session == nullptr)
+            continue;
+        auto it = loots_.find(*id);
+        if (it == loots_.end())
+            continue;
+        auto n = loot_gen_.Generate(timeDelta, it->second.size(), game_session->GetNumberDogs());
+
+        for ([[maybe_unused]] auto i : std::views::iota(0u, n)) {
+            GenerateOneLoot(*id, game_session, *numberInMap);
+        }
+    }
+}
+
+std::vector<LootInMap> Application::GetLootInMap(const std::string& name) const {
+    // Attempt to find the loot list for the given map name
+    if (auto it = loots_.find(name); it != loots_.end()) {
+        return it->second;
+    }
+    return {};
 }
 
 }  // namespace app
