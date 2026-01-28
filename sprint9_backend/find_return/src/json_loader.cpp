@@ -100,7 +100,6 @@ loot_gen::LootGenerator LoadGenerator(const std::filesystem::path& json_path) {
         const auto& config_obj = value.as_object().at("lootGeneratorConfig").as_object();
 
         // Extract period and probability.
-        // We use to_number<double>() to handle both integer (5) and double (5.0) values.
         double period_seconds = config_obj.at("period").to_number<double>();
         double probability = config_obj.at("probability").to_number<double>();
 
@@ -111,12 +110,10 @@ loot_gen::LootGenerator LoadGenerator(const std::filesystem::path& json_path) {
         return loot_gen::LootGenerator{period_ms, probability};
 
     } catch (const std::exception& e) {
-        // Re-throw with more context if fields are missing or types are wrong
         throw std::runtime_error("JSON parsing error in lootGeneratorConfig: "s + e.what());
     }
 }
 
-// Parse JSON text into boost::json::value. Throws std::runtime_error on parse error.
 inline json::value ParseJsonText(const std::string& txt, const std::string& context) {
     try {
         return json::parse(txt);

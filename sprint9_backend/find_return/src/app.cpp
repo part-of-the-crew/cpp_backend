@@ -232,11 +232,16 @@ public:
     size_t ItemsCount() const override { return loots_.size() + offices_.size(); }
 
     collision_detector::Item GetItem(size_t idx) const override {
+        // Case 1: Loot (Already double/Position)
         if (idx < loots_.size()) {
-            return collision_detector::Item{loots_[idx].pos, 0.0};
+            return {.position = loots_[idx].pos, .width = 0.0};
         }
+
+        // Case 2: Office (Int/Point2D -> Needs conversion)
         const auto& office = offices_[idx - loots_.size()];
-        return {.position = office.GetPosition(), .width = 0.5};
+        const auto& pos = office.GetPosition();  // This is Point2D (int)
+
+        return {.position = {static_cast<double>(pos.x), static_cast<double>(pos.y)}, .width = 0.5};
     }
 
     size_t GatherersCount() const override { return moving_dogs_.size(); }
@@ -252,82 +257,73 @@ private:
     const std::vector<std::pair<model::Dog*, geom::Position>>& moving_dogs_;
 };
 
-void Application::MakeTick(std::uint64_t timeDelta) {
-    double dt = timeDelta / 1000.0;
+void Application::ProcessCollisions(
+    const std::string& map_id, DogMoves& dogs_moves, std::vector<LootInMap>& map_loots) {
+    const auto* map = game_.FindMap(model::Map::Id{map_id});
+    const auto& offices = map->GetOffices();
 
-    // 1. Move all dogs and record their movement
-    // We group dogs by map_id to process collisions per map
-    std::unordered_map<std::string, std::vector<std::pair<model::Dog*, geom::Position>>> map_moves;
+    GameItemGatherer provider(map_loots, offices, dogs_moves);
+    auto events = collision_detector::FindGatherEvents(provider);
+
+    std::vector<size_t> loots_to_remove;
+
+    for (const auto& event : events) {
+        auto& [dog, _] = dogs_moves[event.gatherer_id];
+
+        // --- Loot interaction ---
+        if (event.item_id < map_loots.size()) {
+            if (std::find(loots_to_remove.begin(), loots_to_remove.end(), event.item_id) !=
+                loots_to_remove.end()) {
+                continue;
+            }
+
+            if (dog->GetBag().size() < map->GetBagCapacity()) {
+                const auto& loot = map_loots[event.item_id];
+                dog->AddToBag({.id = static_cast<int>(event.item_id), .type = static_cast<int>(loot.type)});
+                loots_to_remove.push_back(event.item_id);
+            }
+        }
+        // --- Office interaction ---
+        else {
+            if (!dog->GetBag().empty()) {
+                int total_points = 0;
+                for (const auto& item : dog->GetBag()) {
+                    total_points += extra_data_.GetLootValue(map_id, item.type);
+                }
+                dog->AddScore(total_points);
+                dog->ClearBag();
+            }
+        }
+    }
+
+    // Remove collected loot
+    std::sort(loots_to_remove.rbegin(), loots_to_remove.rend());
+    for (auto idx : loots_to_remove) {
+        map_loots.erase(map_loots.begin() + idx);
+    }
+}
+
+void Application::MakeTick(std::uint64_t timeDelta) {
+    const double dt = timeDelta / 1000.0;
+
+    // 1. Move dogs & collect movements per map
+    std::unordered_map<std::string, DogMoves> map_moves;
 
     for (auto& [_, player] : player_tokens_) {
-        auto old_pos = player.GetDog().GetPosition();
-        UpdateDog(player, dt);  // Updates position inside the dog object
+        auto& dog = player.GetDog();
+        auto old_pos = dog.GetPosition();
 
-        // Store (Dog, OldPos) for the gatherer
-        map_moves[*player.GetSession()->GetMap()->GetId()].emplace_back(&player.GetDog(), old_pos);
+        UpdateDog(player, dt);
+
+        map_moves[*player.GetSession()->GetMap()->GetId()].emplace_back(&dog, old_pos);
     }
 
-    // 2. Process collisions for each map
+    // 2. Process collisions per map
     for (auto& [map_id, dogs_moves] : map_moves) {
-        auto& map_loots = loots_[map_id];  // Vector of LootInMap
-        const auto* map = game_.FindMap(model::Map::Id{map_id});
-        const auto& offices = map->GetOffices();
-
-        // Create the provider
-        GameItemGatherer provider(map_loots, offices, dogs_moves);
-
-        // Find events!
-        auto events = collision_detector::FindGatherEvents(provider);
-
-        // 3. Handle Events
-        // We must track removed loot indices to prevent double-pickup in the same tick
-        std::vector<size_t> loots_to_remove;
-
-        for (const auto& event : events) {
-            auto& [dog, _] = dogs_moves[event.gatherer_id];
-
-            // Case A: Interaction with Loot
-            if (event.item_id < map_loots.size()) {
-                // Check if this loot was already picked up in this loop
-                // (Linear search is fine for small N, use std::set/vector<bool> for large N)
-                if (std::find(loots_to_remove.begin(), loots_to_remove.end(), event.item_id) !=
-                    loots_to_remove.end()) {
-                    continue;
-                }
-
-                // Check Bag Capacity (assuming Map has GetBagCapacity)
-                if (dog->GetBag().size() < map->GetBagCapacity()) {
-                    const auto& loot = map_loots[event.item_id];
-                    // Add to dog's bag
-                    dog->AddToBag({.id = static_cast<int>(event.item_id),  // Or specific ID logic
-                        .type = static_cast<int>(loot.type)});
-
-                    // Mark for removal
-                    loots_to_remove.push_back(event.item_id);
-                }
-            }
-            // Case B: Interaction with Office (Base)
-            else {
-                // Item ID corresponds to an Office
-                // Logic: Drop all items
-                if (!dog->GetBag().empty()) {
-                    // Calculate Score here if needed
-                    // dog->AddScore(dog->GetBag().size() * 10);
-
-                    dog->ClearBag();  // You need to implement ClearBag in model::Dog
-                }
-            }
-        }
-
-        // 4. Remove collected loot from the map
-        // Remove indices in reverse order to keep remaining indices valid during removal
-        std::sort(loots_to_remove.rbegin(), loots_to_remove.rend());
-        for (auto idx : loots_to_remove) {
-            map_loots.erase(map_loots.begin() + idx);
-        }
+        ProcessCollisions(map_id, dogs_moves, loots_[map_id]);
     }
 
-    // 5. Generate new loot
+    // 3. Generate new loot
     GenerateLoot(std::chrono::milliseconds{timeDelta});
 }
 

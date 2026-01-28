@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/json.hpp>  // Dependency is contained here
+#include <boost/json.hpp>
 
 #include "extra_data.h"
 

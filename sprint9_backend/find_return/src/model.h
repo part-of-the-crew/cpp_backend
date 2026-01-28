@@ -131,13 +131,14 @@ public:
     geom::Position GetPosition() const { return position_; }
     geom::Speed GetSpeed() const { return speed_; }
     geom::Direction GetDirection() const { return direction_; }
-
+    int GetScore() const { return score_; }
     void SetPosition(geom::Position pos) { position_ = pos; }
     void SetSpeed(geom::Speed speed) { speed_ = speed; }
     void SetDirection(geom::Direction dir) { direction_ = dir; }
     const std::vector<BagItem>& GetBag() const { return bag_; }
     void AddToBag(BagItem item) { bag_.push_back(item); }
     void ClearBag() { bag_.clear(); }
+    void AddScore(int points) { score_ += points; }
 
 private:
     std::string name_;
@@ -147,6 +148,7 @@ private:
     geom::Speed speed_;
     geom::Direction direction_;
     std::vector<BagItem> bag_;
+    int score_{};
 };
 
 class GameSession {

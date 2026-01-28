@@ -32,9 +32,5 @@ struct Speed {
 // Направление
 enum class Direction { NORTH, SOUTH, WEST, EAST };
 
-Point2D ToPoint2D(const Position& p) {
-    return {p.x, p.y};
-}
-
 // -----------------------
 }  // namespace geom

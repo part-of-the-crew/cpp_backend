@@ -97,9 +97,13 @@ public:
     void GenerateOneLoot(std::string idMap, model::GameSession* session, unsigned long numberInMap);
 
 private:
+    using DogMove = std::pair<model::Dog*, geom::Position>;
+    using DogMoves = std::vector<DogMove>;
+
     void UpdateDog(Player& player, double dt);
     void GenerateLoot(std::chrono::milliseconds timeDelta);
-
+    void ProcessCollisions(
+        const std::string& map_id, DogMoves& dogs_moves, std::vector<LootInMap>& map_loots);
     model::Game game_;
     PlayerTokens player_tokens_;
     extra_data::ExtraData extra_data_;

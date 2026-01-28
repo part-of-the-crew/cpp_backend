@@ -280,6 +280,7 @@ std::optional<std::string> HandleAPI::ProcessState(const app::Token& token) {
             dog_state["speed"] = {pdog->GetSpeed().ux, pdog->GetSpeed().uy};
             dog_state["dir"] = DirectionToString(pdog->GetDirection());
             dog_state["bag"] = SerializePlayerBag(pdog);
+            dog_state["score"] = pdog->GetScore();
 
             json_players[std::to_string(player.GetId())] = std::move(dog_state);
             result["lostObjects"] = SerializeLootInMap(player);
