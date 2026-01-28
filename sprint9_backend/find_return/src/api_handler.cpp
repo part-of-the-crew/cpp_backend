@@ -31,29 +31,29 @@ std::vector<std::string_view> SplitTarget(std::string_view target) {
     }
     return result;
 }
-std::string DirectionToString(model::Direction dir) {
+std::string DirectionToString(geom::Direction dir) {
     switch (dir) {
-        case model::Direction::NORTH:
+        case geom::Direction::NORTH:
             return "U";
-        case model::Direction::SOUTH:
+        case geom::Direction::SOUTH:
             return "D";
-        case model::Direction::WEST:
+        case geom::Direction::WEST:
             return "L";
-        case model::Direction::EAST:
+        case geom::Direction::EAST:
             return "R";
         default:
             return "U";
     }
 }
-std::optional<model::Direction> StringToDirection(std::string_view dir_str) {
+std::optional<geom::Direction> StringToDirection(std::string_view dir_str) {
     if (dir_str == "U")
-        return model::Direction::NORTH;
+        return geom::Direction::NORTH;
     if (dir_str == "D")
-        return model::Direction::SOUTH;
+        return geom::Direction::SOUTH;
     if (dir_str == "L")
-        return model::Direction::WEST;
+        return geom::Direction::WEST;
     if (dir_str == "R")
-        return model::Direction::EAST;
+        return geom::Direction::EAST;
     return std::nullopt;  // Возвращаем пустое значение, если символ не распознан
 }
 
@@ -276,19 +276,12 @@ std::optional<std::string> HandleAPI::ProcessState(const app::Token& token) {
             const auto& pdog = player.GetDog();
 
             json::object dog_state;
-
-            // Позиция: [x, y]
             dog_state["pos"] = {pdog->GetPosition().x, pdog->GetPosition().y};
-
-            // Скорость: [vx, vy]
             dog_state["speed"] = {pdog->GetSpeed().ux, pdog->GetSpeed().uy};
-
-            // Направление: "U", "D", "L", "R"
             dog_state["dir"] = DirectionToString(pdog->GetDirection());
+            dog_state["bag"] = SerializePlayerBag(pdog);
 
-            // Ключ — это ID игрока (строка)
             json_players[std::to_string(player.GetId())] = std::move(dog_state);
-
             result["lostObjects"] = SerializeLootInMap(player);
         }
     } catch (const std::invalid_argument&) {
@@ -415,4 +408,19 @@ json::array HandleAPI::SerializeLoots(const std::string& loot) {
     }
 }
 
+json::array HandleAPI::SerializePlayerBag(const model::Dog* dog) const {
+    json::array bag_array;
+
+    // Assuming your Dog class has a method to access its inventory.
+    // Replace 'GetBag()' with the actual method name in your model.
+    for (const auto& item : dog->GetBag()) {
+        json::object item_obj;
+        item_obj["id"] = item.id;
+        item_obj["type"] = item.type;
+
+        bag_array.push_back(std::move(item_obj));
+    }
+
+    return bag_array;
+}
 }  // namespace api_handler

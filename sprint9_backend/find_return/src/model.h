@@ -6,41 +6,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include "geom.h"
 #include "tagged.h"
 
 namespace model {
-
-using Dimension = int;
-using Coord = Dimension;
-
-struct Point {
-    Coord x, y;
-};
-struct Size {
-    Dimension width, height;
-};
-struct Rectangle {
-    Point position;
-    Size size;
-};
-struct Offset {
-    Dimension dx, dy;
-};
-
-// Координаты в вещественных числах
-struct Position {
-    double x = 0.0;
-    double y = 0.0;
-};
-struct Speed {
-    double ux = 0.0;
-    double uy = 0.0;
-};
-
-// Направление
-enum class Direction { NORTH, SOUTH, WEST, EAST };
-
-// -----------------------
 
 class Road {
     struct HorizontalTag {
@@ -56,40 +25,42 @@ public:
     constexpr static double WIDTH = 0.8;
     constexpr static double HALF_WIDTH = WIDTH / 2.0;
 
-    Road(HorizontalTag, Point start, Coord end_x) noexcept : start_{start}, end_{end_x, start.y} {}
-    Road(VerticalTag, Point start, Coord end_y) noexcept : start_{start}, end_{start.x, end_y} {}
+    Road(HorizontalTag, geom::Point2D start, geom::Coord end_x) noexcept
+        : start_{start}, end_{end_x, start.y} {}
+    Road(VerticalTag, geom::Point2D start, geom::Coord end_y) noexcept
+        : start_{start}, end_{start.x, end_y} {}
     bool IsHorizontal() const noexcept { return start_.y == end_.y; }
     bool IsVertical() const noexcept { return start_.x == end_.x; }
-    Point GetStart() const noexcept { return start_; }
-    Point GetEnd() const noexcept { return end_; }
+    geom::Point2D GetStart() const noexcept { return start_; }
+    geom::Point2D GetEnd() const noexcept { return end_; }
 
 private:
-    Point start_;
-    Point end_;
+    geom::Point2D start_;
+    geom::Point2D end_;
 };
 
 class Building {
 public:
-    explicit Building(Rectangle bounds) noexcept : bounds_{bounds} {}
-    const Rectangle& GetBounds() const noexcept { return bounds_; }
+    explicit Building(geom::Rectangle bounds) noexcept : bounds_{bounds} {}
+    const geom::Rectangle& GetBounds() const noexcept { return bounds_; }
 
 private:
-    Rectangle bounds_;
+    geom::Rectangle bounds_;
 };
 
 class Office {
 public:
     using Id = util::Tagged<std::string, Office>;
-    Office(Id id, Point position, Offset offset) noexcept
+    Office(Id id, geom::Point2D position, geom::Offset offset) noexcept
         : id_{std::move(id)}, position_{position}, offset_{offset} {}
     const Id& GetId() const noexcept { return id_; }
-    Point GetPosition() const noexcept { return position_; }
-    Offset GetOffset() const noexcept { return offset_; }
+    geom::Point2D GetPosition() const noexcept { return position_; }
+    geom::Offset GetOffset() const noexcept { return offset_; }
 
 private:
     Id id_;
-    Point position_;
-    Offset offset_;
+    geom::Point2D position_;
+    geom::Offset offset_;
 };
 
 class Map {
@@ -110,57 +81,72 @@ public:
     void AddBuilding(const Building& building) { buildings_.emplace_back(building); }
     void AddOffice(Office office);
 
-    void SetDogSpeed(double speed) { dog_speed_ = speed; }
-    double GetDogSpeed() const { return dog_speed_; }
-
     // Fast lookup for roads
-    const Roads& GetRoadsByX(Coord x) const;
-    const Roads& GetRoadsByY(Coord y) const;
+    const Roads& GetRoadsByX(geom::Coord x) const;
+    const Roads& GetRoadsByY(geom::Coord y) const;
 
     void SetRandomSpawn(bool randomSpawn) { randomSpawn_ = randomSpawn; };
-
     bool GetRandomSpawn(void) const { return randomSpawn_; };
+
+    void SetBagCapacity(double bagCapacity) { bagCapacity_ = bagCapacity; };
+    void SetDogSpeed(double speed) { dogSpeed_ = speed; }
+    double GetBagCapacity() const { return bagCapacity_; }
+    double GetDogSpeed() const { return dogSpeed_; }
 
 private:
     using OfficeIdToIndex = std::unordered_map<Office::Id, size_t, util::TaggedHasher<Office::Id>>;
-    double dog_speed_ = 0.0;
     Id id_;
     std::string name_;
 
     Roads roads_;
     // Map coordinate -> List of roads on that line
-    std::unordered_map<Coord, Roads> roads_by_x_;
-    std::unordered_map<Coord, Roads> roads_by_y_;
+    std::unordered_map<geom::Coord, Roads> roads_by_x_;
+    std::unordered_map<geom::Coord, Roads> roads_by_y_;
 
     Buildings buildings_;
     OfficeIdToIndex warehouse_id_to_index_;
     Offices offices_;
     bool randomSpawn_;
+    double dogSpeed_{-1.0};
+    double bagCapacity_{-1.0};
+};
+
+struct BagItem {
+    int id;
+    int type;
 };
 
 class Dog {
 public:
-    Dog(std::string name, int id, Position pos)
-        : name_(std::move(name)), id_(id), position_(pos), speed_{0.0, 0.0}, direction_(Direction::NORTH) {}
+    Dog(std::string name, int id, geom::Position pos)
+        : name_(std::move(name))
+        , id_(id)
+        , position_(pos)
+        , speed_{0.0, 0.0}
+        , direction_(geom::Direction::NORTH) {}
 
     const std::string& GetName() const { return name_; }
     int GetId() const { return id_; }
 
-    Position GetPosition() const { return position_; }
-    Speed GetSpeed() const { return speed_; }
-    Direction GetDirection() const { return direction_; }
+    geom::Position GetPosition() const { return position_; }
+    geom::Speed GetSpeed() const { return speed_; }
+    geom::Direction GetDirection() const { return direction_; }
 
-    void SetPosition(Position pos) { position_ = pos; }
-    void SetSpeed(Speed speed) { speed_ = speed; }
-    void SetDirection(Direction dir) { direction_ = dir; }
+    void SetPosition(geom::Position pos) { position_ = pos; }
+    void SetSpeed(geom::Speed speed) { speed_ = speed; }
+    void SetDirection(geom::Direction dir) { direction_ = dir; }
+    const std::vector<BagItem>& GetBag() const { return bag_; }
+    void AddToBag(BagItem item) { bag_.push_back(item); }
+    void ClearBag() { bag_.clear(); }
 
 private:
     std::string name_;
     int id_;
 
-    Position position_;
-    Speed speed_;
-    Direction direction_;
+    geom::Position position_;
+    geom::Speed speed_;
+    geom::Direction direction_;
+    std::vector<BagItem> bag_;
 };
 
 class GameSession {
@@ -174,7 +160,7 @@ public:
     // Non-const getter for updating state
     std::deque<Dog>& GetDogs() { return dogs_; }
     std::size_t GetNumberDogs() const { return dogs_.size(); }
-    Position GenerateRamdomPosition(void) const;
+    geom::Position GenerateRamdomPosition(void) const;
 
 private:
     const Map* map_;
@@ -191,6 +177,7 @@ public:
     GameSession* FindSession(const Map::Id& id);
     void SetSpeed(double speed) { speed_ = speed; };
     void SetRandomSpawn(bool randomSpawn) { randomSpawn_ = randomSpawn; };
+    void SetDefaultBagCapacity(double defaultBagCapacity) { defaultBagCapacity_ = defaultBagCapacity; };
 
 private:
     using MapIdHasher = util::TaggedHasher<Map::Id>;
@@ -201,6 +188,7 @@ private:
     MapIdToIndex map_id_to_index_;
     MapIdToSession map_id_to_session_;
     double speed_{1.0};
+    double defaultBagCapacity_{3.0};
     bool randomSpawn_{};
 };
 

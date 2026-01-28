@@ -7,13 +7,14 @@
 #include <stdexcept>
 
 #include "extra_data_serialization.h"
+#include "geom.h"
 
 using namespace std::string_literals;
 
 namespace json_loader {
 namespace json = boost::json;
 
-auto coord = [](const boost::json::value& v) { return model::Coord(v.as_int64()); };
+auto coord = [](const boost::json::value& v) { return geom::Coord(v.as_int64()); };
 
 std::string ReadFile(const std::filesystem::path& json_path) {
     std::ifstream file(json_path);
@@ -26,7 +27,7 @@ std::string ReadFile(const std::filesystem::path& json_path) {
 }
 
 model::Road ParseRoad(const json::object& obj) {
-    model::Point start{coord(obj.at("x0"s).as_int64()), coord(obj.at("y0"s).as_int64())};
+    geom::Point2D start{coord(obj.at("x0"s).as_int64()), coord(obj.at("y0"s).as_int64())};
     if (const auto it = obj.find("x1"s); it != obj.cend()) {
         return {model::Road::HORIZONTAL, start, static_cast<int>(it->value().as_int64())};
     }
@@ -34,14 +35,14 @@ model::Road ParseRoad(const json::object& obj) {
 }
 
 model::Building ParseBuilding(const json::object& obj) {
-    return model::Building{model::Rectangle{.position = {coord(obj.at("x"s)), coord(obj.at("y"s))},
+    return model::Building{geom::Rectangle{.position = {coord(obj.at("x"s)), coord(obj.at("y"s))},
         .size = {coord(obj.at("w"s)), coord(obj.at("h"s))}}};
 }
 
 model::Office ParseOffice(const json::object& obj) {
     return model::Office{model::Office::Id{std::string(obj.at("id"s).as_string())},
-        model::Point{coord(obj.at("x"s)), coord(obj.at("y"s))},
-        model::Offset{coord(obj.at("offsetX"s)), coord(obj.at("offsetY"s))}};
+        geom::Point2D{coord(obj.at("x"s)), coord(obj.at("y"s))},
+        geom::Offset{coord(obj.at("offsetX"s)), coord(obj.at("offsetY"s))}};
 }
 
 model::Map ParseMap(const json::value& map_json) {
@@ -51,7 +52,8 @@ model::Map ParseMap(const json::value& map_json) {
 
     if (const auto it = desc.find("dogSpeed"s); it != desc.cend())
         map.SetDogSpeed(it->value().as_double());
-
+    if (const auto it = desc.find("bagCapacity"s); it != desc.cend())
+        map.SetDogSpeed(it->value().as_double());
     for (const auto& r : desc.at("roads"s).as_array()) {
         map.AddRoad(ParseRoad(r.as_object()));
     }
@@ -78,6 +80,9 @@ model::Game LoadGame(const std::filesystem::path& json_path) {
 
     if (root.contains("defaultDogSpeed"s)) {
         game.SetSpeed(root.at("defaultDogSpeed"s).as_double());
+    }
+    if (root.contains("defaultBagCapacity"s)) {
+        game.SetDefaultBagCapacity(root.at("defaultBagCapacity"s).as_double());
     }
     for (const auto& map_json : it->value().as_array()) {
         game.AddMap(ParseMap(map_json));

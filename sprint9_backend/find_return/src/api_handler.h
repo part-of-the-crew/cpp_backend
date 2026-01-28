@@ -60,6 +60,7 @@ private:
     json::object SerializeOffice(const model::Office& o);
     json::array SerializeLoots(const std::string& loot);
     json::object SerializeLootInMap(const app::Player& player) const;
+    json::array SerializePlayerBag(const model::Dog* dog) const;
 };
 
 }  // namespace api_handler

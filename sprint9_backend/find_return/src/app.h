@@ -67,7 +67,7 @@ struct AuthRequest {
 
 struct LootInMap {
     unsigned long type;
-    model::Position pos;
+    geom::Position pos;
 };
 
 class Application {
@@ -88,7 +88,7 @@ public:
 
     const model::Map* FindMap(const model::Map::Id& id) const { return game_.FindMap(id); }
 
-    bool SetPlayerAction(const Token& token, std::optional<model::Direction> dir);
+    bool SetPlayerAction(const Token& token, std::optional<geom::Direction> dir);
 
     void MakeTick(std::uint64_t timeDelta);
 
@@ -97,6 +97,7 @@ public:
     void GenerateOneLoot(std::string idMap, model::GameSession* session, unsigned long numberInMap);
 
 private:
+    void UpdateDog(Player& player, double dt);
     void GenerateLoot(std::chrono::milliseconds timeDelta);
 
     model::Game game_;

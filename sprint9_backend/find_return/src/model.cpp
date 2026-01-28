@@ -33,13 +33,13 @@ void Map::AddRoad(const Road& road) {
     }
 }
 
-const Map::Roads& Map::GetRoadsByX(Coord x) const {
+const Map::Roads& Map::GetRoadsByX(geom::Coord x) const {
     static const Roads empty;
     auto it = roads_by_x_.find(x);
     return it != roads_by_x_.end() ? it->second : empty;
 }
 
-const Map::Roads& Map::GetRoadsByY(Coord y) const {
+const Map::Roads& Map::GetRoadsByY(geom::Coord y) const {
     static const Roads empty;
     auto it = roads_by_y_.find(y);
     return it != roads_by_y_.end() ? it->second : empty;
@@ -51,8 +51,11 @@ void Game::AddMap(Map map) {
         throw std::invalid_argument("Map with id "s + *map.GetId() + " already exists"s);
     } else {
         try {
-            if (map.GetDogSpeed() == 0.0) {
+            if (map.GetDogSpeed() < 0.0) {
                 map.SetDogSpeed(speed_);
+            }
+            if (map.GetBagCapacity() < 0.0) {
+                map.SetDogSpeed(defaultBagCapacity_);
             }
             map.SetRandomSpawn(randomSpawn_);
             maps_.emplace_back(std::move(map));
@@ -94,8 +97,8 @@ const Road& PickRamdomRoad(const model::Map::Roads& roads) {
     return roads[road_dist(gen)];
 }
 
-static Position PickRamdomPosition(const model::Road& road) {
-    Position start_pos;
+static geom::Position PickRamdomPosition(const model::Road& road) {
+    geom::Position start_pos;
     static thread_local std::random_device rd;
     static thread_local std::mt19937 gen(rd());
 
@@ -121,7 +124,7 @@ static Position PickRamdomPosition(const model::Road& road) {
     return start_pos;
 }
 
-Position GameSession::GenerateRamdomPosition(void) const {
+geom::Position GameSession::GenerateRamdomPosition(void) const {
     const auto& roads = map_->GetRoads();
     if (roads.empty()) {
         throw std::runtime_error("Map has no roads to spawn a dog");
@@ -135,7 +138,7 @@ Dog* GameSession::AddDog(std::string_view name) {
         throw std::runtime_error("Map has no roads to spawn a dog");
     }
 
-    Position start_pos;
+    geom::Position start_pos;
     if (map_->GetRandomSpawn()) {
         start_pos = PickRamdomPosition(PickRamdomRoad(roads));
     } else {

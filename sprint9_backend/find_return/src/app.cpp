@@ -9,6 +9,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "collision_detector.h"
+
 namespace app {
 
 constexpr double eps = std::numeric_limits<double>::epsilon();
@@ -79,7 +81,7 @@ std::vector<Player> Application::GetPlayers(const Token& token) {
     return result;
 }
 
-bool Application::SetPlayerAction(const Token& token, std::optional<model::Direction> dir) {
+bool Application::SetPlayerAction(const Token& token, std::optional<geom::Direction> dir) {
     Player* player = player_tokens_.FindPlayer(token);
     if (!player) {
         return false;
@@ -94,16 +96,16 @@ bool Application::SetPlayerAction(const Token& token, std::optional<model::Direc
     } else {
         dog.SetDirection(*dir);
         switch (*dir) {
-            case model::Direction::NORTH:
+            case geom::Direction::NORTH:
                 dog.SetSpeed({0.0, -speed});
                 break;
-            case model::Direction::SOUTH:
+            case geom::Direction::SOUTH:
                 dog.SetSpeed({0.0, speed});
                 break;
-            case model::Direction::WEST:
+            case geom::Direction::WEST:
                 dog.SetSpeed({-speed, 0.0});
                 break;
-            case model::Direction::EAST:
+            case geom::Direction::EAST:
                 dog.SetSpeed({speed, 0.0});
                 break;
         }
@@ -112,9 +114,9 @@ bool Application::SetPlayerAction(const Token& token, std::optional<model::Direc
 }
 
 // Helper: check boundaries
-model::Position CalculateNewPosition(
-    const model::Map* map, model::Position current_pos, model::Speed speed, double dt) {
-    model::Position next_pos;
+geom::Position CalculateNewPosition(
+    const model::Map* map, geom::Position current_pos, geom::Speed speed, double dt) {
+    geom::Position next_pos;
     next_pos.x = current_pos.x + speed.ux * dt;
     next_pos.y = current_pos.y + speed.uy * dt;
 
@@ -193,42 +195,142 @@ model::Position CalculateNewPosition(
     return next_pos;
 }
 
+void Application::UpdateDog(Player& player, double dt) {
+    auto& dog = player.GetDog();
+    auto speed = dog.GetSpeed();
+    if (speed.ux == 0.0 && speed.uy == 0.0) {
+        return;
+    }
+    auto pos = dog.GetPosition();
+    const auto* map = player.GetSession()->GetMap();
+    auto new_pos = CalculateNewPosition(map, pos, speed, dt);
+    // Calculate expected distance vs actual distance to detect collisions
+    double expected_dx = speed.ux * dt;
+    double actual_dx = new_pos.x - pos.x;
+    double expected_dy = speed.uy * dt;
+    double actual_dy = new_pos.y - pos.y;
+    // If the actual move is smaller than expected (blockage), reset velocity
+    // We use a small epsilon for float comparison errors
+    if (std::abs(actual_dx - expected_dx) > eps) {
+        speed.ux = 0.0;
+    }
+    if (std::abs(actual_dy - expected_dy) > eps) {
+        speed.uy = 0.0;
+    }
+    dog.SetPosition(new_pos);
+    dog.SetSpeed(speed);
+}
+
+// PASTE HERE, inside namespace app so it can see LootInMap directly
+class GameItemGatherer : public collision_detector::ItemGathererProvider {
+public:
+    // Note: removed 'app::' prefix since we are inside namespace app
+    GameItemGatherer(const std::vector<LootInMap>& loots, const std::vector<model::Office>& offices,
+        const std::vector<std::pair<model::Dog*, geom::Position>>& moving_dogs)
+        : loots_(loots), offices_(offices), moving_dogs_(moving_dogs) {}
+
+    size_t ItemsCount() const override { return loots_.size() + offices_.size(); }
+
+    collision_detector::Item GetItem(size_t idx) const override {
+        if (idx < loots_.size()) {
+            return collision_detector::Item{loots_[idx].pos, 0.0};
+        }
+        const auto& office = offices_[idx - loots_.size()];
+        return {.position = office.GetPosition(), .width = 0.5};
+    }
+
+    size_t GatherersCount() const override { return moving_dogs_.size(); }
+
+    collision_detector::Gatherer GetGatherer(size_t idx) const override {
+        const auto& [dog, start_pos] = moving_dogs_[idx];
+        return collision_detector::Gatherer{start_pos, dog->GetPosition(), 0.6};
+    }
+
+private:
+    const std::vector<LootInMap>& loots_;
+    const std::vector<model::Office>& offices_;
+    const std::vector<std::pair<model::Dog*, geom::Position>>& moving_dogs_;
+};
+
 void Application::MakeTick(std::uint64_t timeDelta) {
     double dt = timeDelta / 1000.0;
 
-    for (auto& [token, player] : player_tokens_) {
-        auto& dog = player.GetDog();
-        auto speed = dog.GetSpeed();
-        if (speed.ux == 0.0 && speed.uy == 0.0) {
-            continue;
-        }
+    // 1. Move all dogs and record their movement
+    // We group dogs by map_id to process collisions per map
+    std::unordered_map<std::string, std::vector<std::pair<model::Dog*, geom::Position>>> map_moves;
 
-        auto pos = dog.GetPosition();
-        const auto* map = player.GetSession()->GetMap();
+    for (auto& [_, player] : player_tokens_) {
+        auto old_pos = player.GetDog().GetPosition();
+        UpdateDog(player, dt);  // Updates position inside the dog object
 
-        auto new_pos = CalculateNewPosition(map, pos, speed, dt);
-
-        // Calculate expected distance vs actual distance to detect collisions
-        double expected_dx = speed.ux * dt;
-        double actual_dx = new_pos.x - pos.x;
-
-        double expected_dy = speed.uy * dt;
-        double actual_dy = new_pos.y - pos.y;
-
-        // If the actual move is smaller than expected (blockage), reset velocity
-        // We use a small epsilon for float comparison errors
-        if (std::abs(actual_dx - expected_dx) > eps) {
-            speed.ux = 0.0;
-        }
-        if (std::abs(actual_dy - expected_dy) > eps) {
-            speed.uy = 0.0;
-        }
-
-        dog.SetPosition(new_pos);
-        dog.SetSpeed(speed);
+        // Store (Dog, OldPos) for the gatherer
+        map_moves[*player.GetSession()->GetMap()->GetId()].emplace_back(&player.GetDog(), old_pos);
     }
+
+    // 2. Process collisions for each map
+    for (auto& [map_id, dogs_moves] : map_moves) {
+        auto& map_loots = loots_[map_id];  // Vector of LootInMap
+        const auto* map = game_.FindMap(model::Map::Id{map_id});
+        const auto& offices = map->GetOffices();
+
+        // Create the provider
+        GameItemGatherer provider(map_loots, offices, dogs_moves);
+
+        // Find events!
+        auto events = collision_detector::FindGatherEvents(provider);
+
+        // 3. Handle Events
+        // We must track removed loot indices to prevent double-pickup in the same tick
+        std::vector<size_t> loots_to_remove;
+
+        for (const auto& event : events) {
+            auto& [dog, _] = dogs_moves[event.gatherer_id];
+
+            // Case A: Interaction with Loot
+            if (event.item_id < map_loots.size()) {
+                // Check if this loot was already picked up in this loop
+                // (Linear search is fine for small N, use std::set/vector<bool> for large N)
+                if (std::find(loots_to_remove.begin(), loots_to_remove.end(), event.item_id) !=
+                    loots_to_remove.end()) {
+                    continue;
+                }
+
+                // Check Bag Capacity (assuming Map has GetBagCapacity)
+                if (dog->GetBag().size() < map->GetBagCapacity()) {
+                    const auto& loot = map_loots[event.item_id];
+                    // Add to dog's bag
+                    dog->AddToBag({.id = static_cast<int>(event.item_id),  // Or specific ID logic
+                        .type = static_cast<int>(loot.type)});
+
+                    // Mark for removal
+                    loots_to_remove.push_back(event.item_id);
+                }
+            }
+            // Case B: Interaction with Office (Base)
+            else {
+                // Item ID corresponds to an Office
+                // Logic: Drop all items
+                if (!dog->GetBag().empty()) {
+                    // Calculate Score here if needed
+                    // dog->AddScore(dog->GetBag().size() * 10);
+
+                    dog->ClearBag();  // You need to implement ClearBag in model::Dog
+                }
+            }
+        }
+
+        // 4. Remove collected loot from the map
+        // Remove indices in reverse order to keep remaining indices valid during removal
+        std::sort(loots_to_remove.rbegin(), loots_to_remove.rend());
+        for (auto idx : loots_to_remove) {
+            map_loots.erase(map_loots.begin() + idx);
+        }
+    }
+
+    // 5. Generate new loot
     GenerateLoot(std::chrono::milliseconds{timeDelta});
 }
+
 std::string Application::GetMapValue(const std::string& name) const {
     return extra_data_.GetMapValue(name);
 }

@@ -21,6 +21,7 @@ add_library(MyModel STATIC
     src/extra_data.cpp
     src/extra_data_serialization.cpp
     src/json_loader.cpp
+    src/collision_detector.cpp
 )
 
 target_include_directories(MyModel PUBLIC
@@ -59,8 +60,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
 enable_testing()
 
 add_executable(game_server_tests
+    tests/test_main.cpp
     tests/extra_data_tests.cpp
     tests/loot_generator_tests.cpp
+    tests/collision-detector-tests.cpp
 )
 
 target_link_libraries(game_server_tests PRIVATE 
