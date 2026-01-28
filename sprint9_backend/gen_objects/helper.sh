@@ -16,7 +16,7 @@ configure() {
     conan install ..  --build=missing -s compiler.libcxx=libstdc++11 -s build_type=Debug
     cd ..
     echo "⚙️  Configuring CMake..."
-    cmake -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B "$BUILD_DIR"  2>&1
+    cmake -S . -DCMAKE_BUILD_TYPE=Debug -B "$BUILD_DIR"  2>&1
 }
 
 build() {
