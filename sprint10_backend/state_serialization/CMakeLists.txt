@@ -19,7 +19,7 @@ add_library(MyModel STATIC
     src/model.cpp
     src/loot_generator.cpp
     src/extra_data.cpp
-    src/extra_data_serialization.cpp
+    src/extra_data_json.cpp
     src/json_loader.cpp
     src/collision_detector.cpp
 )
@@ -42,6 +42,8 @@ add_executable(game_server
     src/my_logger.cpp
     src/options.cpp
     src/ticker.cpp
+    src/serializing_listener.cpp
+    src/serialization.cpp
 )
 
 target_link_libraries(game_server PRIVATE 

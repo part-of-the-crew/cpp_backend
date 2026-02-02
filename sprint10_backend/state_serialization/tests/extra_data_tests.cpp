@@ -5,7 +5,7 @@
 #include <fstream>
 
 #include "extra_data.h"
-#include "extra_data_serialization.h"
+#include "extra_data_json.h"
 #include "json_loader.h"
 
 using namespace std::literals;
@@ -51,12 +51,12 @@ SCENARIO("Extra data storing lifecycle", "[ExtraData]") {
 TEST_CASE("Parsing ExtraData logic") {
     SECTION("Throws if root is not object") {
         auto json = boost::json::parse("[]");  // Array, not object
-        REQUIRE_THROWS_AS(extra_data_ser::ExtractExtraData(json), std::invalid_argument);
+        REQUIRE_THROWS_AS(extra_data_json::ExtractExtraData(json), std::invalid_argument);
     }
 
     SECTION("Returns empty if 'maps' missing") {
         auto json = boost::json::parse("{}");
-        auto result = extra_data_ser::ExtractExtraData(json);
+        auto result = extra_data_json::ExtractExtraData(json);
         REQUIRE(result.Size() == 0);
     }
 
@@ -73,7 +73,7 @@ TEST_CASE("Parsing ExtraData logic") {
             {"id":"map2","name":"B","lootTypes":[{"name":"wallet"}]}
         ]})");
         auto ref = boost::json::serialize(boost::json::parse(R"([])"));
-        auto result = extra_data_ser::ExtractExtraData(json);
+        auto result = extra_data_json::ExtractExtraData(json);
         REQUIRE(result.Contains("map2"));
         REQUIRE(result.GetMapValue("map2") == ref);
         REQUIRE(result.Contains("map1"));

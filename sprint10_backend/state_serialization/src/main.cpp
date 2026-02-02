@@ -52,6 +52,8 @@ int main(int argc, const char* argv[]) {
         app::Application application{std::move(game), json_loader::LoadExtra(args->pathToConfig),
             json_loader::LoadGenerator(args->pathToConfig), &listener};
 
+        listener.SetApplication(&application);
+
         // 2. Инициализируем io_context
         const unsigned num_threads = std::thread::hardware_concurrency();
         net::io_context ioc(num_threads);
@@ -101,6 +103,8 @@ int main(int argc, const char* argv[]) {
         logger::LogServerLaunch(address.to_string(), port);
         // 6. Запускаем обработку асинхронных операций
         RunWorkers(num_threads, [&ioc] { ioc.run(); });
+        listener.SaveStateInFile();
+        return EXIT_SUCCESS;
     } catch (const std::exception& ex) {
         logger::LogServerStop(EXIT_FAILURE, ex.what());
         return EXIT_FAILURE;

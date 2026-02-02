@@ -76,11 +76,17 @@ struct LootInMap {
 
 class Application {
 public:
+    Application(const Application&) = delete;
+    Application(Application&&) = delete;
+    Application& operator=(const Application&) = delete;
+    Application& operator=(Application&&) = delete;
+
     explicit Application(model::Game game, extra_data::ExtraData extra_data, loot_gen::LootGenerator loot_gen,
         ser_listener::ApplicationListener* listener)
         : game_(std::move(game))
         , extra_data_(std::move(extra_data))
-        , loot_gen_(std::move(loot_gen), listener_(listener)) {
+        , loot_gen_(std::move(loot_gen))
+        , listener_(listener) {
         // Initialize empty loot lists for all maps immediately
         for (const auto& map : game_.GetMaps()) {
             loots_.emplace(*map.GetId(), std::vector<LootInMap>{});

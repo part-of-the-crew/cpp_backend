@@ -120,12 +120,14 @@ struct BagItem {
 
 class Dog {
 public:
-    Dog(std::string name, int id, geom::Position pos)
+    using BagContent = std::vector<BagItem>;
+    Dog(std::string name, size_t id, geom::Position pos, size_t bagCapacity)
         : name_(std::move(name))
         , id_(id)
         , position_(pos)
         , speed_{0.0, 0.0}
-        , direction_(geom::Direction::NORTH) {}
+        , direction_(geom::Direction::NORTH)
+        , bagCapacity_(bagCapacity) {}
 
     const std::string& GetName() const { return name_; }
     int GetId() const { return id_; }
@@ -138,19 +140,27 @@ public:
     void SetSpeed(geom::Speed speed) { speed_ = speed; }
     void SetDirection(geom::Direction dir) { direction_ = dir; }
     const std::vector<BagItem>& GetBag() const { return bag_; }
-    void AddToBag(BagItem item) { bag_.push_back(item); }
+    bool AddToBag(BagItem item) {
+        bag_.push_back(item);
+        return true;
+    }
     void ClearBag() { bag_.clear(); }
     void AddScore(int points) { score_ += points; }
+    int GetBagCapacity() const { return bagCapacity_; }
+    void SetBagCapacity(int bagCapacity) { bagCapacity_ = bagCapacity; }
+
+    const BagContent& GetBagContent() const noexcept { return bag_; }
 
 private:
     std::string name_;
-    int id_;
+    size_t id_;
 
     geom::Position position_;
     geom::Speed speed_;
     geom::Direction direction_;
     std::vector<BagItem> bag_;
-    int score_{};
+    size_t score_{};
+    size_t bagCapacity_{};
 };
 
 class GameSession {

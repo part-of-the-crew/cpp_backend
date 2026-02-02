@@ -6,7 +6,7 @@
 #include <fstream>
 #include <stdexcept>
 
-#include "extra_data_serialization.h"
+#include "extra_data_json.h"
 #include "geom.h"
 
 using namespace std::string_literals;
@@ -135,7 +135,7 @@ extra_data::ExtraData LoadExtra(const std::filesystem::path& json_path) {
     const json::value root = ParseJsonText(text, json_path.string());
 
     // 3. Logic Layer (Your new function)
-    return extra_data_ser::ExtractExtraData(root);
+    return extra_data_json::ExtractExtraData(root);
 }
 
 }  // namespace json_loader

@@ -1,8 +1,8 @@
-#include "extra_data_serialization.h"
+#include "extra_data_json.h"
 
 #include <boost/json.hpp>
 
-namespace extra_data_ser {
+namespace extra_data_json {
 
 namespace json = boost::json;
 
@@ -37,4 +37,4 @@ extra_data::ExtraData ExtractExtraData(const json::value& root) {
     }
     return result;
 }
-}  // namespace extra_data_ser
+}  // namespace extra_data_json
