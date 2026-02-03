@@ -66,6 +66,7 @@ add_executable(game_server_tests
     tests/extra_data_tests.cpp
     tests/loot_generator_tests.cpp
     tests/collision-detector-tests.cpp
+    #tests/state-serialization-tests.cpp
 )
 
 target_link_libraries(game_server_tests PRIVATE 

@@ -13,6 +13,10 @@
 #include "model.h"
 #include "serializing_listener.h"
 
+namespace serialization {
+class ApplicationRepr;
+}
+
 namespace app {
 
 using Token = std::string;
@@ -39,7 +43,7 @@ class PlayerTokens {
 public:
     // Generate a new token and store the player
     Token AddPlayer(Player player);
-
+    void AddTokenUnsafe(const Token& token, Player player);
     // Find a player by token
     Player* FindPlayer(Token token);
 
@@ -48,6 +52,8 @@ public:
     // Allow iterating over players
     auto begin() { return token_to_player_.begin(); }
     auto end() { return token_to_player_.end(); }
+    auto begin() const { return token_to_player_.begin(); }
+    auto end() const { return token_to_player_.end(); }
 
 private:
     std::unordered_map<Token, Player> token_to_player_;
@@ -75,6 +81,8 @@ struct LootInMap {
 };
 
 class Application {
+    friend class serialization::ApplicationRepr;
+
 public:
     Application(const Application&) = delete;
     Application(Application&&) = delete;

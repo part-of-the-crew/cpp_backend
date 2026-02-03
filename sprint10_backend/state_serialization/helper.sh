@@ -4,7 +4,7 @@
 # --- Configuration ---
 BUILD_DIR="build"
 EXECUTABLE="$BUILD_DIR/bin/game_server"  # change this to your target name
-ARGS="-c data/config.json -w static"
+ARGS="-c data/config.json -w static -s Recovery.txt"
 : "${TEST_EXECUTABLE:=${EXECUTABLE}_tests}"
 
 # --- Helper functions ---

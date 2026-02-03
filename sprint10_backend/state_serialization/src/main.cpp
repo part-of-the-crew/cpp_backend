@@ -53,6 +53,7 @@ int main(int argc, const char* argv[]) {
             json_loader::LoadGenerator(args->pathToConfig), &listener};
 
         listener.SetApplication(&application);
+        listener.TryLoadStateFromFile();
 
         // 2. Инициализируем io_context
         const unsigned num_threads = std::thread::hardware_concurrency();
@@ -103,7 +104,10 @@ int main(int argc, const char* argv[]) {
         logger::LogServerLaunch(address.to_string(), port);
         // 6. Запускаем обработку асинхронных операций
         RunWorkers(num_threads, [&ioc] { ioc.run(); });
-        listener.SaveStateInFile();
+        if (listener.SaveStateInFile())
+            logger::LogServerStop(0, "Saved successfully to "s +
+                                         std::filesystem::weakly_canonical(args->pathToStateFile).string());
+
         return EXIT_SUCCESS;
     } catch (const std::exception& ex) {
         logger::LogServerStop(EXIT_FAILURE, ex.what());

@@ -30,8 +30,12 @@ Token PlayerTokens::AddPlayer(Player player) {
         token = GenerateToken();
     } while (token_to_player_.contains(token));
 
-    token_to_player_.emplace(token, std::move(player));
+    AddTokenUnsafe(token, std::move(player));
     return token;
+}
+
+void PlayerTokens::AddTokenUnsafe(const Token& token, Player player) {
+    token_to_player_.emplace(token, std::move(player));
 }
 
 Player* PlayerTokens::FindPlayer(Token token) {
@@ -56,7 +60,7 @@ std::optional<JoinGameResult> Application::JoinGame(const AuthRequest& authReq) 
         return std::nullopt;
     }
 
-    auto* dog = session->AddDog(authReq.playerName);
+    auto* dog = session->AddDogByName(authReq.playerName);
 
     Player player{session, dog};
     Token token = player_tokens_.AddPlayer(player);

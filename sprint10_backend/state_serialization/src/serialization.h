@@ -1,9 +1,10 @@
 #pragma once
-#include <cstddef>
-// #include <iostream>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/split_free.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/unordered_map.hpp>
+#include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
-#include <string>
-#include <vector>
 
 #include "app.h"
 #include "geom.h"
@@ -116,7 +117,7 @@ private:
     size_t score_ = 0;
     model::Dog::BagContent bag_content_;
 };
-
+/*
 class GameSessionRepr {
 public:
     GameSessionRepr() = default;
@@ -147,6 +148,7 @@ private:
     const model::Map* map_{nullptr};
 };
 
+
 class GameRepr {
 public:
     GameRepr() = default;
@@ -168,6 +170,76 @@ public:
 
 private:
     std::vector<DogRepr> dogs_;
+};
+
+class ApplicationRepr {
+public:
+    ApplicationRepr() = default;
+
+    explicit ApplicationRepr(const model::Game& game) : maps_(game.GetMaps()) {}
+
+    void Restore(app::Application& app) const {
+        model::Game game;
+        for (const auto& dog : dogs_) {
+            game.AddDog(dog.Restore().GetName());
+        }
+        return game;
+    }
+
+    template <typename Archive>
+    void serialize(Archive& ar, [[maybe_unused]] const unsigned version) {
+        ar & dogs_;
+    }
+
+private:
+    std::vector<DogRepr> dogs_;
+};
+*/
+class LootRepr {
+public:
+    LootRepr() = default;
+    explicit LootRepr(const app::LootInMap& loot) : type_(loot.type), pos_(loot.pos) {}
+
+    [[nodiscard]] app::LootInMap Restore() const { return {type_, pos_}; }
+
+    template <typename Archive>
+    void serialize(Archive& ar, [[maybe_unused]] const unsigned version) {
+        ar & type_ & pos_;
+    }
+
+private:
+    unsigned long type_ = 0;
+    geom::Position pos_;
+};
+
+// 3. Application Representation (The Root Container)
+class ApplicationRepr {
+public:
+    ApplicationRepr() = default;
+
+    // Capture the state from the Application
+    explicit ApplicationRepr(const app::Application& app);
+
+    // Restore state INTO an existing Application (which already has Maps loaded)
+    void Restore(app::Application& app) const;
+
+    template <typename Archive>
+    void serialize(Archive& ar, [[maybe_unused]] const unsigned version) {
+        ar & dog_reprs_;
+        ar & player_reprs_;
+        ar & loot_reprs_;
+    }
+
+private:
+    // Mappings needed to reconstruct the state
+    // MapID -> List of Dogs (to repopulate GameSessions)
+    std::unordered_map<std::string, std::vector<DogRepr>> dog_reprs_;
+
+    // Token -> Pair<MapID, DogID> (to reconnect Players to their Dogs)
+    std::unordered_map<std::string, std::pair<std::string, int>> player_reprs_;
+
+    // MapID -> List of Loot
+    std::unordered_map<std::string, std::vector<LootRepr>> loot_reprs_;
 };
 
 }  // namespace serialization

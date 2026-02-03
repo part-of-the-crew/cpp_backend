@@ -101,12 +101,14 @@ geom::Position Map::GetRandomPositionOnRoad(std::mt19937& gen) const {
         .x = static_cast<double>(road.GetStart().x), .y = uniform(road.GetStart().y, road.GetEnd().y)};
 }
 
-Dog* GameSession::AddDog(std::string_view name) {
+Dog* GameSession::AddDogByName(std::string_view name) {
     const auto& roads = map_->GetRoads();
     if (roads.empty()) {
         throw std::runtime_error("Map has no roads to spawn a dog");
     }
+    /*
 
+    */
     geom::Position start_pos;
     if (map_->GetRandomSpawn()) {
         start_pos = map_->GetRandomPositionOnRoad(gen_);
@@ -121,5 +123,7 @@ Dog* GameSession::AddDog(std::string_view name) {
 
     return &dogs_.back();
 }
-
+void GameSession::AddDog(Dog dog) {
+    dogs_.push_back(std::move(dog));
+}
 }  // namespace model

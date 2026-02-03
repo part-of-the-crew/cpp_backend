@@ -21,12 +21,13 @@ public:
         : pathToStateFile_(pathToStateFile), save_period_(save_period) {}
 
     bool OnTick(std::chrono::milliseconds delta) override;
-    void SaveStateInFile();
-    void SetApplication(const app::Application* app) { app_ = app; }
+    bool SaveStateInFile();
+    void SetApplication(app::Application* app) { app_ = app; }
+    bool TryLoadStateFromFile();
 
 private:
-    const std::filesystem::path pathToStateFile_;
-    const app::Application* app_ = nullptr;
+    const std::filesystem::path pathToStateFile_{};
+    app::Application* app_ = nullptr;
     std::chrono::milliseconds save_period_;
     std::chrono::milliseconds time_since_save_;
 };

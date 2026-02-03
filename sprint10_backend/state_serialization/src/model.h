@@ -121,7 +121,7 @@ struct BagItem {
 class Dog {
 public:
     using BagContent = std::vector<BagItem>;
-    Dog(std::string name, size_t id, geom::Position pos, size_t bagCapacity)
+    Dog(std::string name, size_t id, geom::Position pos, size_t bagCapacity = 0)
         : name_(std::move(name))
         , id_(id)
         , position_(pos)
@@ -166,8 +166,8 @@ private:
 class GameSession {
 public:
     explicit GameSession(const Map* map) : map_(map), gen_(SeedFromSystem()) {}
-    Dog* AddDog(std::string_view name);
-
+    Dog* AddDogByName(std::string_view name);
+    void AddDog(Dog dog);
     const Map* GetMap() const { return map_; }
     const std::deque<Dog>& GetDogs() const { return dogs_; }
     // Non-const getter for updating state
