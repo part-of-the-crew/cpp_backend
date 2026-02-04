@@ -40,6 +40,9 @@ FROM ubuntu:22.04 AS run
 
 # Создадим пользователя www
 RUN groupadd -r www && useradd -r -g www www
+RUN mkdir -p /app/data && chown www:www /app/data
+RUN mkdir -p /app/static && chown www:www /app/static
+
 USER www
 
 # Скопируем приложение со сборочного контейнера в директорию /app.
@@ -51,4 +54,4 @@ COPY ./static /app/static
 
 # Запускаем игровой сервер
 ENTRYPOINT ["/app/game_server"]
-CMD ["-c", "/app/data/config.json", "2>&1"]
+CMD ["-c", "/app/data/config.json", "-s", "/app/data/Recovery.txt", "-p", "5000", "2>&1"]

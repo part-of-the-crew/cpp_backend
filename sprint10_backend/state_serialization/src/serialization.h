@@ -1,6 +1,4 @@
 #pragma once
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/split_free.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/utility.hpp>
@@ -67,7 +65,6 @@ void serialize(Archive& ar, BagItem& obj, [[maybe_unused]] const unsigned versio
 
 namespace serialization {
 
-// DogRepr (DogRepresentation) - сериализованное представление класса Dog
 class DogRepr {
 public:
     DogRepr() = default;
@@ -82,18 +79,7 @@ public:
         , score_(dog.GetScore())
         , bag_content_(dog.GetBagContent()) {}
 
-    [[nodiscard]] model::Dog Restore() const {
-        model::Dog dog{name_, id_, pos_, bag_capacity_};
-        dog.SetSpeed(speed_);
-        dog.SetDirection(direction_);
-        dog.AddScore(score_);
-        for (const auto& item : bag_content_) {
-            if (!dog.AddToBag(item)) {
-                throw std::runtime_error("Failed to put bag content");
-            }
-        }
-        return dog;
-    }
+    [[nodiscard]] model::Dog Restore() const;
 
     template <typename Archive>
     void serialize(Archive& ar, [[maybe_unused]] const unsigned version) {
@@ -117,84 +103,7 @@ private:
     size_t score_ = 0;
     model::Dog::BagContent bag_content_;
 };
-/*
-class GameSessionRepr {
-public:
-    GameSessionRepr() = default;
 
-    explicit GameSessionRepr(const model::GameSession& session)
-        : dogs_(session.GetDogs().size()), map_(session.GetMap()) {
-        for (size_t i = 0; i < session.GetDogs().size(); ++i) {
-            dogs_[i] = DogRepr(session.GetDogs()[i]);
-        }
-    }
-
-    [[nodiscard]] model::GameSession Restore() const {
-        model::GameSession session{map_};
-        for (const auto& dog : dogs_) {
-            session.AddDog(dog.Restore().GetName());
-        }
-        return session;
-    }
-
-    template <typename Archive>
-    void serialize(Archive& ar, [[maybe_unused]] const unsigned version) {
-        ar & dogs_;
-        ar & map_;
-    }
-
-private:
-    std::vector<DogRepr> dogs_;
-    const model::Map* map_{nullptr};
-};
-
-
-class GameRepr {
-public:
-    GameRepr() = default;
-
-    explicit GameRepr(const model::Game& game) : maps_(game.GetMaps()) {}
-
-    void Restore(model::Game& game) const {
-        model::Game game;
-        for (const auto& dog : dogs_) {
-            game.AddDog(dog.Restore().GetName());
-        }
-        return game;
-    }
-
-    template <typename Archive>
-    void serialize(Archive& ar, [[maybe_unused]] const unsigned version) {
-        ar & dogs_;
-    }
-
-private:
-    std::vector<DogRepr> dogs_;
-};
-
-class ApplicationRepr {
-public:
-    ApplicationRepr() = default;
-
-    explicit ApplicationRepr(const model::Game& game) : maps_(game.GetMaps()) {}
-
-    void Restore(app::Application& app) const {
-        model::Game game;
-        for (const auto& dog : dogs_) {
-            game.AddDog(dog.Restore().GetName());
-        }
-        return game;
-    }
-
-    template <typename Archive>
-    void serialize(Archive& ar, [[maybe_unused]] const unsigned version) {
-        ar & dogs_;
-    }
-
-private:
-    std::vector<DogRepr> dogs_;
-};
-*/
 class LootRepr {
 public:
     LootRepr() = default;
@@ -212,15 +121,11 @@ private:
     geom::Position pos_;
 };
 
-// 3. Application Representation (The Root Container)
 class ApplicationRepr {
 public:
     ApplicationRepr() = default;
 
-    // Capture the state from the Application
     explicit ApplicationRepr(const app::Application& app);
-
-    // Restore state INTO an existing Application (which already has Maps loaded)
     void Restore(app::Application& app) const;
 
     template <typename Archive>
@@ -231,7 +136,6 @@ public:
     }
 
 private:
-    // Mappings needed to reconstruct the state
     // MapID -> List of Dogs (to repopulate GameSessions)
     std::unordered_map<std::string, std::vector<DogRepr>> dog_reprs_;
 
