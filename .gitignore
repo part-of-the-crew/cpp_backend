@@ -9,4 +9,4 @@ perf.data*
 *.out
 *.png
 Testing/
-Recovery?.txt
+Recovery*.txt
