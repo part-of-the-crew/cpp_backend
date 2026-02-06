@@ -29,6 +29,9 @@ boost:without_test=True
 boost:without_timer=True
 boost:without_type_erasure=True
 boost:without_wave=True
+# boost:without_headers=True
+# boost:without_prg_exec_monitor=True
+# boost:without_unit_test_framework=True
 
 # --- LIBRARIES TO KEEP (False = Build them) ---
 boost:without_program_options=False
@@ -46,3 +49,5 @@ boost:without_exception=False
 boost:without_random=False
 boost:without_regex=False
 boost:without_serialization=False
+
+# boost:without_iostreams=True and boost:without_timer=True could be log dependencies
