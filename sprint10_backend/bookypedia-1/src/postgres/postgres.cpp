@@ -1,5 +1,6 @@
 #include "postgres.h"
 // #include <exception>
+#include <pqxx/pqxx>
 #include <pqxx/zview.hxx>
 
 namespace postgres {
@@ -20,6 +21,20 @@ void AuthorRepositoryImpl::Save(const domain::Author& author) {
         )"_zv,
         author.GetId().ToString(), author.GetName());
     work.commit();
+}
+
+std::vector<domain::Author> AuthorRepositoryImpl::Retrieve(void) {
+    std::vector<domain::Author> authors;
+
+    pqxx::read_transaction work{connection_};
+    const auto request = work.exec_params(
+        R"(SELECT id, name FROM authors 
+        ORDER BY name ASC)"_zv);
+    for (const auto& row : request) {
+        authors.push_back(
+            {domain::AuthorId::FromString(row["id"].as<std::string>()), row["name"].as<std::string>()});
+    }
+    return authors;
 }
 
 Database::Database(pqxx::connection connection) : connection_{std::move(connection)} {

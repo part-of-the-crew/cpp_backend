@@ -8,11 +8,10 @@ namespace postgres {
 
 class AuthorRepositoryImpl : public domain::AuthorRepository {
 public:
-    explicit AuthorRepositoryImpl(pqxx::connection& connection)
-        : connection_{connection} {
-    }
+    explicit AuthorRepositoryImpl(pqxx::connection& connection) : connection_{connection} {}
 
     void Save(const domain::Author& author) override;
+    std::vector<domain::Author> Retrieve() override;
 
 private:
     pqxx::connection& connection_;
@@ -22,9 +21,7 @@ class Database {
 public:
     explicit Database(pqxx::connection connection);
 
-    AuthorRepositoryImpl& GetAuthors() & {
-        return authors_;
-    }
+    AuthorRepositoryImpl& GetAuthors() & { return authors_; }
 
 private:
     pqxx::connection connection_;

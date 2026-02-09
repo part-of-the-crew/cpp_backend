@@ -135,7 +135,10 @@ std::optional<std::string> View::SelectAuthor() const {
 
 std::vector<detail::AuthorInfo> View::GetAuthors() const {
     std::vector<detail::AuthorInfo> dst_autors;
-    assert(!"TODO: implement GetAuthors()");
+
+    for (const auto& author : use_cases_.ShowAuthors()) {
+        dst_autors.push_back({author.first, author.second});
+    }
     return dst_autors;
 }
 

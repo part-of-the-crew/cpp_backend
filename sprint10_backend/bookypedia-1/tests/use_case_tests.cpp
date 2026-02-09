@@ -8,9 +8,8 @@ namespace {
 struct MockAuthorRepository : domain::AuthorRepository {
     std::vector<domain::Author> saved_authors;
 
-    void Save(const domain::Author& author) override {
-        saved_authors.emplace_back(author);
-    }
+    void Save(const domain::Author& author) override { saved_authors.emplace_back(author); }
+    std::vector<domain::Author> Retrieve() override { return saved_authors; }
 };
 
 struct Fixture {
