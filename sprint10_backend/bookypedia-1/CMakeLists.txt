@@ -74,7 +74,6 @@ add_executable(tests
 target_link_libraries(tests PRIVATE 
     CONAN_PKG::boost
     CONAN_PKG::catch2
-    CONAN_PKG::gtest
     mylib
 ) 
 
