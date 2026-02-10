@@ -37,6 +37,56 @@ std::vector<domain::Author> AuthorRepositoryImpl::Retrieve(void) {
     return authors;
 }
 
+void BookRepositoryImpl::Save(const domain::Book& book) {
+    pqxx::work work{connection_};
+    work.exec_params(
+        R"(
+INSERT INTO books (id, title, author_id, publication_year) VALUES ($1, $2, $3, $4)
+ON CONFLICT (id) DO UPDATE SET title=$2, author_id=$3, publication_year=$4;
+)"_zv,
+        book.GetId().ToString(),
+        book.GetName(),  // В вашем book.h метод называется GetName(), хотя возвращает title
+        book.GetAuthorId(), book.GetPublicationYear());
+    work.commit();
+}
+
+std::vector<domain::Book> BookRepositoryImpl::RetrieveAllBooks(void) {
+    std::vector<domain::Book> books;
+
+    pqxx::read_transaction work{connection_};
+    const auto request = work.exec_params(R"(
+            SELECT id, title, author_id, publication_year FROM books 
+            ORDER BY title ASC
+            )"_zv);
+
+    for (const auto& row : request) {
+        books.push_back(
+            {domain::BookId::FromString(row["id"].as<std::string>()), row["title"].as<std::string>(),
+                row["author_id"].as<std::string>(), row["publication_year"].as<int>()});
+    }
+    return books;
+}
+
+std::vector<domain::Book> BookRepositoryImpl::RetrieveAuthorBooks(const std::string& author_id) {
+    std::vector<domain::Book> books;
+
+    pqxx::read_transaction work{connection_};
+    const auto request = work.exec_params(
+        R"(
+            SELECT id, title, author_id, publication_year FROM books 
+            WHERE author_id = $1
+            ORDER BY publication_year ASC
+            )"_zv,
+        author_id);
+
+    for (const auto& row : request) {
+        books.push_back(
+            {domain::BookId::FromString(row["id"].as<std::string>()), row["title"].as<std::string>(),
+                row["author_id"].as<std::string>(), row["publication_year"].as<int>()});
+    }
+    return books;
+}
+
 Database::Database(pqxx::connection connection) : connection_{std::move(connection)} {
     pqxx::work work{connection_};
     work.exec(R"(

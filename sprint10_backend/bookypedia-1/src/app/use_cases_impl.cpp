@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "../domain/author.h"
+#include "../domain/book.h"
 
 namespace app {
 using namespace domain;
@@ -14,12 +15,13 @@ void UseCasesImpl::AddAuthor(const std::string& name) {
     authors_.Save({AuthorId::New(), name});
 }
 
-std::vector<std::pair<std::string, std::string>> UseCasesImpl::ShowAuthors(void) {
-    std::vector<std::pair<std::string, std::string>> authors;
+std::vector<AuthorInfo> UseCasesImpl::ShowAuthors(void) {
+    std::vector<AuthorInfo> result;
+    // Retrieve returns domain objects, we map them to app DTOs
     for (const auto& author : authors_.Retrieve()) {
-        authors.push_back(std::make_pair(author.GetId().ToString(), author.GetName()));
+        result.push_back({author.GetId().ToString(), author.GetName()});
     }
-    return authors;
+    return result;
 }
 
 void UseCasesImpl::AddBook(const std::string& title, const std::string& author_id, int publication_year) {
@@ -29,33 +31,24 @@ void UseCasesImpl::AddBook(const std::string& title, const std::string& author_i
         throw std::runtime_error("empty author_id");
     if (publication_year == 0)
         throw std::runtime_error("empty publication_year");
-    /*
-    authors_.Save({AuthorId::New(), name});
-    for (const auto& author : authors_.Retrieve()) {
-        if (author.GetId().ToString() == author_id)
-    }
-        */
+
+    books_.Save({BookId::New(), title, author_id, publication_year});
 }
 
-void UseCasesImpl::ShowBooks() {
-    std::vector<std::pair<std::string, std::string>> books;
-    /*
-    for (const auto& author : authors_.Retrieve()) {
-        for (const auto& book : author.GetBooks()) {
-            books.push_back(std::make_pair(book.GetTitle(), book.GetPublicationYear()));
-        }
+std::vector<BookInfo> UseCasesImpl::ShowBooks() {
+    std::vector<BookInfo> books;
+    for (const auto& book : books_.RetrieveAllBooks()) {
+        books.push_back({book.GetName(), book.GetAuthorId(), book.GetPublicationYear()});
     }
-        */
+    return books;
 }
 
-void UseCasesImpl::ShowAuthorBooks(const std::string& author_id) {
-    /*   std::vector<std::pair<std::string, std::string>> books;
-    for (const auto& author : authors_.Retrieve()) {
-        if (author.GetId().ToString() == author_id) {
-            for (const auto& book : author.GetBooks())
-        }
+std::vector<BookInfo> UseCasesImpl::ShowAuthorBooks(const std::string& author_id) {
+    std::vector<BookInfo> books;
+    for (const auto& book : books_.RetrieveAuthorBooks(author_id)) {
+        books.push_back({book.GetName(), book.GetAuthorId(), book.GetPublicationYear()});
     }
-        */
+    return books;
 }
 
 }  // namespace app

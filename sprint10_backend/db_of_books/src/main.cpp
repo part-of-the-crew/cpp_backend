@@ -61,7 +61,7 @@ int main(int argc, const char* argv[]) {
             auto action = parsed.at("action").as_string();
             if (action == "add_book"sv) {
                 const json::object& payload = parsed.at("payload").as_object();
-                const std::string title = value_to<std::string>(payload.at("title"));
+                const std::string title = json::value_to<std::string>(payload.at("title"));
                 auto year = payload.at("year").as_int64();
                 const auto author = json::value_to<std::string>(payload.at("author"));
                 std::optional<std::string> isbn;
