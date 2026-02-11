@@ -1,11 +1,14 @@
 #include <catch2/catch_test_macros.hpp>
+#include <memory>
 
 #include "../src/app/use_cases_impl.h"
 #include "../src/domain/author.h"
 #include "../src/domain/book.h"
+#include "../src/domain/unit_of_work.h"
 
 namespace {
 
+// 1. Mock Repositories (Persistence layer simulation)
 struct MockAuthorRepository : domain::AuthorRepository {
     std::vector<domain::Author> saved_authors;
 
@@ -29,6 +32,24 @@ struct MockBookRepository : domain::BookRepository {
     }
 };
 
+// 2. Mock Unit of Work
+// This wrappers the repositories so UseCases can "commit" (though we just modify the vectors directly)
+struct MockUnitOfWork : domain::UnitOfWork {
+    MockAuthorRepository& authors_repo;
+    MockBookRepository& books_repo;
+
+    MockUnitOfWork(MockAuthorRepository& authors, MockBookRepository& books)
+        : authors_repo(authors), books_repo(books) {}
+
+    void Commit() override {
+        // No-op for in-memory mock, or could set a flag like "committed = true"
+    }
+
+    domain::AuthorRepository& Authors() override { return authors_repo; }
+    domain::BookRepository& Books() override { return books_repo; }
+};
+
+// 3. Test Fixture
 struct Fixture {
     MockAuthorRepository authors;
     MockBookRepository books;
@@ -38,7 +59,8 @@ struct Fixture {
 
 SCENARIO_METHOD(Fixture, "Book Adding") {
     GIVEN("Use cases") {
-        app::UseCasesImpl use_cases{authors, books};
+        // Create the UseCases with a factory that returns a UoW pointing to our Fixture's repos
+        app::UseCasesImpl use_cases{[this]() { return std::make_unique<MockUnitOfWork>(authors, books); }};
 
         WHEN("Adding an author") {
             const auto author_name = "Joanne Rowling";

@@ -9,25 +9,20 @@ using namespace std::literals;
 using pqxx::operator"" _zv;
 
 void AuthorRepositoryImpl::Save(const domain::Author& author) {
-    // Пока каждое обращение к репозиторию выполняется внутри отдельной транзакции
-    // В будущих уроках вы узнаете про паттерн Unit of Work, при помощи которого сможете несколько
-    // запросов выполнить в рамках одной транзакции.
-    // Вы также может самостоятельно почитать информацию про этот паттерн и применить его здесь.
-    pqxx::work work{connection_};
-    work.exec_params(
+    work_.exec_params(
         R"(
         INSERT INTO authors (id, name) VALUES ($1, $2)
             ON CONFLICT (id) DO UPDATE SET name=$2;
         )"_zv,
         author.GetId().ToString(), author.GetName());
-    work.commit();
+    work_.commit();
 }
+
 
 std::vector<domain::Author> AuthorRepositoryImpl::Retrieve(void) {
     std::vector<domain::Author> authors;
 
-    pqxx::read_transaction work{connection_};
-    const auto request = work.exec_params(
+    const auto request = work_.exec_params(
         R"(SELECT id, name FROM authors 
         ORDER BY name ASC)"_zv);
     for (const auto& row : request) {
@@ -38,8 +33,8 @@ std::vector<domain::Author> AuthorRepositoryImpl::Retrieve(void) {
 }
 
 void BookRepositoryImpl::Save(const domain::Book& book) {
-    pqxx::work work{connection_};
-    work.exec_params(
+
+    work_.exec_params(
         R"(
 INSERT INTO books (id, title, author_id, publication_year) VALUES ($1, $2, $3, $4)
 ON CONFLICT (id) DO UPDATE SET title=$2, author_id=$3, publication_year=$4;
@@ -47,14 +42,13 @@ ON CONFLICT (id) DO UPDATE SET title=$2, author_id=$3, publication_year=$4;
         book.GetId().ToString(),
         book.GetName(),  // В вашем book.h метод называется GetName(), хотя возвращает title
         book.GetAuthorId(), book.GetPublicationYear());
-    work.commit();
+    work_.commit();
 }
 
 std::vector<domain::Book> BookRepositoryImpl::RetrieveAllBooks(void) {
     std::vector<domain::Book> books;
 
-    pqxx::read_transaction work{connection_};
-    const auto request = work.exec_params(R"(
+    const auto request = work_.exec_params(R"(
             SELECT id, title, author_id, publication_year FROM books 
             ORDER BY title ASC
             )"_zv);
@@ -70,8 +64,7 @@ std::vector<domain::Book> BookRepositoryImpl::RetrieveAllBooks(void) {
 std::vector<domain::Book> BookRepositoryImpl::RetrieveAuthorBooks(const std::string& author_id) {
     std::vector<domain::Book> books;
 
-    pqxx::read_transaction work{connection_};
-    const auto request = work.exec_params(
+    const auto request = work_.exec_params(
         R"(
             SELECT id, title, author_id, publication_year FROM books 
             WHERE author_id = $1
@@ -88,15 +81,15 @@ std::vector<domain::Book> BookRepositoryImpl::RetrieveAuthorBooks(const std::str
 }
 
 Database::Database(pqxx::connection connection) : connection_{std::move(connection)} {
-    pqxx::work work{connection_};
-    work.exec(R"(
+    pqxx::work work_{connection_};
+    work_.exec(R"(
     CREATE TABLE IF NOT EXISTS authors (
         id UUID CONSTRAINT author_id_constraint PRIMARY KEY,
         name varchar(100) UNIQUE NOT NULL
         );
     )"_zv);
 
-    work.exec(R"(
+    work_.exec(R"(
     CREATE TABLE IF NOT EXISTS books (
     id UUID PRIMARY KEY,
     author_id UUID,
@@ -108,7 +101,13 @@ Database::Database(pqxx::connection connection) : connection_{std::move(connecti
         );
     )"_zv);
 
-    work.commit();
+    work_.exec(R"(
+    CREATE TABLE IF NOT EXISTS book_tags (
+    book_id UUID,
+    tag VARCHAR(30)
+        );
+    )"_zv);
+    work_.commit();
 }
 
 }  // namespace postgres
