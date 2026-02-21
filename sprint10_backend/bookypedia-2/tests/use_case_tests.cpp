@@ -47,6 +47,20 @@ struct MockBookRepository : domain::BookRepository {
         }
         return books;
     }
+    void Delete(const std::string& book_id) override {
+        for (auto it = saved_books.begin(); it != saved_books.end(); ++it) {
+            if (it->GetId().ToString() == book_id) {
+                saved_books.erase(it);
+                return;
+            }
+        }
+        throw std::runtime_error("Book not found");
+    }
+    bool Update([[maybe_unused]] const std::string& book_id, [[maybe_unused]] const std::string& title,
+        [[maybe_unused]] int publication_year,
+        [[maybe_unused]] const std::vector<std::string>& tags) override {
+        return false;
+    }
 };
 
 // 2. Mock Unit of Work

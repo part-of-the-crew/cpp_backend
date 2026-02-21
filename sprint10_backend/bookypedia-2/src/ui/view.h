@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "app/use_cases.h"
+
 namespace menu {
 class Menu;
 }
@@ -50,6 +52,10 @@ private:
     bool ShowBooks() const;
     bool ShowAuthorBooks() const;
     bool DeleteAuthor(std::istream& cmd_input) const;
+    bool EditAuthor(std::istream& cmd_input) const;
+    std::optional<app::BookAuthorInfo> SelectBook(const std::string& title) const;
+    bool DeleteBook(std::istream& cmd_input) const;
+    bool EditBook(std::istream& cmd_input) const;
 
     std::optional<detail::AddBookParams> GetBookParams(std::istream& cmd_input) const;
     std::optional<std::string> SelectAuthor() const;

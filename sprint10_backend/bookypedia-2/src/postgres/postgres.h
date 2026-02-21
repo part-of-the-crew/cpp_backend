@@ -27,6 +27,9 @@ public:
     void Save(const domain::Book& book) override;
     std::vector<domain::Book> RetrieveAllBooks() override;
     std::vector<domain::Book> RetrieveAuthorBooks(const std::string& author_id) override;
+    void Delete(const std::string& book_id) override;
+    bool Update(const std::string& book_id, const std::string& title, int publication_year,
+        const std::vector<std::string>& tags) override;
 
 private:
     pqxx::work& work_;

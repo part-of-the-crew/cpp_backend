@@ -21,6 +21,16 @@ void UseCasesImpl::DeleteAuthor(const std::string& author_id) {
     uow->Commit();
 }
 
+void UseCasesImpl::EditAuthor(const std::string& author_id, const std::string& new_name) {
+    if (new_name.empty())
+        throw std::runtime_error("empty name");
+
+    auto uow = uow_factory_();
+    auto author = uow->Authors().RetrieveAuthor(author_id);
+    uow->Authors().Save({author.GetId(), new_name});
+    uow->Commit();
+}
+
 std::vector<AuthorInfo> UseCasesImpl::ShowAuthors() {
     auto uow = uow_factory_();
     auto authors = uow->Authors().Retrieve();
@@ -59,8 +69,8 @@ std::vector<BookAuthorInfo> UseCasesImpl::ShowBooks() {
     std::vector<BookAuthorInfo> result;
     for (const auto& book : books) {
         auto author = uow->Authors().RetrieveAuthor(book.GetAuthorId());
-
-        result.push_back({book.GetName(), book.GetPublicationYear(), author.GetName()});
+        result.push_back(
+            {book.GetId().ToString(), book.GetName(), book.GetPublicationYear(), author.GetName()});
     }
     return result;
 }
@@ -74,6 +84,25 @@ std::vector<BookInfo> UseCasesImpl::ShowAuthorBooks(const std::string& author_id
         result.push_back({book.GetName(), book.GetAuthorId(), book.GetPublicationYear()});
     }
     return result;
+}
+
+void UseCasesImpl::DeleteBook(const std::string& book_id) {
+    auto uow = uow_factory_();
+    uow->Books().Delete(book_id);
+    uow->Commit();
+}
+
+void UseCasesImpl::EditBook(const std::string& book_id, const std::string& title, int publication_year,
+    const std::vector<std::string>& tags) {
+    auto uow = uow_factory_();
+
+    // Pass the update down to the repository
+    bool success = uow->Books().Update(book_id, title, publication_year, tags);
+    if (!success) {
+        throw std::invalid_argument("Book not found");  // Catches concurrent deletions
+    }
+
+    uow->Commit();
 }
 
 }  // namespace app

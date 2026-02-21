@@ -94,6 +94,32 @@ std::vector<domain::Book> BookRepositoryImpl::RetrieveAuthorBooks(const std::str
     return books;
 }
 
+void BookRepositoryImpl::Delete(const std::string& book_id) {
+    work_.exec_params("DELETE FROM book_tags WHERE book_id = $1"_zv, book_id);
+    work_.exec_params("DELETE FROM books WHERE id = $1"_zv, book_id);
+}
+
+bool BookRepositoryImpl::Update(const std::string& book_id, const std::string& title, int publication_year,
+    const std::vector<std::string>& tags) {
+    // 1. Update the main book table
+    auto result = work_.exec_params("UPDATE books SET title = $2, publication_year = $3 WHERE id = $1"_zv,
+        book_id, title, publication_year);
+
+    // If no rows were updated, the book was deleted by another instance
+    if (result.affected_rows() == 0) {
+        return false;
+    }
+
+    // 2. Overwrite tags (simplest approach: delete old, insert new)
+    work_.exec_params("DELETE FROM book_tags WHERE book_id = $1"_zv, book_id);
+
+    for (const auto& tag : tags) {
+        work_.exec_params("INSERT INTO book_tags (book_id, tag) VALUES ($1, $2)"_zv, book_id, tag);
+    }
+
+    return true;
+}
+
 Database::Database(pqxx::connection connection) : connection_{std::move(connection)} {
     pqxx::work work_{connection_};
     work_.exec(R"(

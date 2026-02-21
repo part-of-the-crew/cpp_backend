@@ -11,15 +11,24 @@ struct AuthorInfo {
 };
 
 struct BookInfo {
+    std::string id;
     std::string title;
-    std::string author_id;
     int publication_year;
 };
 
+struct BookInfoExtra {
+    std::string id;
+    std::string title;
+    std::string author_name;
+    int publication_year;
+    std::vector<std::string> tags;
+};
+
 struct BookAuthorInfo {
+    std::string id;  // Add this
     std::string title;
     int publication_year;
-    std::string name;
+    std::string name;  // Author name
 };
 
 class UseCases {
@@ -33,6 +42,10 @@ public:
     virtual std::vector<BookInfo> ShowAuthorBooks(const std::string& author_id) = 0;
     virtual AuthorInfo ShowAuthor(const std::string& author_id) = 0;
     virtual void DeleteAuthor(const std::string& author_id) = 0;
+    virtual void EditAuthor(const std::string& author_id, const std::string& new_name) = 0;
+    virtual void DeleteBook(const std::string& book_id) = 0;
+    virtual void EditBook(const std::string& book_id, const std::string& title, int publication_year,
+        const std::vector<std::string>& tags) = 0;
 
 protected:
     ~UseCases() = default;
