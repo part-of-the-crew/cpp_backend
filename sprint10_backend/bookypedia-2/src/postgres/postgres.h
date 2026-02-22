@@ -15,6 +15,7 @@ public:
     std::vector<domain::Author> Retrieve() override;
     domain::Author RetrieveAuthor(const std::string& author_id) override;
     void Delete(const std::string& author_id) override;
+    void Update(const std::string& author_id, const std::string& new_name) override;
 
 private:
     pqxx::work& work_;
@@ -30,6 +31,7 @@ public:
     void Delete(const std::string& book_id) override;
     bool Update(const std::string& book_id, const std::string& title, int publication_year,
         const std::vector<std::string>& tags) override;
+    domain::Book RetrieveBook(const std::string& book_id) override;
 
 private:
     pqxx::work& work_;

@@ -31,6 +31,7 @@ public:
     virtual std::vector<Author> Retrieve(void) = 0;
     virtual Author RetrieveAuthor(const std::string& author_id) = 0;
     virtual void Delete(const std::string& author_id) = 0;
+    virtual void Update(const std::string& author_id, const std::string& new_name) = 0;
 
 protected:
     ~AuthorRepository() = default;

@@ -31,6 +31,10 @@ struct MockAuthorRepository : domain::AuthorRepository {
         }
         throw std::runtime_error("Author not found");
     }
+    void Update([[maybe_unused]] const std::string& author_id,
+        [[maybe_unused]] const std::string& new_name [[maybe_unused]]) override {
+        // No-op for in-memory mock
+    }
 };
 
 struct MockBookRepository : domain::BookRepository {
@@ -60,6 +64,14 @@ struct MockBookRepository : domain::BookRepository {
         [[maybe_unused]] int publication_year,
         [[maybe_unused]] const std::vector<std::string>& tags) override {
         return false;
+    }
+    domain::Book RetrieveBook(const std::string& book_id) override {
+        for (const auto& book : saved_books) {
+            if (book.GetId().ToString() == book_id) {
+                return book;
+            }
+        }
+        throw std::runtime_error("Book not found");
     }
 };
 

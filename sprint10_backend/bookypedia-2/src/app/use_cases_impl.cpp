@@ -26,8 +26,7 @@ void UseCasesImpl::EditAuthor(const std::string& author_id, const std::string& n
         throw std::runtime_error("empty name");
 
     auto uow = uow_factory_();
-    auto author = uow->Authors().RetrieveAuthor(author_id);
-    uow->Authors().Save({author.GetId(), new_name});
+    uow->Authors().Update(author_id, new_name);  // Вызываем Update вместо Save
     uow->Commit();
 }
 
@@ -42,17 +41,27 @@ std::vector<AuthorInfo> UseCasesImpl::ShowAuthors() {
     return result;
 }
 
-void UseCasesImpl::AddBook(const std::string& title, const std::string& author_id, int publication_year) {
-    if (title.empty())
-        throw std::runtime_error("empty title");
-    if (author_id.empty())
-        throw std::runtime_error("empty author_id");
-    if (publication_year == 0)
-        throw std::runtime_error("empty publication_year");
-
+void UseCasesImpl::AddBook(const std::string& title, const std::string& author_id, int publication_year,
+    const std::vector<std::string>& tags) {
     auto uow = uow_factory_();
-    uow->Books().Save({BookId::New(), title, author_id, publication_year});
+    auto book_id = BookId::New();
+
+    // 1. Save the book basic info
+    uow->Books().Save({book_id, title, author_id, publication_year});
+
+    // 2. Use the existing Update method to handle the tag inserts
+    uow->Books().Update(book_id.ToString(), title, publication_year, tags);
+
     uow->Commit();
+}
+
+BookInfoExtra UseCasesImpl::GetBookInfo(const std::string& book_id) {
+    auto uow = uow_factory_();
+    auto book = uow->Books().RetrieveBook(book_id);
+    auto author = uow->Authors().RetrieveAuthor(book.GetAuthorId());
+
+    return {
+        book.GetId().ToString(), book.GetName(), author.GetName(), book.GetPublicationYear(), book.GetTags()};
 }
 
 AuthorInfo UseCasesImpl::ShowAuthor(const std::string& author_id) {

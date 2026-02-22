@@ -13,7 +13,9 @@ public:
 
     void AddAuthor(const std::string& name) override;
     std::vector<AuthorInfo> ShowAuthors() override;
-    void AddBook(const std::string& title, const std::string& author_id, int publication_year) override;
+    void AddBook(const std::string& title, const std::string& author_id, int publication_year,
+        const std::vector<std::string>& tags) override;
+    BookInfoExtra GetBookInfo(const std::string& book_id) override;
     std::vector<BookAuthorInfo> ShowBooks() override;
     std::vector<BookInfo> ShowAuthorBooks(const std::string& author_id) override;
     AuthorInfo ShowAuthor(const std::string& author_id) override;

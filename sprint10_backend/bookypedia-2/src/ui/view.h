@@ -56,9 +56,11 @@ private:
     std::optional<app::BookAuthorInfo> SelectBook(const std::string& title) const;
     bool DeleteBook(std::istream& cmd_input) const;
     bool EditBook(std::istream& cmd_input) const;
+    bool ShowBook(std::istream& cmd_input) const;
 
     std::optional<detail::AddBookParams> GetBookParams(std::istream& cmd_input) const;
     std::optional<std::string> SelectAuthor() const;
+    std::optional<std::string> SelectAuthorForAuthors() const;
     std::vector<detail::AuthorInfo> GetAuthors() const;
     std::vector<detail::BookAuthorInfo> GetBooks() const;
     std::vector<detail::BookInfo> GetAuthorBooks(const std::string& author_id) const;

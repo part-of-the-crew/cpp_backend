@@ -17,9 +17,54 @@ void AuthorRepositoryImpl::Save(const domain::Author& author) {
         author.GetId().ToString(), author.GetName());
 }
 
-void AuthorRepositoryImpl::Delete(const std::string& author_id) {
-    // work_.exec_params("DELETE FROM books WHERE author_id = $1"_zv, author_id);
+void BookRepositoryImpl::Save(const domain::Book& book) {
+    work_.exec_params(
+        R"(
+        INSERT INTO books (id, author_id, title, publication_year) VALUES ($1, $2, $3, $4)
+        ON CONFLICT (id) DO UPDATE SET author_id=$2, title=$3, publication_year=$4;
+        )"_zv,
+        book.GetId().ToString(), book.GetAuthorId(), book.GetName(), book.GetPublicationYear());
 
+    // Перезаписываем теги для книги
+    work_.exec_params("DELETE FROM book_tags WHERE book_id = $1"_zv, book.GetId().ToString());
+    for (const auto& tag : book.GetTags()) {
+        work_.exec_params(
+            "INSERT INTO book_tags (book_id, tag) VALUES ($1, $2)"_zv, book.GetId().ToString(), tag);
+    }
+}
+
+void AuthorRepositoryImpl::Update(const std::string& author_id, const std::string& new_name) {
+    auto result = work_.exec_params("UPDATE authors SET name = $2 WHERE id = $1"_zv, author_id, new_name);
+    if (result.affected_rows() == 0) {
+        throw std::invalid_argument("Author not found");
+    }
+}
+
+domain::Book BookRepositoryImpl::RetrieveBook(const std::string& book_id) {
+    auto row = work_.exec_params1(
+        "SELECT id, author_id, title, publication_year FROM books WHERE id = $1"_zv, book_id);
+
+    auto tags_res =
+        work_.exec_params("SELECT tag FROM book_tags WHERE book_id = $1 ORDER BY tag ASC"_zv, book_id);
+
+    std::vector<std::string> tags;
+    for (auto const& tag_row : tags_res) {
+        tags.push_back(tag_row["tag"].as<std::string>());
+    }
+
+    return {domain::BookId::FromString(row["id"].as<std::string>()), row["title"].as<std::string>(),
+        row["author_id"].as<std::string>(), row["publication_year"].as<int>(), tags};
+}
+
+void AuthorRepositoryImpl::Delete(const std::string& author_id) {
+    // 1. Delete all tags associated with the author's books
+    work_.exec_params(
+        "DELETE FROM book_tags WHERE book_id IN (SELECT id FROM books WHERE author_id = $1)"_zv, author_id);
+
+    // 2. Delete the author's books
+    work_.exec_params("DELETE FROM books WHERE author_id = $1"_zv, author_id);
+
+    // 3. Delete the author
     work_.exec_params("DELETE FROM authors WHERE id = $1"_zv, author_id);
 }
 
@@ -44,7 +89,7 @@ domain::Author AuthorRepositoryImpl::RetrieveAuthor(const std::string& author_id
     return {domain::AuthorId::FromString(request[0]["id"].as<std::string>()),
         request[0]["name"].as<std::string>()};
 }
-
+/*
 void BookRepositoryImpl::Save(const domain::Book& book) {
     work_.exec_params(
         R"(
@@ -55,7 +100,7 @@ ON CONFLICT (id) DO UPDATE SET title=$2, author_id=$3, publication_year=$4;
         book.GetName(),  // В вашем book.h метод называется GetName(), хотя возвращает title
         book.GetAuthorId(), book.GetPublicationYear());
 }
-
+*/
 std::vector<domain::Book> BookRepositoryImpl::RetrieveAllBooks(void) {
     std::vector<domain::Book> books;
 
@@ -64,7 +109,7 @@ std::vector<domain::Book> BookRepositoryImpl::RetrieveAllBooks(void) {
         SELECT b.id, b.title, b.author_id, b.publication_year 
         FROM books b
         JOIN authors a ON b.author_id = a.id
-        ORDER BY b.title ASC, a.name ASC, b.publication_year DESC
+        ORDER BY b.title ASC, a.name ASC, b.publication_year ASC
     )"_zv);
 
     for (const auto& row : request) {

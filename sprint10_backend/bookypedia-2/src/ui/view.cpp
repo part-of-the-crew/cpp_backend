@@ -1,8 +1,11 @@
 #include "view.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <cassert>
 #include <iostream>
+#include <regex>
+#include <set>
 
 #include "../app/use_cases.h"
 #include "../menu/menu.h"
@@ -57,12 +60,13 @@ View::View(menu::Menu& menu, app::UseCases& use_cases, std::istream& input, std:
     menu_.AddAction("ShowAuthorBooks"s, {}, "Show author books"s, std::bind(&View::ShowAuthorBooks, this));
 
     menu_.AddAction("DeleteAuthor"s, "name"s, "Delete author"s, std::bind(&View::DeleteAuthor, this, ph::_1));
-    menu_.AddAction("EditAuthor"s, "name"s, "Edit author"s, std::bind(&View::DeleteAuthor, this, ph::_1));
+    menu_.AddAction("EditAuthor"s, "name"s, "Edit author"s, std::bind(&View::EditAuthor, this, ph::_1));
 
     menu_.AddAction("DeleteBook"s, "title"s, "Delete book"s, std::bind(&View::DeleteBook, this, ph::_1));
     menu_.AddAction("EditBook"s, "title"s, "Edit book"s, std::bind(&View::EditBook, this, ph::_1));
 
-    menu_.AddAction("ShowBook"s, "title"s, "Show book"s, std::bind(&View::ShowBook, this, ph::_1));
+    // menu_.AddAction("ShowBook"s, "title"s, "Show book"s, std::bind(&View::ShowBook, this, ph::_1));
+    menu_.AddAction("ShowBook"s, "[title]"s, "Shows book info"s, std::bind(&View::ShowBook, this, ph::_1));
 }
 
 bool View::AddAuthor(std::istream& cmd_input) const {
@@ -86,7 +90,7 @@ bool View::DeleteAuthor(std::istream& cmd_input) const {
 
         if (cmd_input.eof()) {
             // empty
-            auto selected_id = SelectAuthor();
+            auto selected_id = SelectAuthorForAuthors();
             if (!selected_id) {
                 return true;
             }
@@ -122,8 +126,13 @@ bool View::EditAuthor(std::istream& cmd_input) const {
         std::string author_id;
 
         if (cmd_input.eof()) {
-            auto selected_id = SelectAuthor();
+            // output_ << "Select author:" << std::endl;
+            // auto authors = use_cases_.ShowAuthors();
+            // PrintVector(output_, authors);
+
+            auto selected_id = SelectAuthorForAuthors();
             if (!selected_id) {
+                output_ << "Failed to edit author" << std::endl;
                 return true;
             }
             author_id = *selected_id;
@@ -164,11 +173,73 @@ bool View::EditAuthor(std::istream& cmd_input) const {
 
 bool View::AddBook(std::istream& cmd_input) const {
     try {
-        if (auto params = GetBookParams(cmd_input)) {
-            use_cases_.AddBook(params->title, params->author_id, params->publication_year);
+        std::string title;
+        std::getline(cmd_input >> std::ws, title);
+        boost::algorithm::trim(title);
+
+        // 1. Author Selection
+        auto author_id = SelectAuthor();
+        if (!author_id) {
+            output_ << "Failed to add book"sv << std::endl;  // Critical for tests
+            return true;
         }
-    } catch (const std::exception&) {
+
+        // 2. Publication Year
+        output_ << "Enter publication year:"sv << std::endl;
+        std::string year_str;
+        if (!std::getline(input_, year_str) || year_str.empty()) {
+            output_ << "Failed to add book"sv << std::endl;
+            return true;
+        }
+        int year = std::stoi(year_str);
+
+        // 3. Tags (Messy input handling)
+        output_ << "Enter tags (separated by commas):"sv << std::endl;
+        std::string tags_raw;
+        std::getline(input_, tags_raw);
+
+        std::vector<std::string> tags;
+        boost::split(tags, tags_raw, boost::is_any_of(","));
+        for (auto& tag : tags) {
+            boost::algorithm::trim(tag);
+        }
+        tags.erase(std::remove_if(tags.begin(), tags.end(), [](const std::string& t) { return t.empty(); }),
+            tags.end());
+
+        // 4. Save
+        use_cases_.AddBook(title, *author_id, year, tags);
+
+    } catch (...) {
         output_ << "Failed to add book"sv << std::endl;
+    }
+    return true;
+}
+
+bool View::ShowBook(std::istream& cmd_input) const {
+    try {
+        std::string title;
+        std::getline(cmd_input >> std::ws, title);
+        boost::algorithm::trim(title);
+
+        auto book_match = SelectBook(title);
+        // Если ничего не найдено или пользователь отменил выбор, просто выходим
+        if (!book_match) {
+            return true;
+        }
+
+        // Получаем полные данные книги, включая теги
+        auto book_info = use_cases_.GetBookInfo(book_match->id);
+
+        output_ << "Title: " << book_info.title << "\n";
+        output_ << "Author: " << book_info.author_name << "\n";
+        output_ << "Publication year: " << book_info.publication_year << "\n";
+        if (!book_info.tags.empty()) {
+            output_ << "Tags: ";
+            std::vector<std::string> tags = book_info.tags;
+            std::sort(tags.begin(), tags.end());
+            output_ << boost::algorithm::join(tags, ", ") << "\n";
+        }
+    } catch (...) {
     }
     return true;
 }
@@ -225,6 +296,45 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
 }
 
 std::optional<std::string> View::SelectAuthor() const {
+    // output_ << "Enter author name:"sv << std::endl;
+    std::string input;
+    if (!std::getline(input_, input) || input.empty()) {
+        return std::nullopt;
+    }
+
+    auto authors = use_cases_.ShowAuthors();  // Sorted by name via SQL
+
+    // 1. Try to treat input as an index (1-based)
+    try {
+        size_t idx = std::stoul(input);
+        if (idx > 0 && idx <= authors.size()) {
+            return authors[idx - 1].id;
+        }
+    } catch (...) {
+    }
+
+    // 2. Search by exact name
+    for (const auto& author : authors) {
+        if (author.name == input)
+            return author.id;
+    }
+
+    // 3. Author not found - Ask to create (Required by test_add_book)
+    output_ << "No author found. Do you want to add "sv << input << " (y/n)?"sv << std::endl;
+    std::string choice;
+    if (std::getline(input_, choice) && (choice == "y" || choice == "Y")) {
+        use_cases_.AddAuthor(input);
+        // Find the new author to get their ID
+        for (const auto& author : use_cases_.ShowAuthors()) {
+            if (author.name == input)
+                return author.id;
+        }
+    }
+
+    return std::nullopt;
+}
+
+std::optional<std::string> View::SelectAuthorForAuthors() const {
     output_ << "Select author:" << std::endl;
     auto authors = GetAuthors();
     PrintVector(output_, authors);
@@ -275,12 +385,10 @@ std::vector<detail::BookInfo> View::GetAuthorBooks(const std::string& author_id)
     return books;
 }
 
-// view.cpp
 std::optional<app::BookAuthorInfo> View::SelectBook(const std::string& title) const {
     auto all_books = use_cases_.ShowBooks();
     std::vector<app::BookAuthorInfo> matches;
 
-    // 1. Filter books by title (if title is empty, take all)
     for (const auto& book : all_books) {
         if (title.empty() || book.title == title) {
             matches.push_back(book);
@@ -288,17 +396,14 @@ std::optional<app::BookAuthorInfo> View::SelectBook(const std::string& title) co
     }
 
     if (matches.empty()) {
-        output_ << "Book not found" << std::endl;
+        //  output_ << "Book not found" << std::endl;
         return std::nullopt;
     }
 
-    // 2. If exactly one match AND the user provided a title, select it immediately
     if (!title.empty() && matches.size() == 1) {
         return matches.front();
     }
 
-    // 3. Otherwise, show the list and ask for a number
-    // We can reuse the PrintVector helper you already have
     PrintVector(output_, matches);
 
     output_ << "Enter the book # or empty line to cancel:" << std::endl;
@@ -346,12 +451,10 @@ bool View::EditBook(std::istream& cmd_input) const {
 
         auto book_opt = SelectBook(title);
         if (!book_opt) {
-            return true;  // Cancelled or not found
+            // Добавляем вывод сюда, так как этого требует EditBook
+            output_ << "Book not found" << std::endl;
+            return true;
         }
-
-        // Now you have the selected book's ID and current data!
-        // Proceed with prompts for new title, year, and tags...
-        // ...
 
     } catch (const std::exception&) {
         output_ << "Book not found" << std::endl;
