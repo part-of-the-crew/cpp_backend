@@ -11,6 +11,7 @@
 #include "extra_data.h"
 #include "loot_generator.h"
 #include "model.h"
+#include "retired_player.h"
 #include "serializing_listener.h"
 
 namespace serialization {
@@ -55,6 +56,8 @@ public:
     auto begin() const { return token_to_player_.begin(); }
     auto end() const { return token_to_player_.end(); }
 
+    void RemovePlayer(const Token& token);
+
 private:
     std::unordered_map<Token, Player> token_to_player_;
 
@@ -90,12 +93,12 @@ public:
     Application& operator=(Application&&) = delete;
 
     explicit Application(model::Game game, extra_data::ExtraData extra_data, loot_gen::LootGenerator loot_gen,
-        ser_listener::ApplicationListener* listener)
+        ser_listener::ApplicationListener* listener, domain::UnitOfWorkFactory uow_factory)
         : game_(std::move(game))
         , extra_data_(std::move(extra_data))
         , loot_gen_(std::move(loot_gen))
-        , listener_(listener) {
-        // Initialize empty loot lists for all maps immediately
+        , listener_(listener)
+        , uow_factory_(std::move(uow_factory)) {
         for (const auto& map : game_.GetMaps()) {
             loots_.emplace(*map.GetId(), std::vector<LootInMap>{});
         }
@@ -117,6 +120,8 @@ public:
     std::vector<LootInMap> GetLootInMap(const std::string& name) const;
     void GenerateOneLoot(std::string idMap, model::GameSession* session, unsigned long numberInMap);
 
+    std::vector<domain::RetiredPlayer> GetRecords(int start, int max_items);
+
 private:
     using DogMove = std::pair<model::Dog*, geom::Position>;
     using DogMoves = std::vector<DogMove>;
@@ -131,6 +136,9 @@ private:
     std::unordered_map<std::string, std::vector<LootInMap>> loots_;
     loot_gen::LootGenerator loot_gen_;
     ser_listener::ApplicationListener* listener_{nullptr};
+
+    void RetirePlayer(const Token& token);
+    domain::UnitOfWorkFactory uow_factory_;
 };
 
 geom::Position CalculateNewPosition(

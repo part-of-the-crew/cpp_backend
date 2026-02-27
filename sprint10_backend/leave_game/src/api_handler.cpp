@@ -1,7 +1,11 @@
 #include "api_handler.h"
 
 #include <boost/json/array.hpp>
+#include <exception>
+#include <optional>
+#include <stdexcept>
 #include <string>
+#include <string_view>
 
 namespace api_handler {
 
@@ -12,6 +16,7 @@ struct APItype {
     constexpr static std::string_view V1_GAME_STATE = "/api/v1/game/state"sv;
     constexpr static std::string_view V1_GAME_PLAYER_ACTION = "/api/v1/game/player/action"sv;
     constexpr static std::string_view V1_GAME_TICK = "/api/v1/game/tick"sv;
+    constexpr static std::string_view V1_GAME_RECORDS = "/api/v1/game/records"sv;
     constexpr static std::string_view V1_MAPS = "/api/v1/maps"sv;
 };
 
@@ -74,6 +79,9 @@ response::ResponseVariant HandleAPI::operator()(const http::request<http::string
     }
     if (target == APItype::V1_GAME_TICK) {
         return HandleTick(req);
+    }
+    if (target.starts_with(APItype::V1_GAME_RECORDS)) {
+        return HandleRecords(req);
     }
     if (target == APItype::V1_MAPS) {
         return HandleMaps(req);
@@ -215,6 +223,32 @@ response::ResponseVariant HandleAPI::HandleTick(const http::request<http::string
         return response::MakeError(http::status::bad_gateway, "MakeTick", "", req);
     }
     return response::MakeJSON(http::status::ok, json::object{}, req);
+}
+
+response::ResponseVariant HandleAPI::HandleRecords(const http::request<http::string_body>& req) {
+    if (req.method() != http::verb::get && req.method() != http::verb::head) {
+        return response::MakeMethodNotAllowedError("Invalid method"s, "GET, HEAD"s, req);
+    }
+    RecordSetting recordsSettings{};
+    try {
+        auto recordsSettings_opt = ParseRecordSetting(req.target());
+        if (recordsSettings_opt) {
+            recordsSettings = *recordsSettings_opt;
+        }
+    } catch (const std::invalid_argument&) {
+        return response::MakeError(http::status::bad_gateway, "recordsSettings_opt", "", req);
+    }
+
+    if (recordsSettings.maxItems > 100) {
+        return response::MakeError(http::status::bad_request, "invalidArgument", "maxItems>100", req);
+    }
+    try {
+        auto records = app_.GetRecords(recordsSettings.start, recordsSettings.maxItems);
+        return response::MakeJSON(http::status::ok, SerializeRecords(records), req);
+
+    } catch (const std::invalid_argument&) {
+        return response::MakeError(http::status::bad_gateway, "HandleRecords", "", req);
+    }
 }
 
 response::ResponseVariant HandleAPI::HandleMaps(const http::request<http::string_body>& req) {
@@ -424,4 +458,14 @@ json::array HandleAPI::SerializePlayerBag(const model::Dog* dog) const {
 
     return bag_array;
 }
+
+json::array HandleAPI::SerializeRecords(const std::vector<domain::RetiredPlayer>& records) const {
+    json::array result;
+
+    for (const auto& r : records) {
+        result.push_back({{"name", r.name}, {"score", r.score}, {"playTime", r.play_time}});
+    }
+    return result;
+}
+
 }  // namespace api_handler

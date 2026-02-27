@@ -49,6 +49,10 @@ std::size_t PlayerTokens::GetPlayerNumber() const {
     return token_to_player_.size();
 }
 
+void PlayerTokens::RemovePlayer(const Token& token) {
+    token_to_player_.erase(token);
+}
+
 std::optional<JoinGameResult> Application::JoinGame(const AuthRequest& authReq) {
     const auto* map = game_.FindMap(model::Map::Id{authReq.map});
     if (!map) {
@@ -114,6 +118,53 @@ bool Application::SetPlayerAction(const Token& token, std::optional<geom::Direct
         }
     }
     return true;
+}
+/*
+void Application::RetirePlayer(const Token& token) {
+    Player* player = player_tokens_.FindPlayer(token);
+    if (!player)
+        return;
+
+    auto& dog = player->GetDog();
+
+    // 1. Save to database using UnitOfWork
+    auto uow = uow_factory_();
+    uow->RetiredPlayers().Save({dog.GetName(), dog.GetScore(), dog.GetPlayTime()});
+    uow->Commit();
+
+    // 2. Remove dog from the GameSession
+    auto session = const_cast<model::GameSession*>(player->GetSession());
+    auto& dogs = session->GetDogs();
+    std::erase_if(dogs, [id = dog.GetId()](const model::Dog& d) { return d.GetId() == id; });
+
+    // 3. Remove player from application token map
+    player_tokens_.RemovePlayer(token);
+}
+*/
+void Application::RetirePlayer(const Token& token) {
+    Player* player = player_tokens_.FindPlayer(token);
+    if (!player)
+        return;
+
+    auto& dog = player->GetDog();
+
+    // 1. Save to database using UnitOfWork
+    auto uow = uow_factory_();
+    uow->RetiredPlayers().Save({dog.GetName(), dog.GetScore(), dog.GetPlayTime()});
+    uow->Commit();
+
+    // 2. Remove dog from the GameSession
+    auto session = const_cast<model::GameSession*>(player->GetSession());
+    auto& dogs = session->GetDogs();
+    std::erase_if(dogs, [id = dog.GetId()](const model::Dog& d) { return d.GetId() == id; });
+
+    // 3. Remove player from application token map
+    player_tokens_.RemovePlayer(token);
+}
+
+std::vector<domain::RetiredPlayer> Application::GetRecords(int start, int max_items) {
+    auto uow = uow_factory_();
+    return uow->RetiredPlayers().GetTop(start, max_items);
 }
 
 // Helper: check boundaries
@@ -298,20 +349,24 @@ void Application::ProcessCollisions(
         map_loots.erase(map_loots.begin() + idx);
     }
 }
-
+/*
 void Application::MakeTick(std::uint64_t timeDelta) {
     const double dt = timeDelta / 1000.0;
+    std::vector<Token> players_to_retire;
 
     // 1. Move dogs & collect movements per map
     std::unordered_map<std::string, DogMoves> map_moves;
+        for (auto& [_, player] : player_tokens_) {
+            auto& dog = player.GetDog();
+            auto old_pos = dog.GetPosition();
 
-    for (auto& [_, player] : player_tokens_) {
-        auto& dog = player.GetDog();
-        auto old_pos = dog.GetPosition();
+            UpdateDog(player, dt);
 
-        UpdateDog(player, dt);
+            map_moves[*player.GetSession()->GetMap()->GetId()].emplace_back(&dog, old_pos);
+        }
 
-        map_moves[*player.GetSession()->GetMap()->GetId()].emplace_back(&dog, old_pos);
+    for (const auto& token : players_to_retire) {
+        RetirePlayer(token);
     }
 
     // 2. Process collisions per map
@@ -325,6 +380,51 @@ void Application::MakeTick(std::uint64_t timeDelta) {
         listener_->OnTick(std::chrono::milliseconds{timeDelta});
     }
 }
+*/
+void Application::MakeTick(std::uint64_t timeDelta) {
+    const double dt = timeDelta / 1000.0;
+
+    // 1. Move dogs & collect movements per map
+    std::unordered_map<std::string, DogMoves> map_moves;
+    std::vector<Token> tokens_to_retire;
+
+    for (auto& [token, player] : player_tokens_) {
+        auto& dog = player.GetDog();
+        auto old_pos = dog.GetPosition();
+
+        UpdateDog(player, dt);
+
+        // Update the dog's play and idle time
+        dog.UpdateTime(dt);
+
+        // Check if the dog has been idle too long
+        if (dog.GetIdleTime() >= game_.GetRetirementTime()) {
+            tokens_to_retire.push_back(token);
+        } else {
+            // Only queue movements for dogs that are not retiring this tick
+            map_moves[*player.GetSession()->GetMap()->GetId()].emplace_back(&dog, old_pos);
+        }
+    }
+
+    // 2. Process collisions per map
+    for (auto& [map_id, dogs_moves] : map_moves) {
+        ProcessCollisions(map_id, dogs_moves, loots_[map_id]);
+    }
+
+    // 3. Process Retirements (saves to DB and removes from session/tokens)
+    for (const auto& token : tokens_to_retire) {
+        RetirePlayer(token);
+    }
+
+    // 4. Generate new loot
+    GenerateLoot(std::chrono::milliseconds{timeDelta});
+
+    // 5. Notify listeners (e.g., for state saving)
+    if (listener_ != nullptr) {
+        listener_->OnTick(std::chrono::milliseconds{timeDelta});
+    }
+}
+
 std::string Application::GetMapValue(const std::string& name) const {
     return extra_data_.GetMapValue(name);
 }

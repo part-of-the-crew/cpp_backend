@@ -3,11 +3,13 @@
 #include <iostream>
 #include <thread>
 
+#include "connection_pool.h"
 #include "http_server.h"
 #include "json_loader.h"
 #include "logger_handler.h"
 #include "my_logger.h"
 #include "options.h"
+#include "postres.h"
 #include "request_handler.h"
 #include "serializing_listener.h"
 #include "ticker.h"
@@ -29,6 +31,17 @@ void RunWorkers(unsigned n, const Fn& fn) {
     }
     fn();
 }
+
+constexpr const char DB_URL_ENV_NAME[]{"GAME_DB_URL"};
+
+std::string GetConfigFromEnv(const char* key) {
+    if (const char* value = std::getenv(key)) {
+        return std::string(value);
+    }
+
+    throw std::runtime_error(std::string(key) + " environment variable not found");
+}
+
 }  // namespace
 
 int main(int argc, const char* argv[]) {
@@ -49,14 +62,33 @@ int main(int argc, const char* argv[]) {
         ser_listener::SerializingListener listener(
             args->pathToStateFile, std::chrono::milliseconds(args->saveStatePeriod));
 
+        const unsigned num_threads = std::thread::hardware_concurrency();
+
+        auto connection_pool = std::make_shared<connection_pool::ConnectionPool>(num_threads,
+            []() { return std::make_shared<pqxx::connection>(GetConfigFromEnv(DB_URL_ENV_NAME)); });
+        // 2. Setup DB Tables
+        {
+            auto conn = connection_pool->GetConnection();
+            postgres::SetupDatabase(*conn);
+        }
+        /*
+                // 3. Create Unit of Work Factory
+                domain::UnitOfWorkFactory uow_factory = [connection_pool]() {
+                    return std::make_unique<postgres::UnitOfWorkImpl>(connection_pool->GetConnection());
+                };
+        */
+        domain::UnitOfWorkFactory uow_factory =
+            [pool = connection_pool]() -> std::unique_ptr<domain::UnitOfWork> {
+            return std::make_unique<postgres::UnitOfWorkImpl>(pool->GetConnection());
+        };
         app::Application application{std::move(game), json_loader::LoadExtra(args->pathToConfig),
-            json_loader::LoadGenerator(args->pathToConfig), &listener};
+            json_loader::LoadGenerator(args->pathToConfig), &listener, std::move(uow_factory)};
 
         listener.SetApplication(&application);
         listener.TryLoadStateFromFile();
 
         // 2. Инициализируем io_context
-        const unsigned num_threads = std::thread::hardware_concurrency();
+
         net::io_context ioc(num_threads);
         auto api_strand = net::make_strand(ioc);
 

@@ -84,6 +84,9 @@ model::Game LoadGame(const std::filesystem::path& json_path) {
     if (root.contains("defaultBagCapacity"s)) {
         game.SetDefaultBagCapacity(root.at("defaultBagCapacity"s).as_double());
     }
+    if (root.contains("dogRetirementTime"s)) {
+        game.SetRetirementTime(root.at("dogRetirementTime"s).as_double());
+    }
     for (const auto& map_json : it->value().as_array()) {
         game.AddMap(ParseMap(map_json));
     }

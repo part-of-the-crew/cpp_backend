@@ -151,6 +151,19 @@ public:
 
     const BagContent& GetBagContent() const noexcept { return bag_; }
 
+    void UpdateTime(double dt_seconds) {
+        play_time_ += dt_seconds;
+        // Check if speed is effectively zero
+        if (std::abs(speed_.ux) < 1e-6 && std::abs(speed_.uy) < 1e-6) {
+            idle_time_ += dt_seconds;
+        } else {
+            idle_time_ = 0.0;
+        }
+    }
+
+    double GetPlayTime() const { return play_time_; }
+    double GetIdleTime() const { return idle_time_; }
+
 private:
     std::string name_;
     size_t id_;
@@ -161,6 +174,8 @@ private:
     std::vector<BagItem> bag_;
     size_t score_{};
     size_t bagCapacity_{};
+    double play_time_ = 0.0;
+    double idle_time_ = 0.0;
 };
 
 class GameSession {
@@ -202,6 +217,9 @@ public:
     void SetRandomSpawn(bool randomSpawn) { randomSpawn_ = randomSpawn; };
     void SetDefaultBagCapacity(double defaultBagCapacity) { defaultBagCapacity_ = defaultBagCapacity; };
 
+    void SetRetirementTime(double time_s) { retirement_time_ = time_s; }
+    double GetRetirementTime() const { return retirement_time_; }
+
 private:
     using MapIdHasher = util::TaggedHasher<Map::Id>;
     using MapIdToIndex = std::unordered_map<Map::Id, size_t, MapIdHasher>;
@@ -213,6 +231,7 @@ private:
     double speed_{1.0};
     double defaultBagCapacity_{3.0};
     bool randomSpawn_{};
+    double retirement_time_ = 60.0;  // Default 1 minute
 };
 
 }  // namespace model
