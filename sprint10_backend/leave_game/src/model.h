@@ -1,6 +1,6 @@
 #pragma once
 #include <cmath>
-#include <deque>
+#include <list>
 #include <memory>
 #include <random>
 #include <string>
@@ -184,9 +184,8 @@ public:
     Dog* AddDogByName(std::string_view name);
     void AddDog(Dog dog);
     const Map* GetMap() const { return map_; }
-    const std::deque<Dog>& GetDogs() const { return dogs_; }
-    // Non-const getter for updating state
-    std::deque<Dog>& GetDogs() { return dogs_; }
+    const std::list<Dog>& GetDogs() const { return dogs_; }
+    std::list<Dog>& GetDogs() { return dogs_; }
     std::size_t GetNumberDogs() const { return dogs_.size(); }
     std::mt19937& GetRandomGen(void) { return gen_; }
 
@@ -201,7 +200,7 @@ private:
         return d(gen_);
     }
     const Map* map_;
-    std::deque<Dog> dogs_;
+    std::list<Dog> dogs_;
     int next_dog_id_ = 0;
     std::mt19937 gen_;
 };

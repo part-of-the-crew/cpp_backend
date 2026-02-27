@@ -173,10 +173,9 @@ response::ResponseVariant HandleAPI::HandlePlayerAction(const http::request<http
 
         move = body.as_object().at("move").as_string().c_str();
 
-        // Если "move" пустая строка, значит игрок остановился (скорость 0)
         if (move.empty()) {
             // Логика остановки
-            // app_.SetPlayerAction(token, std::nullopt);
+            app_.SetPlayerAction(*token, std::nullopt);
             return response::MakeJSON(http::status::ok, json::object{}, req);
         }
     } catch (const std::invalid_argument& ex) {
