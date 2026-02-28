@@ -12,8 +12,6 @@
 
 namespace app {
 
-constexpr double eps = 1e9;
-
 using namespace std::literals;
 
 Token PlayerTokens::GenerateToken() {
@@ -179,7 +177,7 @@ geom::Position CalculateNewPosition(
     // Helper to calculate bounds for the axis being moved
     auto get_axis_bounds = [&](double move_coord, double stay_coord, const model::Map::Roads& parallel_roads,
                                const model::Map::Roads& perpendicular_roads, bool moving_horizontally) {
-        double min_b = -eps, max_b = eps;
+        double min_b = -geom::eps, max_b = geom::eps;
         bool first = true;
 
         auto update = [&](double low, double high) {
@@ -260,10 +258,10 @@ void Application::UpdateDog(Player& player, double dt) {
     double actual_dy = new_pos.y - pos.y;
     // If the actual move is smaller than expected (blockage), reset velocity
     // We use a small epsilon for float comparison errors
-    if (std::abs(actual_dx - expected_dx) > eps) {
+    if (std::abs(actual_dx - expected_dx) > geom::eps) {
         speed.ux = 0.0;
     }
-    if (std::abs(actual_dy - expected_dy) > eps) {
+    if (std::abs(actual_dy - expected_dy) > geom::eps) {
         speed.uy = 0.0;
     }
     dog.SetPosition(new_pos);
@@ -349,38 +347,7 @@ void Application::ProcessCollisions(
         map_loots.erase(map_loots.begin() + idx);
     }
 }
-/*
-void Application::MakeTick(std::uint64_t timeDelta) {
-    const double dt = timeDelta / 1000.0;
-    std::vector<Token> players_to_retire;
 
-    // 1. Move dogs & collect movements per map
-    std::unordered_map<std::string, DogMoves> map_moves;
-        for (auto& [_, player] : player_tokens_) {
-            auto& dog = player.GetDog();
-            auto old_pos = dog.GetPosition();
-
-            UpdateDog(player, dt);
-
-            map_moves[*player.GetSession()->GetMap()->GetId()].emplace_back(&dog, old_pos);
-        }
-
-    for (const auto& token : players_to_retire) {
-        RetirePlayer(token);
-    }
-
-    // 2. Process collisions per map
-    for (auto& [map_id, dogs_moves] : map_moves) {
-        ProcessCollisions(map_id, dogs_moves, loots_[map_id]);
-    }
-
-    // 3. Generate new loot
-    GenerateLoot(std::chrono::milliseconds{timeDelta});
-    if (listener_ != nullptr) {
-        listener_->OnTick(std::chrono::milliseconds{timeDelta});
-    }
-}
-*/
 void Application::MakeTick(std::uint64_t timeDelta) {
     const double dt = timeDelta / 1000.0;
 
@@ -451,7 +418,6 @@ void Application::GenerateLoot(std::chrono::milliseconds timeDelta) {
 }
 
 std::vector<LootInMap> Application::GetLootInMap(const std::string& name) const {
-    // Attempt to find the loot list for the given map name
     if (auto it = loots_.find(name); it != loots_.end()) {
         return it->second;
     }

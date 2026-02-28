@@ -445,8 +445,6 @@ json::array HandleAPI::SerializeLoots(const std::string& loot) {
 json::array HandleAPI::SerializePlayerBag(const model::Dog* dog) const {
     json::array bag_array;
 
-    // Assuming your Dog class has a method to access its inventory.
-    // Replace 'GetBag()' with the actual method name in your model.
     for (const auto& item : dog->GetBag()) {
         json::object item_obj;
         item_obj["id"] = item.id;

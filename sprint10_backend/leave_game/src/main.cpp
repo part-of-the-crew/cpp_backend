@@ -38,7 +38,6 @@ std::string GetConfigFromEnv(const char* key) {
     if (const char* value = std::getenv(key)) {
         return std::string(value);
     }
-
     throw std::runtime_error(std::string(key) + " environment variable not found");
 }
 
@@ -64,19 +63,14 @@ int main(int argc, const char* argv[]) {
 
         const unsigned num_threads = std::thread::hardware_concurrency();
 
-        auto connection_pool = std::make_shared<connection_pool::ConnectionPool>(num_threads,
-            []() { return std::make_shared<pqxx::connection>(GetConfigFromEnv(DB_URL_ENV_NAME)); });
-        // 2. Setup DB Tables
+        auto connection_pool = std::make_shared<connection_pool::ConnectionPool>(
+            2, []() { return std::make_shared<pqxx::connection>(GetConfigFromEnv(DB_URL_ENV_NAME)); });
+
         {
             auto conn = connection_pool->GetConnection();
             postgres::SetupDatabase(*conn);
         }
-        /*
-                // 3. Create Unit of Work Factory
-                domain::UnitOfWorkFactory uow_factory = [connection_pool]() {
-                    return std::make_unique<postgres::UnitOfWorkImpl>(connection_pool->GetConnection());
-                };
-        */
+
         domain::UnitOfWorkFactory uow_factory =
             [pool = connection_pool]() -> std::unique_ptr<domain::UnitOfWork> {
             return std::make_unique<postgres::UnitOfWorkImpl>(pool->GetConnection());

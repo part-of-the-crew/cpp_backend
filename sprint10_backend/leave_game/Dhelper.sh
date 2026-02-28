@@ -27,6 +27,14 @@ runallf() {
     docker run --rm --name "$CONTAINER" -p 8080:8080 "$IMAGE" | python3 ./web_exporter.py 
 }
 
+final() {
+    docker container stop postgres && docker container rm postgres
+    docker run --name postgres -e POSTGRES_HOST_AUTH_METHOD=trust -d --rm postgres  2>/dev/null || true
+    sleep 5
+    docker stop "$CONTAINER" 2>/dev/null || true
+    docker run --rm -e 'GAME_DB_URL=postgres://postgres:Mys3Cr3t@172.17.0.2:5432'  --name server -p 8080:8080 server_logging:v1
+}
+
 runf() {
     # -d runs them in the background. --remove-orphans cleans up old containers.
     docker stop "$CONTAINER" 2>/dev/null || true
@@ -44,6 +52,9 @@ case "${1:-}"  in
     rall)
         runallf
         ;;
+    final)
+        final
+        ;; 
     r)
         rf
         ;;

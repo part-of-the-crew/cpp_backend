@@ -32,5 +32,6 @@ struct Speed {
 // Направление
 enum class Direction { NORTH, SOUTH, WEST, EAST };
 
+constexpr double eps = 1e9;
 // -----------------------
 }  // namespace geom

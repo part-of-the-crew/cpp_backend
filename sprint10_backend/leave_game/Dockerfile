@@ -54,4 +54,5 @@ COPY ./static /app/static
 
 # Запускаем игровой сервер
 ENTRYPOINT ["/app/game_server"]
-CMD ["-c", "/app/data/config.json", "-s", "/app/data/Recovery.txt", "-p", "5000", "2>&1"]
+# CMD ["-c", "/app/data/config.json", "-s", "/app/data/Recovery.txt", "-p", "5000", "2>&1"]
+CMD ["-c", "/app/data/config.json"]
