@@ -117,28 +117,7 @@ bool Application::SetPlayerAction(const Token& token, std::optional<geom::Direct
     }
     return true;
 }
-/*
-void Application::RetirePlayer(const Token& token) {
-    Player* player = player_tokens_.FindPlayer(token);
-    if (!player)
-        return;
 
-    auto& dog = player->GetDog();
-
-    // 1. Save to database using UnitOfWork
-    auto uow = uow_factory_();
-    uow->RetiredPlayers().Save({dog.GetName(), dog.GetScore(), dog.GetPlayTime()});
-    uow->Commit();
-
-    // 2. Remove dog from the GameSession
-    auto session = const_cast<model::GameSession*>(player->GetSession());
-    auto& dogs = session->GetDogs();
-    std::erase_if(dogs, [id = dog.GetId()](const model::Dog& d) { return d.GetId() == id; });
-
-    // 3. Remove player from application token map
-    player_tokens_.RemovePlayer(token);
-}
-*/
 void Application::RetirePlayer(const Token& token) {
     Player* player = player_tokens_.FindPlayer(token);
     if (!player)
@@ -256,8 +235,7 @@ void Application::UpdateDog(Player& player, double dt) {
     double actual_dx = new_pos.x - pos.x;
     double expected_dy = speed.uy * dt;
     double actual_dy = new_pos.y - pos.y;
-    // If the actual move is smaller than expected (blockage), reset velocity
-    // We use a small epsilon for float comparison errors
+
     if (std::abs(actual_dx - expected_dx) > geom::eps) {
         speed.ux = 0.0;
     }

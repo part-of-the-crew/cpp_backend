@@ -6,7 +6,6 @@
 namespace collision_detector {
 
 CollectionResult TryCollectPoint(geom::Position a, geom::Position b, geom::Position c) {
-    assert(b.x != a.x || b.y != a.y);
     const double u_x = c.x - a.x;
     const double u_y = c.y - a.y;
     const double v_x = b.x - a.x;

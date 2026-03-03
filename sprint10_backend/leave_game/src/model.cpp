@@ -106,9 +106,7 @@ Dog* GameSession::AddDogByName(std::string_view name) {
     if (roads.empty()) {
         throw std::runtime_error("Map has no roads to spawn a dog");
     }
-    /*
 
-    */
     geom::Position start_pos;
     if (map_->GetRandomSpawn()) {
         start_pos = map_->GetRandomPositionOnRoad(gen_);

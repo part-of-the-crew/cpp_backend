@@ -126,10 +126,6 @@ bool View::EditAuthor(std::istream& cmd_input) const {
         std::string author_id;
 
         if (cmd_input.eof()) {
-            // output_ << "Select author:" << std::endl;
-            // auto authors = use_cases_.ShowAuthors();
-            // PrintVector(output_, authors);
-
             auto selected_id = SelectAuthorForAuthors();
             if (!selected_id) {
                 output_ << "Failed to edit author" << std::endl;
@@ -223,9 +219,6 @@ bool View::AddBook(std::istream& cmd_input) const {
             std::getline(input_, idx_str);
             boost::algorithm::trim(idx_str);
 
-            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ:
-            // "Тихая" отмена. Если вывести "Failed to add book", тест на Python
-            // ошибочно отправит теги в главное меню.
             if (idx_str.empty()) {
                 return true;
             }
@@ -324,12 +317,6 @@ bool View::ShowAuthors() const {
     PrintVector(output_, GetAuthors());
     return true;
 }
-/*
-bool View::ShowBooks() const {
-    PrintVector(output_, GetBooks());
-    return true;
-}
-*/
 
 bool View::ShowBooks() const {
     auto app_books = use_cases_.ShowBooks();
@@ -344,7 +331,6 @@ bool View::ShowBooks() const {
 }
 
 bool View::ShowAuthorBooks() const {
-    // TODO: handle error
     try {
         if (auto author_id = SelectAuthor()) {
             PrintVector(output_, GetAuthorBooks(*author_id));
@@ -372,13 +358,12 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
 }
 
 std::optional<std::string> View::SelectAuthor() const {
-    // output_ << "Enter author name:"sv << std::endl;
     std::string input;
     if (!std::getline(input_, input) || input.empty()) {
         return std::nullopt;
     }
 
-    auto authors = use_cases_.ShowAuthors();  // Sorted by name via SQL
+    auto authors = use_cases_.ShowAuthors();
 
     // 1. Try to treat input as an index (1-based)
     try {
@@ -472,7 +457,6 @@ std::optional<app::BookAuthorInfo> View::SelectBook(const std::string& title) co
     }
 
     if (matches.empty()) {
-        //  output_ << "Book not found" << std::endl;
         return std::nullopt;
     }
 
@@ -497,7 +481,6 @@ std::optional<app::BookAuthorInfo> View::SelectBook(const std::string& title) co
     } catch (...) {
     }
 
-    // If we reach here, input was invalid
     throw std::runtime_error("Invalid book num");
 }
 
@@ -521,18 +504,83 @@ bool View::DeleteBook(std::istream& cmd_input) const {
 
 bool View::EditBook(std::istream& cmd_input) const {
     try {
+        // 1. Parse the initial command input
         std::string title;
         std::getline(cmd_input >> std::ws, title);
         boost::algorithm::trim(title);
 
+        // 2. Select the book (handles multiple matches and empty input)
         auto book_opt = SelectBook(title);
         if (!book_opt) {
-            // Добавляем вывод сюда, так как этого требует EditBook
             output_ << "Book not found" << std::endl;
             return true;
         }
 
-    } catch (const std::exception&) {
+        auto book_info = use_cases_.GetBookInfo(book_opt->id);
+
+        // 3. Get New Title
+        output_ << "Enter new title or empty line to use the current one (" << book_info.title
+                << "):" << std::endl;
+        ;
+        std::string new_title;
+        std::getline(input_, new_title);
+        boost::algorithm::trim(new_title);
+        if (new_title.empty()) {
+            new_title = book_info.title;
+        }
+
+        // 4. Get New Year
+        output_ << "Enter publication year or empty line to use the current one ("
+                << book_info.publication_year << "):" << std::endl;
+        std::string year_str;
+        std::getline(input_, year_str);
+        boost::algorithm::trim(year_str);
+
+        int new_year = book_info.publication_year;
+        if (!year_str.empty()) {
+            try {
+                new_year = std::stoi(year_str);
+            } catch (...) {
+            }
+        }
+
+        // 5. Get New Tags
+        std::vector<std::string> current_tags = book_info.tags;
+        std::sort(current_tags.begin(), current_tags.end());
+        std::string current_tags_str = boost::algorithm::join(current_tags, ", ");
+
+        output_ << "Enter tags (current tags: " << current_tags_str << "):" << std::endl;
+        ;
+        std::string tags_raw;
+        std::getline(input_, tags_raw);
+        boost::algorithm::trim(tags_raw);
+
+        std::vector<std::string> final_tags;
+
+        if (tags_raw.empty()) {
+            // If empty line, KEEP the current tags
+            final_tags = {};
+        } else {
+            std::vector<std::string> tags;
+            boost::split(tags, tags_raw, boost::is_any_of(","));
+
+            std::set<std::string> unique_normalized_tags;
+            for (std::string& tag : tags) {
+                boost::algorithm::trim(tag);
+                static const std::regex re_spaces(R"(\s+)");
+                tag = std::regex_replace(tag, re_spaces, " ");
+
+                if (!tag.empty()) {
+                    unique_normalized_tags.insert(tag);
+                }
+            }
+            final_tags.assign(unique_normalized_tags.begin(), unique_normalized_tags.end());
+        }
+
+        // 6. Save the edits
+        use_cases_.EditBook(book_info.id, new_title, new_year, final_tags);
+
+    } catch (...) {
         output_ << "Book not found" << std::endl;
     }
     return true;

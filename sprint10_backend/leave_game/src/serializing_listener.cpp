@@ -140,7 +140,10 @@ bool SerializingListener::TryLoadStateFromFile() {
 
         try {
             fs::rename(pathToStateFile_, backup_name);
-        } catch (...) {
+        } catch (const fs::filesystem_error& e) {
+            std::cerr << "Failed to rename state file from " << pathToStateFile_ << " to " << backup_name
+                      << "\nReason: " << e.what() << std::endl;
+            throw;
         }
 
         return false;
